@@ -1,65 +1,135 @@
-import Image from "next/image";
+import { Suspense } from 'react'
+import { Navbar } from './components/Navbar'
+import { LeagueTabsClient } from './components/LeagueTabsClient'
+import { MatchCard } from './components/MatchCard'
+import { MatchesSkeleton } from './components/MatchesSkeleton'
+import { supabase, type Match, type League } from '@/lib/supabase'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+interface HomeProps {
+  searchParams: Promise<{ league?: string }>
+}
+
+// Get current timestamp once at module level
+const CURRENT_TIMESTAMP = Date.now()
+
+async function getData(leagueSlug?: string) {
+  // Fetch leagues
+  const { data: leagues } = await supabase
+    .from('leagues')
+    .select('*')
+    .eq('is_active', true)
+    .eq('sport', 'football')
+    .order('sort_order')
+
+  // Fetch matches (upcoming, live, and ended within last 24h)
+  const twentyFourHoursAgo = new Date(CURRENT_TIMESTAMP - 24 * 60 * 60 * 1000).toISOString()
+  let matchesQuery = supabase
+    .from('matches')
+    .select('*')
+    .or(`status.in.(live,upcoming),and(status.eq.ended,ended_at.gt.${twentyFourHoursAgo})`)
+
+  // Filter by league if selected
+  if (leagueSlug) {
+    matchesQuery = matchesQuery.eq('league', leagueSlug)
+  }
+
+  const { data: matches } = await matchesQuery.order('match_date', { ascending: true })
+
+  // Fetch teams for logo lookup
+  const { data: teams } = await supabase
+    .from('teams')
+    .select('slug, name, logo_url')
+
+  const teamsMap = new Map((teams ?? []).map(t => [t.slug, { name: t.name, logo_url: t.logo_url }]))
+
+  return {
+    leagues: (leagues ?? []) as League[],
+    matches: (matches ?? []) as Match[],
+    teamsMap,
+  }
+}
+
+async function MatchesGrid({ league }: { league?: string }) {
+  const { matches, teamsMap } = await getData(league)
+
+  if (matches.length === 0) {
+    return (
+      <div className="col-span-full rounded-xl border border-dashed border-zinc-300 bg-zinc-50/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/50">
+        <p className="text-zinc-500 dark:text-zinc-400">
+          No matches found. Check back soon!
+        </p>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      {matches.map((match) => (
+        <MatchCard
+          key={match.id}
+          match={match}
+          team1Data={teamsMap.get(match.team1) ?? null}
+          team2Data={teamsMap.get(match.team2) ?? null}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      ))}
+    </>
+  )
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const { league } = await searchParams
+
+  // First, get matches to determine which leagues have them
+  const twentyFourHoursAgo = new Date(CURRENT_TIMESTAMP - 24 * 60 * 60 * 1000).toISOString()
+  const { data: matchesWithLeagues } = await supabase
+    .from('matches')
+    .select('league')
+    .or(`status.in.(live,upcoming),and(status.eq.ended,ended_at.gt.${twentyFourHoursAgo})`)
+
+  // Get unique league slugs that have matches
+  const leagueSlugsWithMatches = new Set(
+    (matchesWithLeagues ?? []).map(m => m.league).filter(Boolean)
+  )
+
+  // Fetch only leagues that have matches
+  const { data: leagues } = await supabase
+    .from('leagues')
+    .select('*')
+    .eq('is_active', true)
+    .eq('sport', 'football')
+    .in('slug', Array.from(leagueSlugsWithMatches))
+    .order('sort_order')
+
+  return (
+    <div className="flex min-h-screen flex-col bg-zinc-50 transition-colors dark:bg-zinc-950">
+      <Navbar />
+      
+      <main className="flex-1">
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-zinc-900 transition-colors dark:text-white sm:text-3xl">
+              Upcoming & Live Football Matches
+            </h1>
+            <p className="mt-2 text-sm text-zinc-600 transition-colors dark:text-zinc-400">
+              Stay updated with all the latest football action
+            </p>
+          </div>
+
+          {/* League Tabs - No Suspense, renders immediately on client */}
+          <LeagueTabsClient leagues={(leagues ?? []) as League[]} />
+
+          {/* Matches Grid - Only this shows skeleton when loading */}
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Suspense key={league || 'all'} fallback={<MatchesSkeleton />}>
+              <MatchesGrid league={league} />
+            </Suspense>
+          </div>
         </div>
       </main>
     </div>
-  );
+  )
 }
+
