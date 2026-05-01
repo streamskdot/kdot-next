@@ -165,6 +165,9 @@ const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  console.error('NEXT_PUBLIC_SUPABASE_URL set:', !!SUPABASE_URL);
+  console.error('SUPABASE_SERVICE_ROLE_KEY set:', !!SERVICE_KEY);
+  console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('SUPABASE') || k.includes('NEXT')).join(', '));
   process.exit(1);
 }
 

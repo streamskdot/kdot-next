@@ -13,6 +13,8 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Uncomment if secrets are in a GitHub Environment (e.g., 'production')
+    environment: production
 
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
