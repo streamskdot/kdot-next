@@ -397,12 +397,15 @@ async function enrichWithStreamLinks(matches, context) {
         page = await context.newPage();
         try {
           await page.goto(detailsUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
-          await page.waitForSelector('.live-container', { timeout: 10000 });
+          // The container is `<div id="live-container">` (id, not class) and is
+          // populated asynchronously by client-side JS. Wait for an <a> child
+          // to appear, which means the stream JSON has been fetched & rendered.
+          await page.waitForSelector('#live-container a, .live-container a', { timeout: 10000 });
         } catch {
           match.stream_links = null;
           return;
         }
-        const hrefs = await page.$$eval('.live-container a', (els) =>
+        const hrefs = await page.$$eval('#live-container a, .live-container a', (els) =>
           els.map((a) => a.getAttribute('href')).filter(Boolean),
         );
         const links = [];
