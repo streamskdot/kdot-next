@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import type { Match } from '@/lib/supabase'
+import { MatchTimer } from './MatchTimer'
 
 interface TeamInfo {
   name: string
@@ -63,47 +63,15 @@ function getLocalTimeInfo(displayTime: string | null, matchDate: string | null) 
     dateBadge = 'YESTERDAY'
   }
 
-  return { time: localTime, dateBadge, startMs: matchDateTime.getTime() }
-}
-
-function formatCountdown(ms: number): string {
-  if (ms <= 0) return ''
-  const totalSec = Math.floor(ms / 1000)
-  const days = Math.floor(totalSec / 86400)
-  const hours = Math.floor((totalSec % 86400) / 3600)
-  const minutes = Math.floor((totalSec % 3600) / 60)
-  const seconds = totalSec % 60
-  if (days > 0) return `${days}d ${hours}h`
-  if (hours > 0) return `${hours}h ${minutes}m`
-  if (minutes > 0) return `${minutes}m ${String(seconds).padStart(2, '0')}s`
-  return `${seconds}s`
-}
-
-function Countdown({ startMs }: { startMs: number }) {
-  const [remaining, setRemaining] = useState<number>(() => startMs - Date.now())
-
-  useEffect(() => {
-    const tick = () => setRemaining(startMs - Date.now())
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [startMs])
-
-  if (remaining <= 0) return null
-
-  return (
-    <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-      <span className="h-1 w-1 animate-pulse rounded-full bg-current" />
-      Starts in {formatCountdown(remaining)}
-    </span>
-  )
+  return { time: localTime, dateBadge }
 }
 
 export function MatchCard({ match, team1Data, team2Data }: MatchCardProps) {
   const isLive = match.status === 'live'
-  const { time: localTime, dateBadge, startMs } = getLocalTimeInfo(match.display_time, match.match_date)
-  const isUpcoming = match.status === 'upcoming'
-  const showCountdown = isUpcoming && Number.isFinite(startMs)
+  const { time: localTime, dateBadge } = getLocalTimeInfo(match.display_time, match.match_date)
+  const durationHours = Number(
+    (match.raw_data as { duration?: number } | null)?.duration ?? 2,
+  )
 
   const statusColors = {
     live: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
@@ -183,7 +151,14 @@ export function MatchCard({ match, team1Data, team2Data }: MatchCardProps) {
                 {localTime}
               </span>
             )}
-            {showCountdown && <Countdown startMs={startMs!} />}
+            <MatchTimer
+              status={match.status}
+              matchDate={match.match_date}
+              displayTime={match.display_time}
+              durationHours={durationHours}
+              size="sm"
+              className="mt-0.5"
+            />
           </div>
 
           {/* Team 2 */}

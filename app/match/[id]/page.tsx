@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Navbar } from '@/app/components/Navbar'
+import { MatchTimer } from '@/app/components/MatchTimer'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, ExternalLink, Radio, Trophy, Users, HelpCircle, Video, MonitorPlay, ChevronDown } from 'lucide-react'
 
@@ -233,7 +234,7 @@ function FAQSection({ team1Name, team2Name, leagueName, matchDate }: { team1Name
   )
 }
 
-function StreamLinksSection({ streamLinks, status }: { streamLinks: string[] | null; status: string }) {
+function StreamLinksSection({ streamLinks, status, matchId }: { streamLinks: string[] | null; status: string; matchId: string }) {
   const hasLinks = streamLinks && streamLinks.length > 0
   const isUpcoming = status === 'upcoming'
 
@@ -271,11 +272,9 @@ function StreamLinksSection({ streamLinks, status }: { streamLinks: string[] | n
       {hasLinks ? (
         <div className="space-y-3">
           {streamLinks.map((link, index) => (
-            <a
+            <Link
               key={index}
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/watch?url=${encodeURIComponent(link)}&match=${matchId}&n=${index}`}
               className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-4 transition-all hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-750"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
@@ -286,7 +285,7 @@ function StreamLinksSection({ streamLinks, status }: { streamLinks: string[] | n
                 {/* <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{link}</p> */}
               </div>
               <ExternalLink className="h-5 w-5 text-zinc-400" />
-            </a>
+            </Link>
           ))}
         </div>
       ) : (
@@ -335,6 +334,15 @@ async function MatchDetailContent({ id }: { id: string }) {
                 {formattedTime}
               </span>
             )}
+            <MatchTimer
+              status={match.status}
+              matchDate={match.match_date}
+              displayTime={match.display_time}
+              durationHours={Number(
+                (match.raw_data as { duration?: number } | null)?.duration ?? 2,
+              )}
+              size="md"
+            />
           </div>
           
           <TeamDisplay 
@@ -373,7 +381,7 @@ async function MatchDetailContent({ id }: { id: string }) {
       </div>
       
       {/* Stream Links Section */}
-      <StreamLinksSection streamLinks={match.stream_links} status={match.status} />
+      <StreamLinksSection streamLinks={match.stream_links} status={match.status} matchId={match.id} />
       
       {/* Lineup Info Section */}
       <LineupInfoSection />
