@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
+  repository_dispatch:
+    types: [trigger-scrape]
 
 concurrency:
   group: scrape-matches
@@ -13,7 +15,6 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Uncomment if secrets are in a GitHub Environment (e.g., 'production')
     environment: production
 
     env:
