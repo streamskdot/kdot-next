@@ -54,7 +54,16 @@ async function getData(leagueSlug?: string) {
 async function MatchesGrid({ league }: { league?: string }) {
   const { matches, teamsMap } = await getData(league)
 
-  if (matches.length === 0) {
+  // Sort: live first, upcoming second, ended last
+  const statusOrder = { live: 0, upcoming: 1, ended: 2 } as const
+  const sortedMatches = [...matches].sort((a, b) => {
+    const statusDiff = statusOrder[a.status] - statusOrder[b.status]
+    if (statusDiff !== 0) return statusDiff
+    // Within same status, sort by date
+    return new Date(a.match_date || 0).getTime() - new Date(b.match_date || 0).getTime()
+  })
+
+  if (sortedMatches.length === 0) {
     return (
       <div className="col-span-full rounded-xl border border-dashed border-zinc-300 bg-zinc-50/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/50">
         <p className="text-zinc-500 dark:text-zinc-400">
@@ -66,7 +75,7 @@ async function MatchesGrid({ league }: { league?: string }) {
 
   return (
     <>
-      {matches.map((match) => (
+      {sortedMatches.map((match) => (
         <MatchCard
           key={match.id}
           match={match}

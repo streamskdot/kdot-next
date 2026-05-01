@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Navbar } from '@/app/components/Navbar'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, ExternalLink, Radio, Clock, Trophy, Users, Calendar, HelpCircle, Video, MonitorPlay, ChevronDown } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Radio, Trophy, Users, HelpCircle, Video, MonitorPlay, ChevronDown } from 'lucide-react'
 
 interface MatchDetailPageProps {
   params: Promise<{ id: string }>
@@ -88,42 +88,6 @@ function generateMatchInfo(match: { status: string; match_date: string | null; d
   }
   
   return `This exciting matchup between ${team1Name} and ${team2Name}${statusText}${team1Name} and ${team2Name} are set to deliver an unforgettable football experience. Whether you're a die-hard fan or a casual viewer, this match promises top-tier action and memorable moments on the pitch.`
-}
-
-function StatusTicker({ status }: { status: 'live' | 'ended' | 'upcoming' }) {
-  const statusConfig = {
-    live: {
-      bg: 'bg-red-500',
-      text: 'text-white',
-      label: 'LIVE',
-      icon: Radio,
-      animate: true,
-    },
-    upcoming: {
-      bg: 'bg-amber-500',
-      text: 'text-white',
-      label: 'UPCOMING',
-      icon: Clock,
-      animate: false,
-    },
-    ended: {
-      bg: 'bg-zinc-500',
-      text: 'text-white',
-      label: 'ENDED',
-      icon: Trophy,
-      animate: false,
-    },
-  }
-  
-  const config = statusConfig[status]
-  const Icon = config.icon
-  
-  return (
-    <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${config.bg} ${config.text} shadow-lg`}>
-      <Icon className={`h-4 w-4 ${config.animate ? 'animate-pulse' : ''}`} />
-      <span className="text-sm font-bold tracking-wide">{config.label}</span>
-    </div>
-  )
 }
 
 function TeamDisplay({ 
@@ -269,9 +233,10 @@ function FAQSection({ team1Name, team2Name, leagueName, matchDate }: { team1Name
   )
 }
 
-function StreamLinksSection({ streamLinks }: { streamLinks: string[] | null }) {
+function StreamLinksSection({ streamLinks, status }: { streamLinks: string[] | null; status: string }) {
   const hasLinks = streamLinks && streamLinks.length > 0
-  
+  const isUpcoming = status === 'upcoming'
+
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       <div className="mb-6 flex items-center gap-3">
@@ -282,7 +247,7 @@ function StreamLinksSection({ streamLinks }: { streamLinks: string[] | null }) {
           Watch Live
         </h2>
       </div>
-      
+
       {/* Telegram Channel Link */}
       <a
         href="https://t.me/kdottv"
@@ -301,7 +266,7 @@ function StreamLinksSection({ streamLinks }: { streamLinks: string[] | null }) {
         </div>
         <ExternalLink className="h-5 w-5" />
       </a>
-      
+
       {/* Stream Links */}
       {hasLinks ? (
         <div className="space-y-3">
@@ -327,9 +292,11 @@ function StreamLinksSection({ streamLinks }: { streamLinks: string[] | null }) {
       ) : (
         <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 text-center dark:border-zinc-700 dark:bg-zinc-800">
           <Trophy className="mx-auto h-12 w-12 text-zinc-400 mb-3" />
-          <p className="text-lg font-medium text-zinc-900 dark:text-white">Match Has Ended</p>
+          <p className="text-lg font-medium text-zinc-900 dark:text-white">
+            {isUpcoming ? 'Links will be available when match is about to start' : 'Match Has Ended'}
+          </p>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            No stream links available for this match
+            {isUpcoming ? 'Links will be available soon..' : 'No stream links available for this match'}
           </p>
         </div>
       )}
@@ -353,11 +320,6 @@ async function MatchDetailContent({ id }: { id: string }) {
     <div className="space-y-6">
       {/* Match Card Header */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        {/* Status Ticker */}
-        <div className="mb-6 flex justify-center">
-          <StatusTicker status={match.status} />
-        </div>
-        
         {/* Teams VS */}
         <div className="flex items-center justify-between gap-4 sm:gap-8">
           <TeamDisplay 
@@ -408,27 +370,10 @@ async function MatchDetailContent({ id }: { id: string }) {
           </p>
         </div>
         
-        {/* Additional Match Info */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex items-center gap-3 rounded-xl bg-white dark:bg-zinc-800 p-4 border border-zinc-100 dark:border-zinc-700">
-            <Calendar className="h-5 w-5 text-zinc-400" />
-            <div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Match ID</p>
-              <p className="font-mono text-sm text-zinc-700 dark:text-zinc-300">{match.id}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-xl bg-white dark:bg-zinc-800 p-4 border border-zinc-100 dark:border-zinc-700">
-            <Radio className="h-5 w-5 text-zinc-400" />
-            <div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Status</p>
-              <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 capitalize">{match.status}</p>
-            </div>
-          </div>
-        </div>
       </div>
       
       {/* Stream Links Section */}
-      <StreamLinksSection streamLinks={match.stream_links} />
+      <StreamLinksSection streamLinks={match.stream_links} status={match.status} />
       
       {/* Lineup Info Section */}
       <LineupInfoSection />
