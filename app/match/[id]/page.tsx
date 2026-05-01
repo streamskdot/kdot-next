@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Navbar } from '@/app/components/Navbar'
-import { MatchTimer } from '@/app/components/MatchTimer'
+import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, ExternalLink, Radio, Trophy, Users, HelpCircle, Video, MonitorPlay, ChevronDown } from 'lucide-react'
 
@@ -328,6 +328,15 @@ async function MatchDetailContent({ id }: { id: string }) {
           />
           
           <div className="flex flex-col items-center gap-2">
+            <MatchStatusBadge
+              status={match.status}
+              matchDate={match.match_date}
+              displayTime={match.display_time}
+              durationHours={Number(
+                (match.raw_data as { duration?: number } | null)?.duration ?? 2,
+              )}
+              size="md"
+            />
             <span className="text-2xl font-black text-zinc-300 dark:text-zinc-600">VS</span>
             {formattedTime && (
               <span className="text-xs text-center text-zinc-500 dark:text-zinc-400">

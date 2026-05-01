@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, Radio } from 'lucide-react'
 import { Navbar } from '@/app/components/Navbar'
 import { StreamPlayer } from '@/app/components/StreamPlayer'
-import { MatchTimer } from '@/app/components/MatchTimer'
+import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { supabase } from '@/lib/supabase'
 
 interface WatchPageProps {
@@ -70,6 +70,15 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
                 {matchData.team1Name} vs {matchData.team2Name}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-3">
+                <MatchStatusBadge
+                  status={matchData.status}
+                  matchDate={matchData.match_date}
+                  displayTime={matchData.display_time}
+                  durationHours={Number(
+                    (matchData.raw_data as { duration?: number } | null)?.duration ?? 2,
+                  )}
+                  size="md"
+                />
                 {streamIndex != null && Number.isFinite(streamIndex) && (
                   <p className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                     <Radio className="h-4 w-4 text-green-500" />

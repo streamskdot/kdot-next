@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Match } from '@/lib/supabase'
-import { MatchTimer } from './MatchTimer'
+import { MatchTimer, MatchStatusBadge } from './MatchTimer'
 
 interface TeamInfo {
   name: string
@@ -67,23 +67,10 @@ function getLocalTimeInfo(displayTime: string | null, matchDate: string | null) 
 }
 
 export function MatchCard({ match, team1Data, team2Data }: MatchCardProps) {
-  const isLive = match.status === 'live'
   const { time: localTime, dateBadge } = getLocalTimeInfo(match.display_time, match.match_date)
   const durationHours = Number(
     (match.raw_data as { duration?: number } | null)?.duration ?? 2,
   )
-
-  const statusColors = {
-    live: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    upcoming: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    ended: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
-  }
-
-  const statusLabels = {
-    live: 'LIVE',
-    upcoming: 'UPCOMING',
-    ended: 'ENDED',
-  }
 
   const dateBadgeColors = {
     TODAY: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -93,12 +80,14 @@ export function MatchCard({ match, team1Data, team2Data }: MatchCardProps) {
   return (
     <Link href={`/match/${match.id}`} className="block">
       <div className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer">
-        {/* Status Badge */}
+        {/* Status Badge (client-derived from kickoff time + duration) */}
         <div className="absolute right-3 top-3">
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusColors[match.status]}`}>
-            {isLive && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />}
-            {statusLabels[match.status]}
-          </span>
+          <MatchStatusBadge
+            status={match.status}
+            matchDate={match.match_date}
+            displayTime={match.display_time}
+            durationHours={durationHours}
+          />
         </div>
 
         {/* Date Badge (Today/Yesterday) */}
