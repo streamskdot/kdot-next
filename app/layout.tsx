@@ -36,7 +36,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  const theme = localStorage.getItem('theme') || 'system';
+                  const theme = localStorage.getItem('theme') || 'light';
                   const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   const isDark = theme === 'dark' || (theme === 'system' && systemDark);
                   if (isDark) document.documentElement.classList.add('dark');
@@ -47,7 +47,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
           <div className="mx-auto max-w-5xl w-full px-4 pb-6 sm:px-6">
             <DMCAFooter />

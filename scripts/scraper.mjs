@@ -750,7 +750,11 @@ async function persist(matches) {
   for (const r of rows) {
     const prev = existingMap.get(r.id);
     r.ended_at = r.status === 'ended' ? (prev?.ended_at || now) : (prev?.ended_at ?? null);
-    if (!prev) r.first_seen_at = now;
+    // Always set first_seen_at: preserve prior value on update, stamp now on insert.
+    // Required because supabase-js upsert sends a uniform column set across the
+    // batch, so omitting it on any row would clobber existing rows with NULL and
+    // violate the NOT NULL constraint on matches.first_seen_at.
+    r.first_seen_at = prev?.first_seen_at || now;
   }
 
   const CHUNK = 200;
