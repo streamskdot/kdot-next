@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar'
 import { LeagueTabsClient } from './components/LeagueTabsClient'
 import { MatchCard } from './components/MatchCard'
 import { MatchesSkeleton } from './components/MatchesSkeleton'
+import { LeagueLogo } from './components/LeagueLogo'
 import { supabase, type Match, type League } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -51,39 +52,125 @@ async function getData(leagueSlug?: string) {
   }
 }
 
-async function MatchesGrid({ league }: { league?: string }) {
-  const { matches, teamsMap } = await getData(league)
+const STATUS_ORDER = { live: 0, upcoming: 1, ended: 2 } as const
 
-  // Sort: live first, upcoming second, ended last
-  const statusOrder = { live: 0, upcoming: 1, ended: 2 } as const
-  const sortedMatches = [...matches].sort((a, b) => {
-    const statusDiff = statusOrder[a.status] - statusOrder[b.status]
+function sortMatches(matches: Match[]): Match[] {
+  return [...matches].sort((a, b) => {
+    const statusDiff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status]
     if (statusDiff !== 0) return statusDiff
-    // Within same status, sort by date
     return new Date(a.match_date || 0).getTime() - new Date(b.match_date || 0).getTime()
   })
+}
 
-  if (sortedMatches.length === 0) {
+function EmptyState() {
+  return (
+    <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/50">
+      <p className="text-zinc-500 dark:text-zinc-400">
+        No matches found. Check back soon!
+      </p>
+    </div>
+  )
+}
+
+async function MatchesGrid({ league }: { league?: string }) {
+  const { leagues, matches, teamsMap } = await getData(league)
+
+  if (matches.length === 0) {
+    return <EmptyState />
+  }
+
+  // Single-league view: flat grid, existing behavior
+  if (league) {
+    const sortedMatches = sortMatches(matches)
     return (
-      <div className="col-span-full rounded-xl border border-dashed border-zinc-300 bg-zinc-50/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/50">
-        <p className="text-zinc-500 dark:text-zinc-400">
-          No matches found. Check back soon!
-        </p>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {sortedMatches.map((match) => (
+          <MatchCard
+            key={match.id}
+            match={match}
+            team1Data={teamsMap.get(match.team1) ?? null}
+            team2Data={teamsMap.get(match.team2) ?? null}
+          />
+        ))}
       </div>
     )
   }
 
+  // All-leagues view: group by league, ordered by league.sort_order
+  const matchesByLeague = new Map<string, Match[]>()
+  for (const match of matches) {
+    const list = matchesByLeague.get(match.league) ?? []
+    list.push(match)
+    matchesByLeague.set(match.league, list)
+  }
+
+  // Leagues come pre-sorted by sort_order from the query
+  const orderedLeagues = leagues.filter(l => matchesByLeague.has(l.slug))
+
+  // Include any orphan league slugs (matches whose league isn't in the leagues table)
+  // at the end, preserving stable order.
+  const knownSlugs = new Set(orderedLeagues.map(l => l.slug))
+  const orphanSlugs = Array.from(matchesByLeague.keys()).filter(s => !knownSlugs.has(s))
+
   return (
-    <>
-      {sortedMatches.map((match) => (
-        <MatchCard
-          key={match.id}
-          match={match}
-          team1Data={teamsMap.get(match.team1) ?? null}
-          team2Data={teamsMap.get(match.team2) ?? null}
-        />
-      ))}
-    </>
+    <div className="flex flex-col gap-8">
+      {orderedLeagues.map((lg) => {
+        const sectionMatches = sortMatches(matchesByLeague.get(lg.slug) ?? [])
+        return (
+          <section key={lg.slug}>
+            <div className="mb-3 flex items-center gap-2">
+              <LeagueLogo
+                src={lg.logo_url}
+                alt=""
+                className="h-6 w-6"
+              />
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+                {lg.name}
+              </h2>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                {sectionMatches.length}
+              </span>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {sectionMatches.map((match) => (
+                <MatchCard
+                  key={match.id}
+                  match={match}
+                  team1Data={teamsMap.get(match.team1) ?? null}
+                  team2Data={teamsMap.get(match.team2) ?? null}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      })}
+      {orphanSlugs.map((slug) => {
+        const sectionMatches = sortMatches(matchesByLeague.get(slug) ?? [])
+        return (
+          <section key={slug}>
+            <div className="mb-3 flex items-center gap-2">
+              <LeagueLogo src={null} alt="" className="h-6 w-6" />
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+                {slug}
+              </h2>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                {sectionMatches.length}
+              </span>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {sectionMatches.map((match) => (
+                <MatchCard
+                  key={match.id}
+                  match={match}
+                  team1Data={teamsMap.get(match.team1) ?? null}
+                  team2Data={teamsMap.get(match.team2) ?? null}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      })}
+    </div>
   )
 }
 
@@ -131,7 +218,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <LeagueTabsClient leagues={(leagues ?? []) as League[]} />
 
           {/* Matches Grid - Only this shows skeleton when loading */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6">
             <Suspense key={league || 'all'} fallback={<MatchesSkeleton />}>
               <MatchesGrid league={league} />
             </Suspense>

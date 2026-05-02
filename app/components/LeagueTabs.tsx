@@ -1,6 +1,7 @@
 'use client'
 
 import type { League } from '@/lib/supabase'
+import { LeagueLogo } from './LeagueLogo'
 
 interface LeagueTabsProps {
   leagues: League[]
@@ -44,7 +45,14 @@ export function LeagueTabs({ leagues, selectedLeague, pendingLeague, onSelectLea
                 : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
             } ${isPending ? 'opacity-70' : ''}`}
           >
-            {league.name}
+            <span className="inline-flex items-center gap-1.5">
+              <LeagueLogo
+                src={league.logo_url}
+                alt=""
+                className="h-4 w-4"
+              />
+              {league.name}
+            </span>
             {isPending && (
               <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
             )}
