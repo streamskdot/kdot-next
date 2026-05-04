@@ -1,6 +1,6 @@
 'use client'
 
-import { Tv } from 'lucide-react'
+import Image from 'next/image'
 import { ThemeToggle } from './ThemeToggle'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -23,9 +23,13 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-600">
-            <Tv className="h-5 w-5 text-white" />
-          </div>
+          <Image
+            src="/logo.png"
+            alt="kdotTV logo"
+            width={36}
+            height={36}
+            className="h-9 w-9"
+          />
           <span className="text-xl font-bold text-zinc-900 dark:text-white">
             kdot<span className="text-red-600">TV</span>
           </span>

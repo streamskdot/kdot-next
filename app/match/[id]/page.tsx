@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import type { Metadata } from 'next'
 import { Navbar } from '@/app/components/Navbar'
 import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { supabase } from '@/lib/supabase'
@@ -404,6 +405,49 @@ async function MatchDetailContent({ id }: { id: string }) {
       />
     </div>
   )
+}
+
+export async function generateMetadata({ params }: MatchDetailPageProps): Promise<Metadata> {
+  const { id } = await params
+  const data = await getMatchDetails(id)
+  
+  if (!data) {
+    return {
+      title: 'Match Not Found - kdotTV',
+    }
+  }
+  
+  const { match, team1Data, team2Data, leagueData } = data
+  const team1Name = team1Data?.name || match.team1
+  const team2Name = team2Data?.name || match.team2
+  
+  const title = `${team1Name} vs ${team2Name} - Watch Live HD`
+  const description = `Watch ${team1Name} vs ${team2Name} live in HD${leagueData ? ` in ${leagueData.name}` : ''}. Stream the match online for free on kdotTV.`
+  
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: `https://kdotv.com/match/${id}`,
+      images: [
+        {
+          url: `/match/${id}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: `${team1Name} vs ${team2Name}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`/match/${id}/opengraph-image`],
+    },
+  }
 }
 
 export default async function MatchDetailPage({ params }: MatchDetailPageProps) {
