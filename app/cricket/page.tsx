@@ -1,14 +1,14 @@
 import { Suspense } from 'react'
-import { Navbar } from './components/Navbar'
-import { LeagueTabsClient } from './components/LeagueTabsClient'
-import { MatchCard } from './components/MatchCard'
-import { MatchesSkeleton } from './components/MatchesSkeleton'
-import { LeagueLogo } from './components/LeagueLogo'
+import { Navbar } from '../components/Navbar'
+import { LeagueTabsClient } from '../components/LeagueTabsClient'
+import { MatchCard } from '../components/MatchCard'
+import { MatchesSkeleton } from '../components/MatchesSkeleton'
+import { LeagueLogo } from '../components/LeagueLogo'
 import { supabase, type Match, type League } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
-interface HomeProps {
+interface CricketProps {
   searchParams: Promise<{ league?: string }>
 }
 
@@ -16,16 +16,16 @@ interface HomeProps {
 const CURRENT_TIMESTAMP = Date.now()
 
 async function getData(leagueSlug?: string) {
-  // Fetch football leagues
+  // Fetch cricket leagues
   const { data: leagues } = await supabase
     .from('leagues')
     .select('*')
     .eq('is_active', true)
-    .eq('sport', 'football')
+    .eq('sport', 'cricket')
     .order('sort_order')
 
-  // Get football league slugs to filter matches
-  const footballLeagueSlugs = new Set((leagues ?? []).map(l => l.slug))
+  // Get cricket league slugs to filter matches
+  const cricketLeagueSlugs = new Set((leagues ?? []).map(l => l.slug))
 
   // Fetch matches (upcoming, live, and ended within last 24h)
   const twentyFourHoursAgo = new Date(CURRENT_TIMESTAMP - 24 * 60 * 60 * 1000).toISOString()
@@ -33,7 +33,7 @@ async function getData(leagueSlug?: string) {
     .from('matches')
     .select('*')
     .or(`status.in.(live,upcoming),and(status.eq.ended,ended_at.gt.${twentyFourHoursAgo})`)
-    .in('league', Array.from(footballLeagueSlugs))
+    .in('league', Array.from(cricketLeagueSlugs))
 
   // Filter by league if selected
   if (leagueSlug) {
@@ -178,7 +178,7 @@ async function MatchesGrid({ league }: { league?: string }) {
   )
 }
 
-export default async function Home({ searchParams }: HomeProps) {
+export default async function CricketPage({ searchParams }: CricketProps) {
   const { league } = await searchParams
 
   // First, get matches to determine which leagues have them
@@ -198,7 +198,7 @@ export default async function Home({ searchParams }: HomeProps) {
     .from('leagues')
     .select('*')
     .eq('is_active', true)
-    .eq('sport', 'football')
+    .eq('sport', 'cricket')
     .in('slug', Array.from(leagueSlugsWithMatches))
     .order('sort_order')
 
@@ -211,10 +211,10 @@ export default async function Home({ searchParams }: HomeProps) {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-zinc-900 transition-colors dark:text-white sm:text-3xl">
-              Upcoming & Live Football Matches
+              Upcoming & Live Cricket Matches
             </h1>
             <p className="mt-2 text-sm text-zinc-600 transition-colors dark:text-zinc-400">
-              Stay updated with all the latest football action
+              Stay updated with all the latest cricket action
             </p>
           </div>
 
@@ -232,4 +232,3 @@ export default async function Home({ searchParams }: HomeProps) {
     </div>
   )
 }
-

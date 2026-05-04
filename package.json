@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "scrape": "node scripts/scraper.mjs"
+    "scrape": "node scripts/scraper.mjs",
+    "scrape:football": "node scripts/scraper-football.mjs",
+    "scrape:cricket": "node scripts/scraper-cricket.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
