@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 import { Navbar } from '@/app/components/Navbar'
 import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, ExternalLink, Radio, Trophy, Users, HelpCircle, Video, MonitorPlay, ChevronDown } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Radio, Trophy, Users, HelpCircle, MonitorPlay, ChevronDown } from 'lucide-react'
 
 interface MatchDetailPageProps {
   params: Promise<{ id: string }>
@@ -48,18 +48,34 @@ async function getMatchDetails(id: string) {
 
 function formatMatchTime(matchDate: string | null, displayTime: string | null) {
   if (!matchDate || !displayTime) return null
-  
+
   const datePart = matchDate.split('T')[0]
   const utcDateStr = `${datePart}T${displayTime}:00Z`
   const matchDateTime = new Date(utcDateStr)
-  
+
   if (isNaN(matchDateTime.getTime())) return null
-  
+
   return matchDateTime.toLocaleString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  })
+}
+
+function formatMatchTimeOnly(matchDate: string | null, displayTime: string | null) {
+  if (!matchDate || !displayTime) return null
+
+  const datePart = matchDate.split('T')[0]
+  const utcDateStr = `${datePart}T${displayTime}:00Z`
+  const matchDateTime = new Date(utcDateStr)
+
+  if (isNaN(matchDateTime.getTime())) return null
+
+  return matchDateTime.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -135,16 +151,41 @@ function BulletinBanner() {
   return (
     <div className="rounded-xl bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 shadow-lg">
       <div className="rounded-lg bg-white/95 dark:bg-zinc-900/95 p-4 backdrop-blur-sm">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30">
-            <Video className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-          </div>
-          <div>
-            <h3 className="font-bold text-zinc-900 dark:text-white">Watch in HD Quality</h3>
-            <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-1">
-              Watch the live of this match in HD Quality. Scroll down to check out every link for Smooth Live Stream of this match.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Watch in HD */}
+          {/* <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30">
+              <Radio className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <h3 className="font-bold text-zinc-900 dark:text-white">Watch in HD</h3>
+            </div>
+          </div> */}
+
+          {/* Telegram CTA with pulse */}
+          <a
+            href="https://t.me/+OpTUPK3X0NwyNmZh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative overflow-hidden rounded-xl border border-blue-500/50 bg-linear-to-r from-blue-500 to-cyan-500 p-3 shadow-lg shadow-blue-500/30 transition-all hover:scale-[1.02] hover:shadow-blue-500/50"
+          >
+            <span className="absolute inset-0 animate-pulse bg-linear-to-r from-blue-500 to-cyan-500 opacity-30" />
+            <div className="relative flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.11-.04-.16-.05-.05-.12-.03-.17-.02-.07.02-1.14.73-3.2 2.13-.3.21-.57.31-.82.31-.27 0-.53-.14-.77-.27l-.03-.02c-.54-.28-1.15-.6-1.15-1.18 0-.4.22-.62.63-.82l.05-.02c2.38-1.04 3.93-1.72 4.66-2.05.67-.3 1.29-.29 1.68-.17.42.13.76.43.82.84.05.35.12.7.14 1.05z"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-bold text-white">Stay updated on live matches on Telegram</span>
+              </div>
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
+                <svg className="h-3 w-3 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -252,7 +293,7 @@ function StreamLinksSection({ streamLinks, status, matchId }: { streamLinks: str
 
       {/* Telegram Channel Link */}
       <a
-        href="https://t.me/kdottv"
+        href="https://t.me/+OpTUPK3X0NwyNmZh"
         target="_blank"
         rel="noopener noreferrer"
         className="mb-6 flex items-center gap-3 rounded-xl bg-linear-to-r from-blue-500 to-cyan-500 p-4 text-white transition-transform hover:scale-[1.02] hover:shadow-lg"
@@ -314,7 +355,7 @@ async function MatchDetailContent({ id }: { id: string }) {
   const { match, team1Data, team2Data, leagueData } = data
   const team1Name = team1Data?.name || match.team1
   const team2Name = team2Data?.name || match.team2
-  const formattedTime = formatMatchTime(match.match_date, match.display_time)
+  const formattedTime = formatMatchTimeOnly(match.match_date, match.display_time)
   
   return (
     <div className="space-y-6">
@@ -371,6 +412,10 @@ async function MatchDetailContent({ id }: { id: string }) {
         )}
       </div>
       
+
+      {/* Stream Links Section */}
+      <StreamLinksSection streamLinks={match.stream_links} status={match.status} matchId={match.id} />
+      
       {/* Match Info Section */}
       <div className="rounded-2xl border border-zinc-200 bg-linear-to-br from-zinc-50 to-white p-6 shadow-sm dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-800">
         <div className="mb-4 flex items-center gap-3">
@@ -389,9 +434,6 @@ async function MatchDetailContent({ id }: { id: string }) {
         </div>
         
       </div>
-      
-      {/* Stream Links Section */}
-      <StreamLinksSection streamLinks={match.stream_links} status={match.status} matchId={match.id} />
       
       {/* Lineup Info Section */}
       <LineupInfoSection />

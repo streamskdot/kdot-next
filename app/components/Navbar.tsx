@@ -63,7 +63,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {/* Telegram */}
           <a
-            href="https://t.me/kdottv"
+            href="https://t.me/+OpTUPK3X0NwyNmZh"
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 bg-white text-sky-500 transition-colors hover:bg-sky-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-sky-400 dark:hover:bg-zinc-700"

@@ -86,6 +86,7 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
           backgroundColor: '#0f0f0f',
           backgroundImage: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f0f 100%)',
           padding: '60px',
+          fontFamily: 'system-ui, sans-serif',
         }}
       >
         {/* Live Badge */}
@@ -332,46 +333,10 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             fontWeight: '500',
           }}
         >
-          kdottv.com
+          kdotv.com
         </div>
       </div>
     ),
-    {
-      ...size,
-      fonts: [
-        {
-          name: 'Inter',
-          data: await fetch(
-            new URL('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2')
-          ).then(res => res.arrayBuffer()),
-          weight: 400,
-          style: 'normal',
-        },
-        {
-          name: 'Inter',
-          data: await fetch(
-            new URL('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff2')
-          ).then(res => res.arrayBuffer()),
-          weight: 700,
-          style: 'normal',
-        },
-        {
-          name: 'Inter',
-          data: await fetch(
-            new URL('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGpYAZ9hjp-Ek-_EeA.woff2')
-          ).then(res => res.arrayBuffer()),
-          weight: 800,
-          style: 'normal',
-        },
-        {
-          name: 'Inter',
-          data: await fetch(
-            new URL('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuL6YAZ9hjp-Ek-_EeA.woff2')
-          ).then(res => res.arrayBuffer()),
-          weight: 900,
-          style: 'normal',
-        },
-      ],
-    }
+    size
   )
 }

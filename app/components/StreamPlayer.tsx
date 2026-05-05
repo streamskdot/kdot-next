@@ -1,11 +1,60 @@
 'use client'
 
-import { useState } from 'react'
-import { AlertTriangle, Loader2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
 
 interface StreamPlayerProps {
   url: string
   title?: string
+}
+
+/**
+ * Animated TV static / noise canvas.
+ * A small off-screen canvas is drawn each frame and scaled up
+ * via CSS with `image-rendering: pixelated` for a retro CRT look.
+ */
+function TVStatic() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let animId: number
+
+    const draw = () => {
+      const w = canvas.width
+      const h = canvas.height
+      const imageData = ctx.createImageData(w, h)
+      const buf = imageData.data
+
+      for (let i = 0; i < buf.length; i += 4) {
+        const v = Math.random() * 255
+        buf[i] = v     // R
+        buf[i + 1] = v // G
+        buf[i + 2] = v // B
+        buf[i + 3] = 255 // A
+      }
+
+      ctx.putImageData(imageData, 0, 0)
+      animId = requestAnimationFrame(draw)
+    }
+
+    animId = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(animId)
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={320}
+      height={180}
+      className="absolute inset-0 h-full w-full opacity-70"
+      style={{ imageRendering: 'pixelated' }}
+    />
+  )
 }
 
 /**
@@ -76,13 +125,44 @@ export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) 
             />
 
             {loading && !errored && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/85 text-white">
-                <div className="flex flex-col items-center gap-3 text-sm">
-                  <div className="relative">
-                    <Loader2 className="h-8 w-8 animate-spin text-red-500" />
-                    <div className="absolute inset-0 animate-ping rounded-full bg-red-500/30" />
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black">
+                {/* Animated TV static noise */}
+                <TVStatic />
+
+                {/* Scanline overlay */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 z-10 opacity-25"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(0deg, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 1px, transparent 1px, transparent 2px)',
+                  }}
+                />
+
+                {/* Vignette */}
+                <div className="pointer-events-none absolute inset-0 z-20 shadow-[inset_0_0_120px_rgba(0,0,0,0.9)]" />
+
+                {/* Centre status text */}
+                <div className="relative z-30 flex flex-col items-center gap-3">
+                  {/* Pulsing ring */}
+                  <div className="relative flex h-10 w-10 items-center justify-center">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500/20" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
                   </div>
-                  <span className="font-medium tracking-wide text-zinc-200">Tuning in…</span>
+
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-sm font-semibold tracking-wide text-white">
+                      Connecting
+                      <span className="inline-block w-6 text-left">
+                        <span className="animate-pulse">.</span>
+                        <span className="animate-pulse" style={{ animationDelay: '200ms' }}>.</span>
+                        <span className="animate-pulse" style={{ animationDelay: '400ms' }}>.</span>
+                      </span>
+                    </span>
+                    <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+                      Establishing stream
+                    </span>
+                  </div>
                 </div>
               </div>
             )}

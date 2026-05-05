@@ -100,6 +100,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
 
           {/* Player */}
           <StreamPlayer
+            key={url}
             url={url}
             title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
           />
@@ -108,7 +109,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
           {otherLinks.length > 1 && (
             <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
               <h2 className="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">
-                Other Stream Links
+                Change Language / Streams below: 
               </h2>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                 {otherLinks.map((link, index) => {
