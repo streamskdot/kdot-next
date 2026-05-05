@@ -84,11 +84,22 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#0f0f0f',
-          backgroundImage: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f0f 100%)',
+          backgroundImage: 'url(/ground.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           padding: '60px',
           fontFamily: 'system-ui, sans-serif',
+          position: 'relative',
         }}
       >
+        {/* Dark overlay for text readability */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}
+        />
         {/* Live Badge */}
         {isLive && (
           <div
@@ -96,6 +107,7 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
               position: 'absolute',
               top: '40px',
               right: '40px',
+              zIndex: 10,
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
@@ -135,6 +147,8 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             fontWeight: '800',
             color: '#ffffff',
             letterSpacing: '1px',
+            zIndex: 10,
+            position: 'relative',
           }}
         >
           kdot<span style={{ color: '#ef4444' }}>TV</span>
@@ -148,6 +162,8 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             justifyContent: 'center',
             gap: '60px',
             marginBottom: '40px',
+            zIndex: 10,
+            position: 'relative',
           }}
         >
           {/* Team 1 */}
@@ -308,6 +324,8 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             border: '2px solid #ef4444',
             borderRadius: '12px',
             boxShadow: '0 4px 20px rgba(239, 68, 68, 0.3)',
+            zIndex: 10,
+            position: 'relative',
           }}
         >
           <span
@@ -331,6 +349,7 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             fontSize: '18px',
             color: '#888888',
             fontWeight: '500',
+            zIndex: 10,
           }}
         >
           kdotv.com
