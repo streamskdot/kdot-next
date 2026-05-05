@@ -6,6 +6,31 @@ import { StreamPlayer } from '@/app/components/StreamPlayer'
 import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { supabase } from '@/lib/supabase'
 
+function BulletinBanner() {
+  return (
+    <div className="w-full rounded-xl bg-linear-to-r from-blue-500 to-cyan-500 p-4 shadow-lg shadow-blue-500/30">
+      <a
+        href="https://t.me/+OpTUPK3X0NwyNmZh"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-between gap-4"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+            <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.11-.04-.16-.05-.05-.12-.03-.17-.02-.07.02-1.14.73-3.2 2.13-.3.21-.57.31-.82.31-.27 0-.53-.14-.77-.27l-.03-.02c-.54-.28-1.15-.6-1.15-1.18 0-.4.22-.62.63-.82l.05-.02c2.38-1.04 3.93-1.72 4.66-2.05.67-.3 1.29-.29 1.68-.17.42.13.76.43.82.84.05.35.12.7.14 1.05z"/>
+            </svg>
+          </div>
+          <span className="text-base font-semibold text-white">Stay updated on live matches on Telegram</span>
+        </div>
+        <span className="shrink-0 rounded-full bg-white px-4 py-2 text-sm font-bold text-blue-600 transition-colors hover:bg-blue-50">
+          Join Telegram
+        </span>
+      </a>
+    </div>
+  )
+}
+
 interface WatchPageProps {
   searchParams: Promise<{
     url?: string
@@ -62,6 +87,11 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
             <ArrowLeft className="h-4 w-4" />
             Back {matchData ? 'to match' : 'to home'}
           </Link>
+
+          {/* Bulletin Banner */}
+          <div className="mb-4">
+            <BulletinBanner />
+          </div>
 
           {/* Title */}
           {matchData && (
