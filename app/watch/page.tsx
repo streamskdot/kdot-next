@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, Radio } from 'lucide-react'
 import { Navbar } from '@/app/components/Navbar'
 import { StreamPlayer } from '@/app/components/StreamPlayer'
+import { LiveViewerCount } from '@/app/components/LiveViewerCount'
 import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { supabase } from '@/lib/supabase'
 
@@ -91,6 +92,10 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
   const streamIndex = n ? Number(n) : null
   const backHref = matchId ? `/match/${matchId}` : '/'
 
+  // Use match ID as video ID for live viewer tracking, fall back to URL if no match
+  // If using URL, hash it to create a consistent ID
+  const videoId = matchId || (url ? url : '')
+
   // All stream links for this match so users can switch without going back.
   const otherLinks: string[] = (matchData?.stream_links as string[] | null) ?? []
 
@@ -106,7 +111,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
             className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back {matchData ? 'to match' : 'to home'}
+            Back {matchId ? 'to match' : 'to home'}
           </Link>
 
           {/* Bulletin Banner */}
@@ -149,12 +154,15 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
             </div>
           )}
 
-          {/* Player */}
-          <StreamPlayer
-            key={url}
-            url={url}
-            title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
-          />
+          {/* Player with live viewer count overlay */}
+          <div className="relative">
+            <StreamPlayer
+              key={url}
+              url={url}
+              title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
+            />
+            <LiveViewerCount videoId={videoId} />
+          </div>
 
           {/* Alternate links */}
           {otherLinks.length > 1 && (
