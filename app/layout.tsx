@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from './components/ThemeProvider'
 import { DMCAFooter } from './components/DMCAFooter'
+import { TelegramDialog } from './components/TelegramDialog'
 import { Analytics } from '@vercel/analytics/react'
 
 const geistSans = Geist({
@@ -50,6 +51,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
+          <TelegramDialog />
           <div className="mx-auto max-w-5xl w-full px-4 pb-6 sm:px-6">
             <DMCAFooter />
           </div>
