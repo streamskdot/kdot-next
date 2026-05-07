@@ -4,7 +4,7 @@ import { ArrowLeft, Radio } from 'lucide-react'
 import { Navbar } from '@/app/components/Navbar'
 import { StreamPlayer } from '@/app/components/StreamPlayer'
 import { LiveViewerCount } from '@/app/components/LiveViewerCount'
-import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
+import { ShareButton } from '@/app/components/ShareButton'
 import { supabase } from '@/lib/supabase'
 
 function BulletinBanner() {
@@ -125,31 +125,16 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
               <h1 className="text-xl font-bold text-zinc-900 dark:text-white sm:text-2xl">
                 {matchData.team1Name} vs {matchData.team2Name}
               </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-3">
-                <MatchStatusBadge
-                  status={matchData.status}
-                  matchDate={matchData.match_date}
-                  displayTime={matchData.display_time}
-                  durationHours={Number(
-                    (matchData.raw_data as { duration?: number } | null)?.duration ?? 2,
-                  )}
-                  size="md"
-                />
+              <div className="mt-2 flex items-center justify-between gap-4">
                 {streamIndex != null && Number.isFinite(streamIndex) && (
                   <p className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                     <Radio className="h-4 w-4 text-green-500" />
-                    Stream Link {streamIndex + 1} (HD)
+                    {streamIndex === 1 ? 'ENGLISH HD' : `Stream Link ${streamIndex + 1}`}
                   </p>
                 )}
-                <MatchTimer
-                  status={matchData.status}
-                  matchDate={matchData.match_date}
-                  displayTime={matchData.display_time}
-                  durationHours={Number(
-                    (matchData.raw_data as { duration?: number } | null)?.duration ?? 2,
-                  )}
-                  size="md"
-                />
+                <div className="ml-auto">
+                  <ShareButton />
+                </div>
               </div>
             </div>
           )}

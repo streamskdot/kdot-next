@@ -4,6 +4,7 @@ import { LeagueTabsClient } from './components/LeagueTabsClient'
 import { MatchCard } from './components/MatchCard'
 import { MatchesSkeleton } from './components/MatchesSkeleton'
 import { LeagueLogo } from './components/LeagueLogo'
+import { FeatureCards } from './components/FeatureCards'
 import { supabase, type Match, type League } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -209,13 +210,12 @@ export default async function Home({ searchParams }: HomeProps) {
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-zinc-900 transition-colors dark:text-white sm:text-3xl">
-              Upcoming & Live Football Matches
-            </h1>
-            <p className="mt-2 text-sm text-zinc-600 transition-colors dark:text-zinc-400">
-              Stay updated with all the latest football action
-            </p>
+          <div className="mb-4">
+            {/* <h1 className="text-2xl font-bold text-zinc-900 transition-colors dark:text-white sm:text-3xl">
+              Browse Live Matches
+            </h1> */}
+                      {/* Feature Cards */}
+          <FeatureCards />
           </div>
 
           {/* League Tabs - No Suspense, renders immediately on client */}
@@ -227,6 +227,8 @@ export default async function Home({ searchParams }: HomeProps) {
               <MatchesGrid league={league} />
             </Suspense>
           </div>
+
+
         </div>
       </main>
     </div>
