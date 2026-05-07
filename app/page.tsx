@@ -5,6 +5,8 @@ import { MatchCard } from './components/MatchCard'
 import { MatchesSkeleton } from './components/MatchesSkeleton'
 import { LeagueLogo } from './components/LeagueLogo'
 import { FeatureCards } from './components/FeatureCards'
+import { ThemedMatchCard } from './components/ThemedMatchCard'
+import { ThemedLeagueSection } from './components/ThemedLeagueSection'
 import { supabase, type Match, type League } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -87,15 +89,27 @@ async function MatchesGrid({ league }: { league?: string }) {
   // Single-league view: flat grid, existing behavior
   if (league) {
     const sortedMatches = sortMatches(matches)
+    const isThemedLeague = league === 'champions-league' || league === 'europa-league' || league === 'uefa-conference-league-knockout-stage'
+
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {sortedMatches.map((match) => (
-          <MatchCard
-            key={match.id}
-            match={match}
-            team1Data={teamsMap.get(match.team1) ?? null}
-            team2Data={teamsMap.get(match.team2) ?? null}
-          />
+          isThemedLeague ? (
+            <ThemedMatchCard
+              key={match.id}
+              match={match}
+              leagueSlug={league}
+              team1Data={teamsMap.get(match.team1) ?? null}
+              team2Data={teamsMap.get(match.team2) ?? null}
+            />
+          ) : (
+            <MatchCard
+              key={match.id}
+              match={match}
+              team1Data={teamsMap.get(match.team1) ?? null}
+              team2Data={teamsMap.get(match.team2) ?? null}
+            />
+          )
         ))}
       </div>
     )
@@ -121,6 +135,19 @@ async function MatchesGrid({ league }: { league?: string }) {
     <div className="flex flex-col gap-8">
       {orderedLeagues.map((lg) => {
         const sectionMatches = sortMatches(matchesByLeague.get(lg.slug) ?? [])
+        const isThemedLeague = lg.slug === 'champions-league' || lg.slug === 'europa-league' || lg.slug === 'uefa-conference-league-knockout-stage'
+
+        if (isThemedLeague) {
+          return (
+            <ThemedLeagueSection
+              key={lg.slug}
+              league={lg}
+              matches={sectionMatches}
+              teamsMap={teamsMap}
+            />
+          )
+        }
+
         return (
           <section key={lg.slug}>
             <div className="mb-3 flex items-center gap-2">
