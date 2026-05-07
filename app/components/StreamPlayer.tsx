@@ -171,9 +171,20 @@ export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) 
             {!loading && !errored && (
               <div
                 aria-hidden
+                data-kdotv-watermark
                 className="pointer-events-none absolute left-1/2 top-[80%] z-20 -translate-x-1/2 -translate-y-1/2 select-none"
               >
-                <div className="flex min-w-60 items-center justify-center gap-3 rounded-xl bg-black/90 px-8 py-2.5 shadow-xl ring-1 ring-white/15 sm:min-w-75 sm:px-10 sm:py-3">
+                {/* Desktop positioning override */}
+                <style dangerouslySetInnerHTML={{
+                  __html: `
+                    @media (min-width: 640px) {
+                      [data-kdotv-watermark] {
+                        top: calc(80% + 30px) !important;
+                      }
+                    }
+                  `
+                }} />
+                <div className="flex min-w-60 items-center justify-center gap-3 rounded-xl bg-black px-8 py-2.5 shadow-xl ring-1 ring-white/15 sm:min-w-75 sm:px-10 sm:py-3">
                   <span className="flex h-7 w-7 items-center justify-center rounded-md bg-red-600 text-sm font-black text-white shadow-[0_0_12px_rgba(239,68,68,0.7)] sm:h-8 sm:w-8 sm:text-base">
                     K
                   </span>
@@ -181,6 +192,44 @@ export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) 
                     kdot<span className="text-red-400">TV</span>
                   </span>
                 </div>
+              </div>
+            )}
+
+            {/* Blurred line above center */}
+            {!loading && !errored && (
+              <div
+                aria-hidden
+                data-blurred-line
+                className="pointer-events-none absolute left-0 right-0 z-20 select-none overflow-hidden h-[45px] sm:h-[80px]"
+                style={{
+                  top: 'calc(50% - 70px)',
+                  width: '100%',
+                  background: 'linear-gradient(to right, transparent, rgba(239,68,68,0.3) 20%, rgba(239,68,68,0.5) 50%, rgba(239,68,68,0.3) 80%, transparent)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  boxShadow: '0 0 20px rgba(239,68,68,0.4), inset 0 0 10px rgba(239,68,68,0.2)',
+                  borderLeft: '1px solid rgba(239,68,68,0.3)',
+                  borderRight: '1px solid rgba(239,68,68,0.3)',
+                }}
+              >
+                {/* Desktop positioning override */}
+                <style dangerouslySetInnerHTML={{
+                  __html: `
+                    @media (min-width: 640px) {
+                      [data-blurred-line] {
+                        top: calc(50% - 125px) !important;
+                      }
+                    }
+                  `
+                }} />
+                {/* Animated scanline effect */}
+                <div
+                  className="absolute inset-0 opacity-30"
+                  style={{
+                    background: 'linear-gradient(to bottom, transparent, rgba(239,68,68,0.5), transparent)',
+                    animation: 'scanline 3s ease-in-out infinite',
+                  }}
+                />
               </div>
             )}
 

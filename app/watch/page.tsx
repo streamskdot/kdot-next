@@ -184,7 +184,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
                       }`}
                     >
                       <Radio className="h-3.5 w-3.5" />
-                      Channel {index + 1}
+                      {index === 1 ? 'ENGLISH HD' : `Channel ${index + 1}`}
                     </Link>
                   )
                 })}

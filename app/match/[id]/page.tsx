@@ -324,7 +324,9 @@ function StreamLinksSection({ streamLinks, status, matchId }: { streamLinks: str
                 <Radio className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-zinc-900 dark:text-white">Stream Link {index + 1} (HD)</p>
+                <p className="font-medium text-zinc-900 dark:text-white">
+                  {index === 1 ? `Stream Link HD ${index + 1} [ENGLISH]` : `Stream Link ${index + 1} (HD)`}
+                </p>
                 {/* <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate">{link}</p> */}
               </div>
               <ExternalLink className="h-5 w-5 text-zinc-400" />
