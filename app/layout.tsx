@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "kdotTV - Live Football & Cricket Matches Hightlights ",
+  title: "kdoTV - Live Football & Cricket Matches in HD",
   description: "Watch upcoming and live football matches & Highlights",
 };
 
