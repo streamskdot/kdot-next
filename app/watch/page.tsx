@@ -5,7 +5,6 @@ import { Navbar } from '@/app/components/Navbar'
 import { StreamPlayer } from '@/app/components/StreamPlayer'
 import { LiveViewerCount } from '@/app/components/LiveViewerCount'
 import { ShareButton } from '@/app/components/ShareButton'
-import { ClickadillaScript } from '@/app/components/clickadilla'
 import { supabase } from '@/lib/supabase'
 
 function BulletinBanner() {
@@ -102,7 +101,6 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
-      <ClickadillaScript />
       <Navbar />
 
       <main className="flex-1">

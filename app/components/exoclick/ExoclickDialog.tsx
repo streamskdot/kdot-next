@@ -13,10 +13,10 @@ interface ExoclickDialogProps {
   streamIndex: number
 }
 
-function DialogContent() {
+function DialogContent({ onAdLoadError }: { onAdLoadError?: () => void }) {
   return (
     <div className="min-h-[300px] w-full">
-      <ExoclickAd className="h-full w-full" />
+      <ExoclickAd className="h-full w-full" onAdLoadError={onAdLoadError} />
     </div>
   )
 }
@@ -40,6 +40,11 @@ export function ExoclickDialog({ isOpen, onClose, streamUrl, matchId, streamInde
 
     return () => clearInterval(timer)
   }, [])
+
+  const handleAdLoadError = () => {
+    setCanSkip(true)
+    setCountdown(0)
+  }
 
   const handleGoToVideo = () => {
     router.push(`/watch?url=${encodeURIComponent(streamUrl)}&match=${matchId}&n=${streamIndex}`)
@@ -79,7 +84,7 @@ export function ExoclickDialog({ isOpen, onClose, streamUrl, matchId, streamInde
 
       {/* Dialog Container */}
       <div className="relative w-full max-w-lg rounded-2xl bg-transparent overflow-hidden" key={isOpen ? 'open' : 'closed'}>
-        <DialogContent />
+        <DialogContent onAdLoadError={handleAdLoadError} />
       </div>
 
       {/* Support Text - Below Dialog */}

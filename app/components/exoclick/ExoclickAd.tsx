@@ -9,7 +9,7 @@ interface ExoclickAdProps {
   key?: string | number
 }
 
-export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = '31,45,69,27', key }: ExoclickAdProps) {
+export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = '31,45,69,27', key, onAdLoadError }: ExoclickAdProps & { onAdLoadError?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const initializedRef = useRef(false)
 
@@ -38,6 +38,15 @@ export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = 
       script.async = true
       script.type = 'application/javascript'
       script.src = 'https://a.magsrv.com/ad-provider.js'
+
+      // Handle script loading errors (blocked by privacy protection)
+      script.onerror = () => {
+        console.log('Exoclick script blocked by privacy protection')
+        if (onAdLoadError) {
+          onAdLoadError()
+        }
+      }
+
       document.head.appendChild(script)
 
       // Initialize the ad after script loads
@@ -118,7 +127,7 @@ export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = 
     return () => {
       window.removeEventListener('error', errorHandler)
     }
-  }, [key])
+  }, [key, onAdLoadError])
 
   return (
     <div ref={containerRef} className={className}>
