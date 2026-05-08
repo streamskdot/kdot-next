@@ -1,1 +1,0 @@
-export { ClickadillaScript } from './ClickadillaScript'

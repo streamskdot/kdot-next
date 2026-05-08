@@ -89,8 +89,13 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
   const colors = isDarkMode ? theme.darkColors : theme.colors
   const gradients = isDarkMode ? theme.darkGradients : theme.gradients
 
+  const handleClick = () => {
+    console.log('ThemedMatchCard clicked:', match.id)
+    console.log('Has exoclick-trigger class:', true)
+  }
+
   return (
-    <Link href={`/match/${match.id}`} className="block">
+    <Link href={`/match/${match.id}`} className="block exoclick-trigger" onClick={handleClick}>
       <div
         className="group relative overflow-hidden rounded-2xl border-2 transition-all hover:scale-[1.02] hover:shadow-2xl cursor-pointer"
         style={{

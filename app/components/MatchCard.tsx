@@ -77,8 +77,13 @@ export function MatchCard({ match, team1Data, team2Data }: MatchCardProps) {
     YESTERDAY: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   }
 
+  const handleClick = () => {
+    console.log('MatchCard clicked:', match.id)
+    console.log('Has exoclick-trigger class:', true)
+  }
+
   return (
-    <Link href={`/match/${match.id}`} className="block">
+    <Link href={`/match/${match.id}`} className="block exoclick-trigger" onClick={handleClick}>
       <div className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer">
         {/* Status Badge (client-derived from kickoff time + duration) */}
         <div className="absolute right-3 top-3">
