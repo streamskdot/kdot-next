@@ -59,7 +59,7 @@ function DialogContent({ streamUrl, matchId, streamIndex, onClose }: { streamUrl
       {/* Ad Content */}
       <div className="p-3 sm:p-6">
         <div className="rounded-lg bg-zinc-50 p-2 sm:p-4 dark:bg-zinc-800">
-          <div className="aspect-video w-full overflow-hidden">
+          <div className="min-h-[300px] w-full">
             <ExoclickAd className="h-full w-full" />
           </div>
         </div>

@@ -1,21 +1,17 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 interface ExoclickAdProps {
   zoneId?: string
   className?: string
   blockedAdIds?: string
+  key?: string | number
 }
 
-export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = '31,45,69,27' }: ExoclickAdProps) {
-  const scriptLoadedRef = useRef(false)
-
+export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = '31,45,69,27', key }: ExoclickAdProps) {
   useEffect(() => {
-    if (scriptLoadedRef.current) return
-    scriptLoadedRef.current = true
-
-    // Load the ad provider script
+    // Load the ad provider script immediately
     const script = document.createElement('script')
     script.async = true
     script.type = 'application/javascript'
@@ -43,11 +39,7 @@ export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = 
       }
     `
     document.head.appendChild(style)
-
-    return () => {
-      // Cleanup scripts if needed
-    }
-  }, [])
+  }, [key])
 
   return (
     <div className={className}>
