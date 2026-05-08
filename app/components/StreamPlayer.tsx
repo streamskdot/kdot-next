@@ -245,6 +245,7 @@ export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) 
               </div>
             ) : (
               <iframe
+                id="kdotv-video-player"
                 src={url}
                 title={title}
                 className="absolute inset-0 h-full w-full"

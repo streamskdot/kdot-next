@@ -347,7 +347,7 @@ async function MatchDetailContent({ id }: { id: string }) {
       
 
       {/* Stream Links Section */}
-      <StreamLinksSection streamLinks={match.stream_links} status={match.status} matchId={match.id} />
+      <StreamLinksSection showAdDialog={false} streamLinks={match.stream_links} status={match.status} matchId={match.id} />
       
       {/* Match Info Section */}
       <div className="rounded-2xl border border-zinc-200 bg-linear-to-br from-zinc-50 to-white p-6 shadow-sm dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-800">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ExternalLink, Radio, Trophy } from 'lucide-react'
 import { ExoclickDialog } from './exoclick'
 
@@ -8,18 +9,24 @@ interface StreamLinksSectionProps {
   streamLinks: string[] | null
   status: string
   matchId: string
+  showAdDialog?: boolean
 }
 
-export function StreamLinksSection({ streamLinks, status, matchId }: StreamLinksSectionProps) {
+export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog = true }: StreamLinksSectionProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedStream, setSelectedStream] = useState<{ url: string; index: number } | null>(null)
+  const router = useRouter()
   
   const hasLinks = streamLinks && streamLinks.length > 0
   const isUpcoming = status === 'upcoming'
 
   const handleStreamClick = (url: string, index: number) => {
-    setSelectedStream({ url, index })
-    setDialogOpen(true)
+    if (showAdDialog) {
+      setSelectedStream({ url, index })
+      setDialogOpen(true)
+    } else {
+      router.push(`/watch?url=${encodeURIComponent(url)}&match=${matchId}&n=${index}`)
+    }
   }
 
   return (
