@@ -51,11 +51,28 @@ export default function RootLayout({
           data-cfasync="false"
           dangerouslySetInnerHTML={{
             __html: `
-              // Suppress CORS errors from Clickadilla video overlay accessing AWS IVS streams
+              // Suppress errors from Clickadilla ad scripts
               window.addEventListener('error', function(event) {
-                if (event.message && (event.message.includes('Cross-Origin Request Blocked') ||
+                if (event.message && (
+                    event.message.includes('Cross-Origin Request Blocked') ||
                     event.message.includes('Credential is not supported') ||
-                    event.message.includes('Access-Control-Allow-Origin'))) {
+                    event.message.includes('Access-Control-Allow-Origin') ||
+                    event.message.includes('detectIncognito') ||
+                    event.message.includes('motion sensor') ||
+                    event.message.includes('orientation sensor')
+                )) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  return true;
+                }
+              });
+              // Also suppress unhandled promise rejections from Clickadilla
+              window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.message && (
+                    event.reason.message.includes('detectIncognito') ||
+                    event.reason.message.includes('motion sensor') ||
+                    event.reason.message.includes('orientation sensor')
+                )) {
                   event.preventDefault();
                   event.stopPropagation();
                   return true;
