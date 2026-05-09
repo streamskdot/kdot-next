@@ -17,6 +17,7 @@ interface ThemedMatchCardProps {
   team1Data?: TeamInfo | null
   team2Data?: TeamInfo | null
   leagueSlug: string
+  showAd?: boolean
 }
 
 function getLocalTimeInfo(displayTime: string | null, matchDate: string | null) {
@@ -62,7 +63,7 @@ function getLocalTimeInfo(displayTime: string | null, matchDate: string | null) 
   return { time: localTime, dateBadge }
 }
 
-export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: ThemedMatchCardProps) {
+export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug, showAd = true }: ThemedMatchCardProps) {
   const theme = getLeagueTheme(leagueSlug)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
@@ -101,7 +102,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
   }
 
   return (
-    <Link href={`/match/${match.id}`} className="block exoclick-trigger" onClick={handleClick}>
+    <Link href={`/match/${match.id}`} className={`block ${showAd ? 'exoclick-trigger' : ''}`} onClick={handleClick}>
       <div
         className="group relative overflow-hidden rounded-2xl border-2 transition-all hover:scale-[1.02] hover:shadow-2xl cursor-pointer"
         style={{

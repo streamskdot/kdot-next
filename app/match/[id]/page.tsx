@@ -231,10 +231,6 @@ function FAQSection({ team1Name, team2Name, leagueName, matchDate }: { team1Name
       answer: `You can watch the live stream of this match by scrolling up to the "Watch Live" section. We provide multiple stream links for the best viewing experience. Additionally, join our Telegram channel for instant updates.`
     },
     {
-      question: `Is the live stream free to watch?`,
-      answer: `Yes, all stream links provided on KdotTV are completely free to access. We do not charge any fees for watching live football matches.`
-    },
-    {
       question: `Which league or competition is this match part of?`,
       answer: leagueName 
         ? `This match is part of the ${leagueName}. It is an official competitive fixture.`
@@ -347,7 +343,7 @@ async function MatchDetailContent({ id }: { id: string }) {
       
 
       {/* Stream Links Section */}
-      <StreamLinksSection showAdDialog={true} streamLinks={match.stream_links} status={match.status} matchId={match.id} />
+      <StreamLinksSection showAdDialog={false} streamLinks={match.stream_links} status={match.status} matchId={match.id} />
       
       {/* Match Info Section */}
       <div className="rounded-2xl border border-zinc-200 bg-linear-to-br from-zinc-50 to-white p-6 shadow-sm dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-800">
@@ -397,7 +393,7 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
   const team2Name = team2Data?.name || match.team2
   
   const title = `${team1Name} vs ${team2Name} - Watch Live HD`
-  const description = `Watch ${team1Name} vs ${team2Name} live in HD${leagueData ? ` in ${leagueData.name}` : ''}. Stream the match online for free on kdotTV.`
+  const description = `Watch ${team1Name} vs ${team2Name} live in HD${leagueData ? ` in ${leagueData.name}` : ''}. Watch your favorite team play on kdotTV.`
   
   return {
     title,

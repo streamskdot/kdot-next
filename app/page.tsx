@@ -101,6 +101,7 @@ async function MatchesGrid({ league }: { league?: string }) {
               leagueSlug={league}
               team1Data={teamsMap.get(match.team1) ?? null}
               team2Data={teamsMap.get(match.team2) ?? null}
+              showAd={false}
             />
           ) : (
             <MatchCard
@@ -108,6 +109,7 @@ async function MatchesGrid({ league }: { league?: string }) {
               match={match}
               team1Data={teamsMap.get(match.team1) ?? null}
               team2Data={teamsMap.get(match.team2) ?? null}
+              showAd={false}
             />
           )
         ))}

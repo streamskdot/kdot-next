@@ -153,7 +153,7 @@ export function MatchTimer({
         className={`inline-flex items-center rounded-full bg-amber-50 font-semibold tabular-nums text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ${sizeClasses} ${className}`}
       >
         <span className={`animate-pulse rounded-full bg-current ${dotSize}`} />
-        Starts in {formatDuration(remaining, { withSeconds: true })}
+        {formatDuration(remaining, { withSeconds: true })}
       </span>
     )
   }

@@ -14,6 +14,7 @@ interface MatchCardProps {
   match: Match
   team1Data?: TeamInfo | null
   team2Data?: TeamInfo | null
+  showAd?: boolean
 }
 
 function getLocalTimeInfo(displayTime: string | null, matchDate: string | null) {
@@ -66,7 +67,7 @@ function getLocalTimeInfo(displayTime: string | null, matchDate: string | null) 
   return { time: localTime, dateBadge }
 }
 
-export function MatchCard({ match, team1Data, team2Data }: MatchCardProps) {
+export function MatchCard({ match, team1Data, team2Data, showAd = true }: MatchCardProps) {
   const { time: localTime, dateBadge } = getLocalTimeInfo(match.display_time, match.match_date)
   const durationHours = Number(
     (match.raw_data as { duration?: number } | null)?.duration ?? 2,
@@ -83,7 +84,7 @@ export function MatchCard({ match, team1Data, team2Data }: MatchCardProps) {
   }
 
   return (
-    <Link href={`/match/${match.id}`} className="block exoclick-trigger" onClick={handleClick}>
+    <Link href={`/match/${match.id}`} className={`block ${showAd ? 'exoclick-trigger' : ''}`} onClick={handleClick}>
       <div className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer">
         {/* Status Badge (client-derived from kickoff time + duration) */}
         <div className="absolute right-3 top-3">
