@@ -42,9 +42,6 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
 
     // Function to register/update viewer in database
     const registerViewer = async () => {
-      // Disabled to prevent viewer table operations
-      return
-      
       try {
         // Insert or update viewer record with last_seen timestamp
         console.log('[useLiveViewCount] Registering viewer for videoId:', videoId, 'viewerId:', viewerIdRef.current)
@@ -75,9 +72,6 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
 
     // Function to get current viewer count
     const fetchViewerCount = async () => {
-      // Disabled to prevent viewer table operations
-      return
-      
       try {
         // Count viewers who were active in the last 40 seconds
         const fortySecondsAgo = new Date(Date.now() - 40 * 1000).toISOString()
@@ -105,15 +99,15 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
     registerViewer()
     fetchViewerCount()
 
-    // Poll for viewer count every 5 seconds
+    // Poll for viewer count every 50 seconds
     pollIntervalRef.current = setInterval(() => {
       fetchViewerCount()
-    }, 5000)
+    }, 50000)
 
-    // Heartbeat: update last_seen every 30 seconds
+    // Heartbeat: update last_seen every 100 seconds
     heartbeatIntervalRef.current = setInterval(() => {
       registerViewer()
-    }, 30000)
+    }, 100000)
 
     // Handle tab visibility
     const handleVisibilityChange = () => {
@@ -131,8 +125,8 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
         // Resume when tab becomes visible
         registerViewer()
         fetchViewerCount()
-        pollIntervalRef.current = setInterval(fetchViewerCount, 5000)
-        heartbeatIntervalRef.current = setInterval(registerViewer, 30000)
+        pollIntervalRef.current = setInterval(fetchViewerCount, 50000)
+        heartbeatIntervalRef.current = setInterval(registerViewer, 100000)
       }
     }
 

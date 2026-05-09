@@ -757,13 +757,19 @@ async function persist(matches) {
     // violate the NOT NULL constraint on matches.first_seen_at.
     r.first_seen_at = prev?.first_seen_at || now;
     
-    // Append new stream links to existing ones instead of replacing
-    if (r.stream_links && prev?.stream_links) {
-      const existingLinks = Array.isArray(prev.stream_links) ? prev.stream_links : [];
-      // Merge links, avoiding duplicates based on link URL
+    // Merge stream links: preserve existing links and append new scraped links
+    const existingLinks = prev?.stream_links && Array.isArray(prev.stream_links) ? prev.stream_links : [];
+    const scrapedLinks = r.stream_links && Array.isArray(r.stream_links) ? r.stream_links : [];
+    
+    if (existingLinks.length > 0 || scrapedLinks.length > 0) {
+      // Build set of existing link URLs to avoid duplicates
       const existingLinkSet = new Set(existingLinks.map(l => typeof l === 'string' ? l : l.link));
-      const newLinks = r.stream_links.filter(l => !existingLinkSet.has(l.link));
+      // Filter out scraped links that already exist
+      const newLinks = scrapedLinks.filter(l => !existingLinkSet.has(typeof l === 'string' ? l : l.link));
+      // Merge: existing links first, then new scraped links
       r.stream_links = [...existingLinks, ...newLinks];
+    } else {
+      r.stream_links = null;
     }
   }
 
