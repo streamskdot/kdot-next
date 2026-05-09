@@ -42,6 +42,9 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
 
     // Function to register/update viewer in database
     const registerViewer = async () => {
+      // Disabled to prevent viewer table operations
+      return
+      
       try {
         // Insert or update viewer record with last_seen timestamp
         console.log('[useLiveViewCount] Registering viewer for videoId:', videoId, 'viewerId:', viewerIdRef.current)
@@ -72,6 +75,9 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
 
     // Function to get current viewer count
     const fetchViewerCount = async () => {
+      // Disabled to prevent viewer table operations
+      return
+      
       try {
         // Count viewers who were active in the last 40 seconds
         const fortySecondsAgo = new Date(Date.now() - 40 * 1000).toISOString()
