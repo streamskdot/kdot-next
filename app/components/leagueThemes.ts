@@ -146,6 +146,151 @@ export const leagueThemes: Record<string, LeagueTheme> = {
       header: 'linear-gradient(135deg, #2a002c 0%, #1a001c 100%)',
     },
   },
+  'laliga': {
+    name: 'La Liga',
+    colors: {
+      primary: '#ee2222', // Red
+      primaryDark: '#aa1111',
+      accent: '#ffcc00', // Gold/Yellow accent
+      background: '#ffebee',
+      border: '#ee2222',
+      text: '#ee2222',
+      textMuted: '#ef5350',
+    },
+    darkColors: {
+      primary: '#cc1a1a', // Darker red
+      primaryDark: '#880e0e',
+      accent: '#cc9900', // Darker gold
+      background: '#1a0808',
+      border: '#cc1a1a',
+      text: '#ffcdd2',
+      textMuted: '#e57373',
+    },
+    gradients: {
+      card: 'linear-gradient(135deg, #ee2222 0%, #f44336 50%, #ef5350 100%)',
+      header: 'linear-gradient(135deg, #ee2222 0%, #d32f2f 100%)',
+    },
+    darkGradients: {
+      card: 'linear-gradient(135deg, #cc1a1a 0%, #d32f2f 50%, #e53935 100%)',
+      header: 'linear-gradient(135deg, #cc1a1a 0%, #b71c1c 100%)',
+    },
+  },
+  'la-liga': {
+    name: 'La Liga',
+    colors: {
+      primary: '#ee2222', // Red
+      primaryDark: '#aa1111',
+      accent: '#ffcc00', // Gold/Yellow accent
+      background: '#ffebee',
+      border: '#ee2222',
+      text: '#ee2222',
+      textMuted: '#ef5350',
+    },
+    darkColors: {
+      primary: '#cc1a1a', // Darker red
+      primaryDark: '#880e0e',
+      accent: '#cc9900', // Darker gold
+      background: '#1a0808',
+      border: '#cc1a1a',
+      text: '#ffcdd2',
+      textMuted: '#e57373',
+    },
+    gradients: {
+      card: 'linear-gradient(135deg, #ee2222 0%, #f44336 50%, #ef5350 100%)',
+      header: 'linear-gradient(135deg, #ee2222 0%, #d32f2f 100%)',
+    },
+    darkGradients: {
+      card: 'linear-gradient(135deg, #cc1a1a 0%, #d32f2f 50%, #e53935 100%)',
+      header: 'linear-gradient(135deg, #cc1a1a 0%, #b71c1c 100%)',
+    },
+  },
+  'bundesliga': {
+    name: 'Bundesliga',
+    colors: {
+      primary: '#d20505', // Red
+      primaryDark: '#a00404',
+      accent: '#ffffff', // White accent
+      background: '#ffebee',
+      border: '#d20505',
+      text: '#d20505',
+      textMuted: '#ef5350',
+    },
+    darkColors: {
+      primary: '#b00404', // Darker red
+      primaryDark: '#7a0303',
+      accent: '#e0e0e0', // Darker white
+      background: '#1a0808',
+      border: '#b00404',
+      text: '#ffcdd2',
+      textMuted: '#e57373',
+    },
+    gradients: {
+      card: 'linear-gradient(135deg, #d20505 0%, #e53935 50%, #f44336 100%)',
+      header: 'linear-gradient(135deg, #d20505 0%, #c62828 100%)',
+    },
+    darkGradients: {
+      card: 'linear-gradient(135deg, #b00404 0%, #c62828 50%, #d32f2f 100%)',
+      header: 'linear-gradient(135deg, #b00404 0%, #8a0202 100%)',
+    },
+  },
+  'serie-a': {
+    name: 'Serie A',
+    colors: {
+      primary: '#008fd7', // Blue
+      primaryDark: '#006ba3',
+      accent: '#00ff88', // Green accent
+      background: '#e1f5fe',
+      border: '#008fd7',
+      text: '#008fd7',
+      textMuted: '#039be5',
+    },
+    darkColors: {
+      primary: '#006ba3', // Darker blue
+      primaryDark: '#004d73',
+      accent: '#00cc66', // Darker green
+      background: '#0a1520',
+      border: '#006ba3',
+      text: '#b3e5fc',
+      textMuted: '#4fc3f7',
+    },
+    gradients: {
+      card: 'linear-gradient(135deg, #008fd7 0%, #039be5 50%, #29b6f6 100%)',
+      header: 'linear-gradient(135deg, #008fd7 0%, #0277bd 100%)',
+    },
+    darkGradients: {
+      card: 'linear-gradient(135deg, #006ba3 0%, #0277bd 50%, #039be5 100%)',
+      header: 'linear-gradient(135deg, #006ba3 0%, #005082 100%)',
+    },
+  },
+  'ligue-1': {
+    name: 'Ligue 1',
+    colors: {
+      primary: '#ffffff', // White
+      primaryDark: '#e0e0e0',
+      accent: '#d4a000', // Darker yellow accent
+      background: '#ffffff',
+      border: '#d4a000', // Yellow border
+      text: '#333333',
+      textMuted: '#666666',
+    },
+    darkColors: {
+      primary: '#ffffff', // White
+      primaryDark: '#e0e0e0',
+      accent: '#d4a000', // Darker yellow accent
+      background: '#1a1500',
+      border: '#d4a000', // Yellow border
+      text: '#ffffff',
+      textMuted: '#cccccc',
+    },
+    gradients: {
+      card: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 50%, #e8e8e8 100%)',
+      header: 'linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%)',
+    },
+    darkGradients: {
+      card: 'linear-gradient(135deg, #2a2515 0%, #1a1500 50%, #0f0d00 100%)',
+      header: 'linear-gradient(135deg, #2a2515 0%, #1a1500 100%)',
+    },
+  },
 }
 
 export function getLeagueTheme(leagueSlug: string): LeagueTheme {

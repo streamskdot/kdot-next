@@ -420,7 +420,7 @@ async function enrichWithStreamLinks(matches, context) {
           } catch { /* skip malformed */ }
         }
         if (links.length) {
-          match.stream_links = links;
+          match.stream_links = links.map(link => ({ source: 'yosintv', link }));
           enrichedCount++;
         } else {
           match.stream_links = null;
@@ -742,7 +742,7 @@ async function persist(matches) {
   const ids = rows.map((r) => r.id);
   const { data: existing, error: selErr } = await supabase
     .from('matches')
-    .select('id, status, ended_at, first_seen_at')
+    .select('id, status, ended_at, first_seen_at, stream_links')
     .in('id', ids);
   if (selErr) log('warn', ICON.warn, 'Existing fetch failed (continuing)', selErr.message);
   const existingMap = new Map((existing || []).map((r) => [r.id, r]));
@@ -755,6 +755,15 @@ async function persist(matches) {
     // batch, so omitting it on any row would clobber existing rows with NULL and
     // violate the NOT NULL constraint on matches.first_seen_at.
     r.first_seen_at = prev?.first_seen_at || now;
+    
+    // Append new stream links to existing ones instead of replacing
+    if (r.stream_links && prev?.stream_links) {
+      const existingLinks = Array.isArray(prev.stream_links) ? prev.stream_links : [];
+      // Merge links, avoiding duplicates based on link URL
+      const existingLinkSet = new Set(existingLinks.map(l => typeof l === 'string' ? l : l.link));
+      const newLinks = r.stream_links.filter(l => !existingLinkSet.has(l.link));
+      r.stream_links = [...existingLinks, ...newLinks];
+    }
   }
 
   const CHUNK = 200;

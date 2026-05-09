@@ -29,7 +29,13 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
   const isChampionsLeague = league.slug === 'champions-league'
   const isEuropaLeague = league.slug === 'europa-league'
   const isConferenceLeague = league.slug === 'uefa-conference-league-knockout-stage'
-  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague
+  const isPremierLeague = league.slug === 'premier-league'
+  const isLaLiga = league.slug === 'laliga' || league.slug === 'la-liga'
+  const isBundesliga = league.slug === 'bundesliga'
+  const isSerieA = league.slug === 'serie-a'
+  const isLigue1 = league.slug === 'ligue-1'
+  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague || isPremierLeague || isLaLiga || isBundesliga || isSerieA || isLigue1
+  const isLightThemed = isLigue1 // Ligue 1 has light background
 
   const colors = isDarkMode ? theme.darkColors : theme.colors
   const gradients = isDarkMode ? theme.darkGradients : theme.gradients
@@ -68,6 +74,46 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
           </div>
         )}
 
+        {/* Decorative elements for Premier League */}
+        {isPremierLeague && (
+          <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+            <div className="absolute -top-10 -right-10 text-8xl">🦁</div>
+            <div className="absolute -bottom-10 -left-10 text-8xl">👑</div>
+          </div>
+        )}
+
+        {/* Decorative elements for La Liga */}
+        {isLaLiga && (
+          <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+            <div className="absolute -top-10 -right-10 text-8xl">⚽</div>
+            <div className="absolute -bottom-10 -left-10 text-8xl">🇪🇸</div>
+          </div>
+        )}
+
+        {/* Decorative elements for Bundesliga */}
+        {isBundesliga && (
+          <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+            <div className="absolute -top-10 -right-10 text-8xl">🇩🇪</div>
+            <div className="absolute -bottom-10 -left-10 text-8xl">🏆</div>
+          </div>
+        )}
+
+        {/* Decorative elements for Serie A */}
+        {isSerieA && (
+          <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+            <div className="absolute -top-10 -right-10 text-8xl">🇮🇹</div>
+            <div className="absolute -bottom-10 -left-10 text-8xl">🎯</div>
+          </div>
+        )}
+
+        {/* Decorative elements for Ligue 1 */}
+        {isLigue1 && (
+          <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+            <div className="absolute -top-10 -right-10 text-8xl">🇫🇷</div>
+            <div className="absolute -bottom-10 -left-10 text-8xl">🌟</div>
+          </div>
+        )}
+
         {/* Compact League Header */}
         <div className="relative flex items-center gap-3 px-5 py-3 border-b border-white/10">
           <div
@@ -86,13 +132,13 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
           <div className="flex-1">
             <h2
               className="text-sm font-bold uppercase tracking-wide"
-              style={{ color: isThemed ? '#ffffff' : undefined }}
+              style={{ color: isThemed && !isLightThemed ? '#ffffff' : undefined }}
             >
               {league.name}
             </h2>
             <span
               className="text-xs font-medium"
-              style={{ color: isThemed ? 'rgba(255, 255, 255, 0.7)' : undefined }}
+              style={{ color: isThemed && !isLightThemed ? 'rgba(255, 255, 255, 0.7)' : undefined }}
             >
               {matches.length} {matches.length === 1 ? 'match' : 'matches'}
             </span>
@@ -105,6 +151,21 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
           )}
           {isConferenceLeague && (
             <div className="text-2xl opacity-50">🌿</div>
+          )}
+          {isPremierLeague && (
+            <div className="text-2xl opacity-50">👑</div>
+          )}
+          {isLaLiga && (
+            <div className="text-2xl opacity-50">🇪🇸</div>
+          )}
+          {isBundesliga && (
+            <div className="text-2xl opacity-50">🏆</div>
+          )}
+          {isSerieA && (
+            <div className="text-2xl opacity-50">🎯</div>
+          )}
+          {isLigue1 && (
+            <div className="text-2xl opacity-50">🌟</div>
           )}
         </div>
 

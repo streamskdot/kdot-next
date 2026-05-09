@@ -84,7 +84,13 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
   const isChampionsLeague = leagueSlug === 'champions-league'
   const isEuropaLeague = leagueSlug === 'europa-league'
   const isConferenceLeague = leagueSlug === 'uefa-conference-league-knockout-stage'
-  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague
+  const isPremierLeague = leagueSlug === 'premier-league'
+  const isLaLiga = leagueSlug === 'laliga' || leagueSlug === 'la-liga'
+  const isBundesliga = leagueSlug === 'bundesliga'
+  const isSerieA = leagueSlug === 'serie-a'
+  const isLigue1 = leagueSlug === 'ligue-1'
+  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague || isPremierLeague || isLaLiga || isBundesliga || isSerieA || isLigue1
+  const isLightThemed = isLigue1 // Ligue 1 has light background
 
   const colors = isDarkMode ? theme.darkColors : theme.colors
   const gradients = isDarkMode ? theme.darkGradients : theme.gradients
@@ -127,6 +133,51 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
             <div className="absolute top-2 right-2 text-4xl">🌿</div>
             <div className="absolute bottom-2 left-2 text-3xl">🌿</div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🌿</div>
+          </div>
+        )}
+
+        {/* Decorative elements for Premier League */}
+        {isPremierLeague && (
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="absolute top-2 right-2 text-4xl">🦁</div>
+            <div className="absolute bottom-2 left-2 text-3xl">🦁</div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">👑</div>
+          </div>
+        )}
+
+        {/* Decorative elements for La Liga */}
+        {isLaLiga && (
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="absolute top-2 right-2 text-4xl">⚽</div>
+            <div className="absolute bottom-2 left-2 text-3xl">⚽</div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🇪🇸</div>
+          </div>
+        )}
+
+        {/* Decorative elements for Bundesliga */}
+        {isBundesliga && (
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="absolute top-2 right-2 text-4xl">🇩🇪</div>
+            <div className="absolute bottom-2 left-2 text-3xl">⚽</div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🏆</div>
+          </div>
+        )}
+
+        {/* Decorative elements for Serie A */}
+        {isSerieA && (
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="absolute top-2 right-2 text-4xl">🇮🇹</div>
+            <div className="absolute bottom-2 left-2 text-3xl">⚽</div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🎯</div>
+          </div>
+        )}
+
+        {/* Decorative elements for Ligue 1 */}
+        {isLigue1 && (
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="absolute top-2 right-2 text-4xl">🇫🇷</div>
+            <div className="absolute bottom-2 left-2 text-3xl">⚽</div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🌟</div>
           </div>
         )}
 
@@ -179,7 +230,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
               ) : (
                 <span
                   className="text-xl font-bold"
-                  style={{ color: isThemed ? '#ffffff' : undefined }}
+                  style={{ color: isThemed && !isLightThemed ? '#ffffff' : undefined }}
                 >
                   {match.team1.slice(0, 2).toUpperCase()}
                 </span>
@@ -187,7 +238,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
             </div>
             <span
               className="line-clamp-2 text-center text-sm font-semibold"
-              style={{ color: isThemed ? '#ffffff' : undefined }}
+              style={{ color: isThemed && !isLightThemed ? '#ffffff' : undefined }}
             >
               {team1Data?.name || match.team1}
             </span>
@@ -198,7 +249,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
             {match.team1_score != null && match.team2_score != null ? (
               <div
                 className="flex items-center gap-2 text-3xl font-black"
-                style={{ color: isThemed ? '#ffffff' : undefined }}
+                style={{ color: isThemed && !isLightThemed ? '#ffffff' : undefined }}
               >
                 <span>{match.team1_score}</span>
                 <span className="opacity-60">-</span>
@@ -207,7 +258,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
             ) : (
               <span
                 className="text-xl font-bold"
-                style={{ color: isThemed ? 'rgba(255, 255, 255, 0.7)' : undefined }}
+                style={{ color: isThemed && !isLightThemed ? 'rgba(255, 255, 255, 0.7)' : undefined }}
               >
                 VS
               </span>
@@ -215,7 +266,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
             {localTime && (
               <span
                 className="text-xs font-medium"
-                style={{ color: isThemed ? 'rgba(255, 255, 255, 0.8)' : undefined }}
+                style={{ color: isThemed && !isLightThemed ? 'rgba(255, 255, 255, 0.8)' : undefined }}
               >
                 {localTime}
               </span>
@@ -251,7 +302,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
               ) : (
                 <span
                   className="text-xl font-bold"
-                  style={{ color: isThemed ? '#ffffff' : undefined }}
+                  style={{ color: isThemed && !isLightThemed ? '#ffffff' : undefined }}
                 >
                   {match.team2.slice(0, 2).toUpperCase()}
                 </span>
@@ -259,7 +310,7 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug }: The
             </div>
             <span
               className="line-clamp-2 text-center text-sm font-semibold"
-              style={{ color: isThemed ? '#ffffff' : undefined }}
+              style={{ color: isThemed && !isLightThemed ? '#ffffff' : undefined }}
             >
               {team2Data?.name || match.team2}
             </span>

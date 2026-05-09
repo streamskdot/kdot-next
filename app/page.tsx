@@ -89,7 +89,7 @@ async function MatchesGrid({ league }: { league?: string }) {
   // Single-league view: flat grid, existing behavior
   if (league) {
     const sortedMatches = sortMatches(matches)
-    const isThemedLeague = league === 'champions-league' || league === 'europa-league' || league === 'uefa-conference-league-knockout-stage'
+    const isThemedLeague = league === 'champions-league' || league === 'europa-league' || league === 'uefa-conference-league-knockout-stage' || league === 'premier-league' || league === 'laliga' || league === 'la-liga' || league === 'bundesliga' || league === 'serie-a' || league === 'ligue-1'
 
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -135,7 +135,7 @@ async function MatchesGrid({ league }: { league?: string }) {
     <div className="flex flex-col gap-8">
       {orderedLeagues.map((lg) => {
         const sectionMatches = sortMatches(matchesByLeague.get(lg.slug) ?? [])
-        const isThemedLeague = lg.slug === 'champions-league' || lg.slug === 'europa-league' || lg.slug === 'uefa-conference-league-knockout-stage'
+        const isThemedLeague = lg.slug === 'champions-league' || lg.slug === 'europa-league' || lg.slug === 'uefa-conference-league-knockout-stage' || lg.slug === 'premier-league' || lg.slug === 'laliga' || lg.slug === 'la-liga' || lg.slug === 'bundesliga' || lg.slug === 'serie-a' || lg.slug === 'ligue-1'
 
         if (isThemedLeague) {
           return (

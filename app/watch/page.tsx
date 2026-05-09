@@ -97,7 +97,9 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
   const videoId = matchId || (url ? url : '')
 
   // All stream links for this match so users can switch without going back.
-  const otherLinks: string[] = (matchData?.stream_links as string[] | null) ?? []
+  // Handle both old string format and new {source, link} object format
+  const otherLinks: string[] = (matchData?.stream_links as Array<{source: string, link: string}> | string[] | null ?? [])
+    .map(l => typeof l === 'string' ? l : l.link)
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
