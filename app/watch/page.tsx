@@ -98,8 +98,20 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
 
   // All stream links for this match so users can switch without going back.
   // Handle both old string format and new {source, link} object format
-  const otherLinks: string[] = (matchData?.stream_links as Array<{source: string, link: string}> | string[] | null ?? [])
-    .map(l => typeof l === 'string' ? l : l.link)
+  const normalizedLinks = (matchData?.stream_links as Array<{source: string, link: string}> | string[] | null ?? [])
+    .map((l, i) => {
+      if (typeof l === 'string') {
+        return { link: l, source: 'yosintv', originalIndex: i }
+      }
+      return { link: l.link, source: l.source || 'yosintv', originalIndex: i }
+    })
+  // Sort to put PPV/source links first
+  const sortedLinks = [...normalizedLinks].sort((a, b) => {
+    if (a.source === 'ppv' && b.source !== 'ppv') return -1
+    if (a.source !== 'ppv' && b.source === 'ppv') return 1
+    return 0
+  })
+  const otherLinks = sortedLinks
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
@@ -131,7 +143,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
                 {streamIndex != null && Number.isFinite(streamIndex) && (
                   <p className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                     <Radio className="h-4 w-4 text-green-500" />
-                    {streamIndex === 2 ? 'ENGLISH HD' : `Stream Link ${streamIndex + 1}`}
+                    {sortedLinks[streamIndex]?.source === 'ppv' ? 'Channel 1' : (sortedLinks[streamIndex]?.source === 'yosintv' && streamIndex === 2 ? 'English HD' : `Channel ${streamIndex + 1}`)}
                   </p>
                 )}
                 <div className="ml-auto">
@@ -158,8 +170,11 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
                 Change Language / Streams below: 
               </h2>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-                {otherLinks.map((link, index) => {
+                {otherLinks.map(({ link, source }, index) => {
                   const isActive = link === url
+                  const isPPV = source === 'ppv'
+                  const isYosintvThird = source === 'yosintv' && index === 2
+                  const label = isPPV ? 'Channel 1' : (isYosintvThird ? 'English HD' : `Channel ${index + 1}`)
                   return (
                     <Link
                       key={index}
@@ -167,11 +182,13 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
                       className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
                         isActive
                           ? 'border-green-500 bg-green-50 text-green-700 dark:border-green-600 dark:bg-green-950/40 dark:text-green-400'
-                          : 'border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-750'
+                          : isPPV
+                            ? 'border-amber-400 bg-amber-50 text-amber-700 hover:border-amber-500 hover:bg-amber-100 dark:border-amber-500/50 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:border-amber-500 dark:hover:bg-amber-900/30'
+                            : 'border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-750'
                       }`}
                     >
                       <Radio className="h-3.5 w-3.5" />
-                      {index === 1 ? 'ENGLISH HD' : `Channel ${index + 1}`}
+                      {label}
                     </Link>
                   )
                 })}
