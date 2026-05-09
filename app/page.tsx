@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import React from 'react'
 import { Navbar } from './components/Navbar'
 import { LeagueTabsClient } from './components/LeagueTabsClient'
 import { MatchCard } from './components/MatchCard'
@@ -7,6 +8,8 @@ import { LeagueLogo } from './components/LeagueLogo'
 import { FeatureCards } from './components/FeatureCards'
 import { ThemedMatchCard } from './components/ThemedMatchCard'
 import { ThemedLeagueSection } from './components/ThemedLeagueSection'
+import { ExoclickLeaderboardAd } from './components/exoclick/ExoclickLeaderboardAd'
+import { ExoclickMobileMatchCardBanner } from './components/exoclick/ExoclickMobileMatchCardBanner'
 import { supabase, type Match, type League } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -92,28 +95,50 @@ async function MatchesGrid({ league }: { league?: string }) {
     const isThemedLeague = league === 'champions-league' || league === 'europa-league' || league === 'uefa-conference-league-knockout-stage' || league === 'premier-league' || league === 'laliga' || league === 'la-liga' || league === 'bundesliga' || league === 'serie-a' || league === 'ligue-1'
 
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {sortedMatches.map((match) => (
-          isThemedLeague ? (
-            <ThemedMatchCard
-              key={match.id}
-              match={match}
-              leagueSlug={league}
-              team1Data={teamsMap.get(match.team1) ?? null}
-              team2Data={teamsMap.get(match.team2) ?? null}
-              showAd={false}
-            />
-          ) : (
-            <MatchCard
-              key={match.id}
-              match={match}
-              team1Data={teamsMap.get(match.team1) ?? null}
-              team2Data={teamsMap.get(match.team2) ?? null}
-              showAd={false}
-            />
-          )
-        ))}
-      </div>
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {sortedMatches.map((match, index) => (
+            <React.Fragment key={match.id}>
+              {isThemedLeague ? (
+                <ThemedMatchCard
+                  key={match.id}
+                  match={match}
+                  leagueSlug={league}
+                  team1Data={teamsMap.get(match.team1) ?? null}
+                  team2Data={teamsMap.get(match.team2) ?? null}
+                  showAd={false}
+                />
+              ) : (
+                <MatchCard
+                  key={match.id}
+                  match={match}
+                  team1Data={teamsMap.get(match.team1) ?? null}
+                  team2Data={teamsMap.get(match.team2) ?? null}
+                  showAd={false}
+                />
+              )}
+              {/* Insert mobile banner after every 2 match cards on mobile */}
+              {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
+                <div className="lg:hidden col-span-full flex items-center justify-center py-2">
+                  <ExoclickMobileMatchCardBanner key={`mobile-${league}-${index}`} />
+                </div>
+              )}
+              {/* Insert banner after every 3 match cards on desktop */}
+              {(index + 1) % 3 === 0 && index !== sortedMatches.length - 1 && (
+                <div className="hidden lg:block lg:col-span-full text-center py-2">
+                  <ExoclickLeaderboardAd key={`inline-${league}-${index}`} />
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        {/* Pop under banner if there are 3 or more match cards */}
+        {sortedMatches.length >= 3 && (
+          <div className="hidden lg:block mt-4 text-center">
+            <ExoclickLeaderboardAd key={`popunder-${league}`} />
+          </div>
+        )}
+      </>
     )
   }
 
@@ -165,16 +190,36 @@ async function MatchesGrid({ league }: { league?: string }) {
                 {sectionMatches.length}
               </span>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {sectionMatches.map((match) => (
-                <MatchCard
-                  key={match.id}
-                  match={match}
-                  team1Data={teamsMap.get(match.team1) ?? null}
-                  team2Data={teamsMap.get(match.team2) ?? null}
-                />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {sectionMatches.map((match, index) => (
+                <React.Fragment key={match.id}>
+                  <MatchCard
+                    key={match.id}
+                    match={match}
+                    team1Data={teamsMap.get(match.team1) ?? null}
+                    team2Data={teamsMap.get(match.team2) ?? null}
+                  />
+                  {/* Insert mobile banner after every 2 match cards on mobile */}
+                  {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
+                    <div className="lg:hidden col-span-full flex items-center justify-center py-2">
+                      <ExoclickMobileMatchCardBanner key={`mobile-${lg.slug}-${index}`} />
+                    </div>
+                  )}
+                  {/* Insert banner after every 3 match cards on desktop */}
+                  {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
+                    <div className="hidden lg:block lg:col-span-full text-center py-2">
+                      <ExoclickLeaderboardAd key={`inline-${lg.slug}-${index}`} />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
+            {/* Pop under banner if there are 3 or more match cards */}
+            {sectionMatches.length >= 3 && (
+              <div className="hidden lg:block mt-4 text-center">
+                <ExoclickLeaderboardAd key={`popunder-${lg.slug}`} />
+              </div>
+            )}
           </section>
         )
       })}
@@ -191,16 +236,36 @@ async function MatchesGrid({ league }: { league?: string }) {
                 {sectionMatches.length}
               </span>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {sectionMatches.map((match) => (
-                <MatchCard
-                  key={match.id}
-                  match={match}
-                  team1Data={teamsMap.get(match.team1) ?? null}
-                  team2Data={teamsMap.get(match.team2) ?? null}
-                />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {sectionMatches.map((match, index) => (
+                <React.Fragment key={match.id}>
+                  <MatchCard
+                    key={match.id}
+                    match={match}
+                    team1Data={teamsMap.get(match.team1) ?? null}
+                    team2Data={teamsMap.get(match.team2) ?? null}
+                  />
+                  {/* Insert mobile banner after every 2 match cards on mobile */}
+                  {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
+                    <div className="lg:hidden col-span-full flex items-center justify-center py-2">
+                      <ExoclickMobileMatchCardBanner key={`mobile-orphan-${slug}-${index}`} />
+                    </div>
+                  )}
+                  {/* Insert banner after every 3 match cards on desktop */}
+                  {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
+                    <div className="hidden lg:block lg:col-span-full text-center py-2">
+                      <ExoclickLeaderboardAd key={`inline-orphan-${slug}-${index}`} />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
+            {/* Pop under banner if there are 3 or more match cards */}
+            {sectionMatches.length >= 3 && (
+              <div className="hidden lg:block mt-4 text-center">
+                <ExoclickLeaderboardAd key={`popunder-orphan-${slug}`} />
+              </div>
+            )}
           </section>
         )
       })}

@@ -1,8 +1,11 @@
 'use client'
 
+import React from 'react'
 import { LeagueLogo } from './LeagueLogo'
 import { ThemedMatchCard } from './ThemedMatchCard'
 import { getLeagueTheme } from './leagueThemes'
+import { ExoclickLeaderboardAd } from './exoclick/ExoclickLeaderboardAd'
+import { ExoclickMobileMatchCardBanner } from './exoclick/ExoclickMobileMatchCardBanner'
 import type { Match, League } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
 
@@ -172,16 +175,35 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
         {/* Match Cards Grid - Inside the container */}
         <div className="p-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {matches.map((match) => (
-              <ThemedMatchCard
-                key={match.id}
-                match={match}
-                leagueSlug={league.slug}
-                team1Data={teamsMap.get(match.team1) ?? null}
-                team2Data={teamsMap.get(match.team2) ?? null}
-              />
+            {matches.map((match, index) => (
+              <React.Fragment key={match.id}>
+                <ThemedMatchCard
+                  match={match}
+                  leagueSlug={league.slug}
+                  team1Data={teamsMap.get(match.team1) ?? null}
+                  team2Data={teamsMap.get(match.team2) ?? null}
+                />
+                {/* Insert mobile banner after every 2 match cards on mobile */}
+                {(index + 1) % 2 === 0 && index !== matches.length - 1 && (
+                  <div className="lg:hidden col-span-full flex items-center justify-center py-2">
+                    <ExoclickMobileMatchCardBanner key={`mobile-banner-${index}`} />
+                  </div>
+                )}
+                {/* Insert banner after every 3 match cards on desktop */}
+                {(index + 1) % 3 === 0 && index !== matches.length - 1 && (
+                  <div className="hidden lg:block lg:col-span-full text-center py-2">
+                    <ExoclickLeaderboardAd key={`banner-${index}`} />
+                  </div>
+                )}
+              </React.Fragment>
             ))}
           </div>
+          {/* Pop under banner if there are 3 or more match cards */}
+          {matches.length >= 3 && (
+            <div className="hidden lg:block mt-4 text-center">
+              <ExoclickLeaderboardAd key="pop-under-banner" />
+            </div>
+          )}
         </div>
       </div>
     </section>
