@@ -7,10 +7,18 @@ import { Navbar } from '@/app/components/Navbar'
 import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { StreamLinksSection } from '@/app/components/StreamLinksSection'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, Trophy, Users, HelpCircle, MonitorPlay, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, HelpCircle, MonitorPlay, ChevronDown, Eye } from 'lucide-react'
 
 interface MatchDetailPageProps {
   params: Promise<{ id: string }>
+}
+
+async function incrementViewCount(id: string) {
+  try {
+    await supabase.rpc('increment_match_view_count', { match_id: id })
+  } catch (error) {
+    console.error('Error incrementing view count:', error)
+  }
 }
 
 async function getMatchDetails(id: string) {
@@ -275,6 +283,9 @@ function FAQSection({ team1Name, team2Name, leagueName, matchDate }: { team1Name
 }
 
 async function MatchDetailContent({ id }: { id: string }) {
+  // Increment view count only once per page visit
+  await incrementViewCount(id)
+  
   const data = await getMatchDetails(id)
   
   if (!data) {
@@ -339,6 +350,12 @@ async function MatchDetailContent({ id }: { id: string }) {
             <span>{leagueData.name}</span>
           </div>
         )}
+        
+        {/* View Count */}
+        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+          <Eye className="h-4 w-4" />
+          <span>{match.view_count || 0} </span>
+        </div>
       </div>
       
 
