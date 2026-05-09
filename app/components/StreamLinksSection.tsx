@@ -24,7 +24,13 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
     }
     return { link: l.link, source: l.source || 'yosintv', index: i }
   })
-  const hasLinks = normalizedLinks.length > 0
+  // Sort to put PPV/source links first
+  const sortedLinks = [...normalizedLinks].sort((a, b) => {
+    if (a.source === 'ppv' && b.source !== 'ppv') return -1
+    if (a.source !== 'ppv' && b.source === 'ppv') return 1
+    return 0
+  })
+  const hasLinks = sortedLinks.length > 0
   const isUpcoming = status === 'upcoming'
 
   const handleStreamClick = (url: string, index: number) => {
@@ -70,7 +76,7 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
         {/* Stream Links */}
         {hasLinks ? (
           <div className="space-y-3">
-            {normalizedLinks.map(({ link, source, index }) => {
+            {sortedLinks.map(({ link, source, index }) => {
               const isRecommended = source === 'ppv'
               return (
                 <button

@@ -131,7 +131,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
                 {streamIndex != null && Number.isFinite(streamIndex) && (
                   <p className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                     <Radio className="h-4 w-4 text-green-500" />
-                    {streamIndex === 1 ? 'ENGLISH HD' : `Stream Link ${streamIndex + 1}`}
+                    {streamIndex === 2 ? 'ENGLISH HD' : `Stream Link ${streamIndex + 1}`}
                   </p>
                 )}
                 <div className="ml-auto">
