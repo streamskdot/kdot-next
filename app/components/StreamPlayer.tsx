@@ -249,9 +249,9 @@ export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) 
                 src={url}
                 title={title}
                 className="absolute inset-0 h-full w-full"
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen; gyroscope; accelerometer"
                 allowFullScreen
-                referrerPolicy="no-referrer"
+                referrerPolicy="no-referrer-when-downgrade"
                 onLoad={() => setLoading(false)}
                 onError={() => {
                   setLoading(false)
