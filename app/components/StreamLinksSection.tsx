@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ExternalLink, Radio, Trophy, Star } from 'lucide-react'
 import { ExoclickDialog } from './exoclick'
+import { ExoclickDesktopStreamLinkBanner } from './exoclick/ExoclickDesktopStreamLinkBanner'
+import { ExoclickMobileSquareBanner } from './exoclick/ExoclickMobileSquareBanner'
 
 interface StreamLinksSectionProps {
   streamLinks: Array<{source: string, link: string}> | string[] | null
@@ -91,7 +93,7 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
                   {isRecommended && (
                     <div className="absolute -top-2 -right-2 flex items-center gap-1 rounded-full bg-linear-to-r from-amber-400 to-yellow-400 px-2 py-1 shadow-md dark:from-amber-500 dark:to-yellow-500">
                       <Star className="h-3 w-3 fill-white text-white" />
-                      <span className="text-xs font-bold text-white">Recommended</span>
+                      <span className="text-xs font-bold text-white">Premium</span>
                     </div>
                   )}
                   <div className={`flex h-10 w-10 items-center justify-center rounded-full ${isRecommended ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-green-100 dark:bg-green-900/30'}`}>
@@ -116,6 +118,12 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               {isUpcoming ? 'Sorry for the delay' : 'No stream links available for this match'}
             </p>
+            <div className="hidden lg:block mt-6">
+              <ExoclickDesktopStreamLinkBanner />
+            </div>
+            <div className="lg:hidden flex justify-center mt-6">
+              <ExoclickMobileSquareBanner />
+            </div>
           </div>
         )}
       </div>

@@ -8,8 +8,8 @@ import { LeagueLogo } from './components/LeagueLogo'
 import { FeatureCards } from './components/FeatureCards'
 import { ThemedMatchCard } from './components/ThemedMatchCard'
 import { ThemedLeagueSection } from './components/ThemedLeagueSection'
-import { ExoclickLeaderboardAd } from './components/exoclick/ExoclickLeaderboardAd'
-import { ExoclickMobileMatchCardBanner } from './components/exoclick/ExoclickMobileMatchCardBanner'
+import { ExoclickLeaderboardAdWithKey } from './components/exoclick/ExoclickLeaderboardAdWithKey'
+import { ExoclickMobileMatchCardBannerWithKey } from './components/exoclick/ExoclickMobileMatchCardBannerWithKey'
 import { supabase, type Match, type League } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -120,13 +120,13 @@ async function MatchesGrid({ league }: { league?: string }) {
               {/* Insert mobile banner after every 2 match cards on mobile */}
               {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
                 <div className="lg:hidden col-span-full flex items-center justify-center py-2">
-                  <ExoclickMobileMatchCardBanner key={`mobile-${league}-${index}`} />
+                  <ExoclickMobileMatchCardBannerWithKey key={`mobile-${league}-${index}`} />
                 </div>
               )}
               {/* Insert banner after every 3 match cards on desktop */}
               {(index + 1) % 3 === 0 && index !== sortedMatches.length - 1 && (
                 <div className="hidden lg:block lg:col-span-full text-center py-2">
-                  <ExoclickLeaderboardAd key={`inline-${league}-${index}`} />
+                  <ExoclickLeaderboardAdWithKey key={`inline-${league}-${index}`} />
                 </div>
               )}
             </React.Fragment>
@@ -135,7 +135,7 @@ async function MatchesGrid({ league }: { league?: string }) {
         {/* Pop under banner if there are 3 or more match cards */}
         {sortedMatches.length >= 3 && (
           <div className="hidden lg:block mt-4 text-center">
-            <ExoclickLeaderboardAd key={`popunder-${league}`} />
+            <ExoclickLeaderboardAdWithKey key={`popunder-${league}`} />
           </div>
         )}
       </>
@@ -202,13 +202,13 @@ async function MatchesGrid({ league }: { league?: string }) {
                   {/* Insert mobile banner after every 2 match cards on mobile */}
                   {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="lg:hidden col-span-full flex items-center justify-center py-2">
-                      <ExoclickMobileMatchCardBanner key={`mobile-${lg.slug}-${index}`} />
+                      <ExoclickMobileMatchCardBannerWithKey key={`mobile-${lg.slug}-${index}`} />
                     </div>
                   )}
                   {/* Insert banner after every 3 match cards on desktop */}
                   {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="hidden lg:block lg:col-span-full text-center py-2">
-                      <ExoclickLeaderboardAd key={`inline-${lg.slug}-${index}`} />
+                      <ExoclickLeaderboardAdWithKey key={`inline-${lg.slug}-${index}`} />
                     </div>
                   )}
                 </React.Fragment>
@@ -217,7 +217,7 @@ async function MatchesGrid({ league }: { league?: string }) {
             {/* Pop under banner if there are 3 or more match cards */}
             {sectionMatches.length >= 3 && (
               <div className="hidden lg:block mt-4 text-center">
-                <ExoclickLeaderboardAd key={`popunder-${lg.slug}`} />
+                <ExoclickLeaderboardAdWithKey key={`popunder-${lg.slug}`} />
               </div>
             )}
           </section>
@@ -248,13 +248,13 @@ async function MatchesGrid({ league }: { league?: string }) {
                   {/* Insert mobile banner after every 2 match cards on mobile */}
                   {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="lg:hidden col-span-full flex items-center justify-center py-2">
-                      <ExoclickMobileMatchCardBanner key={`mobile-orphan-${slug}-${index}`} />
+                      <ExoclickMobileMatchCardBannerWithKey key={`mobile-orphan-${slug}-${index}`} />
                     </div>
                   )}
                   {/* Insert banner after every 3 match cards on desktop */}
                   {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="hidden lg:block lg:col-span-full text-center py-2">
-                      <ExoclickLeaderboardAd key={`inline-orphan-${slug}-${index}`} />
+                      <ExoclickLeaderboardAdWithKey key={`inline-orphan-${slug}-${index}`} />
                     </div>
                   )}
                 </React.Fragment>
@@ -263,7 +263,7 @@ async function MatchesGrid({ league }: { league?: string }) {
             {/* Pop under banner if there are 3 or more match cards */}
             {sectionMatches.length >= 3 && (
               <div className="hidden lg:block mt-4 text-center">
-                <ExoclickLeaderboardAd key={`popunder-orphan-${slug}`} />
+                <ExoclickLeaderboardAdWithKey key={`popunder-orphan-${slug}`} />
               </div>
             )}
           </section>

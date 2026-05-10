@@ -57,82 +57,18 @@ export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = 
       }
     }
 
-    // Hide close buttons from Exoclick ads using CSS
-    const style = document.createElement('style')
-    style.textContent = `
-      .eas6a97888e37 [class*="close"],
-      .eas6a97888e37 [class*="Close"],
-      .eas6a97888e37 .exo_close,
-      [class*="exo_close"],
-      .eas6a97888e37 [class*="button"][class*="close"],
-      .eas6a97888e37 button[aria-label*="close"],
-      .eas6a97888e37 button[aria-label*="Close"],
-      .eas6a97888e37 .close-btn,
-      .eas6a97888e37 .close-button {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        position: absolute !important;
-        left: -9999px !important;
-        top: -9999px !important;
-      }
-    `
-    document.head.appendChild(style)
-
     initializedRef.current = true
-
-    // Manually trigger Exoclick ad animation after dialog is painted
-    const triggerAdAnimation = () => {
-      if (!containerRef.current) return
-
-      // Force a reflow by reading the element's properties
-      void containerRef.current.offsetHeight
-      void containerRef.current.offsetWidth
-
-      // Find and trigger the Exoclick effect animation
-      setTimeout(() => {
-        const effectElements = containerRef.current?.querySelectorAll('[class*="_effect"]') || []
-        effectElements.forEach((effectEl) => {
-          effectEl.classList.add('exo_wrapper_show')
-        })
-
-        // Also make CTA wrapper visible
-        const ctaWrappers = containerRef.current?.querySelectorAll('[class*="_cta_wrapper"]') || []
-        ctaWrappers.forEach((ctaEl) => {
-          ;(ctaEl as HTMLElement).style.display = 'flex'
-        })
-
-        // Manually trigger video playback
-        const videos = containerRef.current?.querySelectorAll('video') || []
-        videos.forEach((video) => {
-          const videoEl = video as HTMLVideoElement
-          if (videoEl.paused) {
-            videoEl.play().catch((err) => {
-              console.log('Video autoplay failed:', err)
-            })
-          }
-        })
-      }, 500)
-    }
-
-    // Use requestAnimationFrame to ensure the dialog is painted
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTimeout(triggerAdAnimation, 300)
-      })
-    })
 
     // Cleanup
     return () => {
       window.removeEventListener('error', errorHandler)
     }
-  }, [key, onAdLoadError])
+  }, [onAdLoadError])
 
   return (
     <div ref={containerRef} className={className}>
       <ins
-        className={`eas6a97888e37`}
+        className="eas6a97888e37"
         data-zoneid={zoneId}
         data-block-ad-types={blockedAdIds}
       />

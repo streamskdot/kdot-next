@@ -66,7 +66,7 @@ export function ExoclickMobileLeaderboardAd({ className = '', onAdLoadError }: E
       <ins
         className="eas6a97888e10"
         data-zoneid="5923092"
-        data-block-ad-types="0"
+        data-block-ad-types="31,45,69,27,101"
       />
     </div>
   )
