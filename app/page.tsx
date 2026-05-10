@@ -167,7 +167,7 @@ async function MatchesGrid({ league }: { league?: string }) {
         if (isThemedLeague) {
           return (
             <ThemedLeagueSection
-              key={lg.slug}
+              key={`${lg.slug}-${sectionMatches.map(m => m.id).join('-')}`}
               league={lg}
               matches={sectionMatches}
               teamsMap={teamsMap}

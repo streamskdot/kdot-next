@@ -33,7 +33,7 @@ const features = [
   },
   {
     icon: <Shield className="h-5 w-5 sm:h-6 sm:w-6" />,
-    label: 'Less Ads',
+    label: 'Subtle Ads',
     gradient: 'from-emerald-500 to-emerald-600',
   },
   {

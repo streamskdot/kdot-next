@@ -7,7 +7,8 @@ import { getLeagueTheme } from './leagueThemes'
 import { ExoclickLeaderboardAd } from './exoclick/ExoclickLeaderboardAd'
 import { ExoclickMobileMatchCardBanner } from './exoclick/ExoclickMobileMatchCardBanner'
 import type { Match, League } from '@/lib/supabase'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
+import { deriveMatchStatus, computeStartMs } from './MatchTimer'
 
 interface ThemedLeagueSectionProps {
   league: League
@@ -15,9 +16,38 @@ interface ThemedLeagueSectionProps {
   teamsMap: Map<string, { name: string; logo_url: string | null }>
 }
 
+const STATUS_ORDER = { live: 0, upcoming: 1, ended: 2 } as const
+
+function sortMatches(matches: Match[]): Match[] {
+  const nowMs = Date.now()
+  const sorted = [...matches].sort((a, b) => {
+    // Calculate client-side status from duration instead of using backend status
+    const durationHoursA = Number((a.raw_data as { duration?: number } | null)?.duration ?? 2)
+    const durationHoursB = Number((b.raw_data as { duration?: number } | null)?.duration ?? 2)
+    
+    const statusA = deriveMatchStatus(a.match_date, a.display_time, durationHoursA, a.status as 'live' | 'upcoming' | 'ended', nowMs)
+    const statusB = deriveMatchStatus(b.match_date, b.display_time, durationHoursB, b.status as 'live' | 'upcoming' | 'ended', nowMs)
+    
+    const statusDiff = STATUS_ORDER[statusA] - STATUS_ORDER[statusB]
+    if (statusDiff !== 0) return statusDiff
+    
+    // Secondary sort by match date
+    const startMsA = computeStartMs(a.match_date, a.display_time)
+    const startMsB = computeStartMs(b.match_date, b.display_time)
+    if (Number.isFinite(startMsA) && Number.isFinite(startMsB)) {
+      return startMsA - startMsB
+    }
+    return 0
+  })
+  return sorted
+}
+
 export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueSectionProps) {
   const theme = getLeagueTheme(league.slug)
   const [isDarkMode, setIsDarkMode] = useState(false)
+
+  // Sort matches on client side
+  const sortedMatches = useMemo(() => sortMatches(matches), [matches])
 
   useEffect(() => {
     const checkDarkMode = () => {
@@ -143,7 +173,7 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
               className="text-xs font-medium"
               style={{ color: isThemed && !isLightThemed ? 'rgba(255, 255, 255, 0.7)' : undefined }}
             >
-              {matches.length} {matches.length === 1 ? 'match' : 'matches'}
+              {sortedMatches.length} {sortedMatches.length === 1 ? 'match' : 'matches'}
             </span>
           </div>
           {isChampionsLeague && (
@@ -175,7 +205,7 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
         {/* Match Cards Grid - Inside the container */}
         <div className="p-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {matches.map((match, index) => (
+            {sortedMatches.map((match, index) => (
               <React.Fragment key={match.id}>
                 <ThemedMatchCard
                   match={match}
@@ -184,7 +214,7 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
                   team2Data={teamsMap.get(match.team2) ?? null}
                 />
                 {/* Insert mobile banner after every 2 match cards on mobile */}
-                {(index + 1) % 2 === 0 && index !== matches.length - 1 && (
+                {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
                   <div className="lg:hidden col-span-full flex items-center justify-center py-2">
                     <ExoclickMobileMatchCardBanner key={`mobile-banner-${index}`} />
                   </div>
@@ -199,7 +229,7 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
             ))}
           </div>
           {/* Pop under banner if there are 3 or more match cards */}
-          {matches.length >= 3 && (
+          {sortedMatches.length >= 3 && (
             <div className="hidden lg:block mt-4 text-center">
               <ExoclickLeaderboardAd key="pop-under-banner" />
             </div>

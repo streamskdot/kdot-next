@@ -57,10 +57,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <MobileLeaderboardAdSection />
-          {/* <SkyscraperAdSection /> */}
+          <SkyscraperAdSection />
           <LeaderboardAdSection />
           {children}
-          {/* <ExoclickVideoSliderAd /> */}
+          <ExoclickVideoSliderAd />
           <TelegramDialog />
           <ExoclickInterstitialAd />
           <div className="mx-auto max-w-5xl w-full px-4 pb-6 sm:px-6">
