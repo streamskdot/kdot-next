@@ -16,7 +16,7 @@ interface UseLiveViewCountReturn {
  * @returns Object containing viewer count and connection status
  */
 export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
-  const [viewerCount, setViewerCount] = useState(0)
+  const [viewerCount, setViewerCount] = useState(0) // eslint-disable-line @typescript-eslint/no-unused-vars
   const [isConnected, setIsConnected] = useState(false)
   const viewerIdRef = useRef<string>('')
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -71,38 +71,38 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
     }
 
     // Function to get current viewer count
-    const fetchViewerCount = async () => {
-      try {
-        // Count viewers who were active in the last 40 seconds
-        const fortySecondsAgo = new Date(Date.now() - 40 * 1000).toISOString()
-        
-        console.log('[useLiveViewCount] Fetching count for videoId:', videoId, 'since:', fortySecondsAgo, '(40 second timeout)')
-        
-        const { count, error } = await supabase
-          .from('viewers')
-          .select('*', { count: 'exact', head: true })
-          .eq('video_id', videoId)
-          .gt('last_seen', fortySecondsAgo)
-        
-        if (error) {
-          console.error('[useLiveViewCount] Error fetching viewer count:', error)
-        } else {
-          console.log('[useLiveViewCount] Viewer count for videoId', videoId, ':', count, '(raw count:', count, ')')
-          setViewerCount(count || 0)
-        }
-      } catch (error) {
-        console.error('[useLiveViewCount] Error fetching viewer count:', error)
-      }
-    }
+    // const fetchViewerCount = async () => {
+    //   try {
+    //     // Count viewers who were active in the last 40 seconds
+    //     const fortySecondsAgo = new Date(Date.now() - 40 * 1000).toISOString()
+    //     
+    //     console.log('[useLiveViewCount] Fetching count for videoId:', videoId, 'since:', fortySecondsAgo, '(40 second timeout)')
+    //     
+    //     const { count, error } = await supabase
+    //       .from('viewers')
+    //       .select('*', { count: 'exact', head: true })
+    //       .eq('video_id', videoId)
+    //       .gt('last_seen', fortySecondsAgo)
+    //     
+    //     if (error) {
+    //       console.error('[useLiveViewCount] Error fetching viewer count:', error)
+    //     } else {
+    //       console.log('[useLiveViewCount] Viewer count for videoId', videoId, ':', count, '(raw count:', count, ')')
+    //       setViewerCount(count || 0)
+    //     }
+    //   } catch (error) {
+    //     console.error('[useLiveViewCount] Error fetching viewer count:', error)
+    //   }
+    // }
 
     // Initial registration and count
     registerViewer()
-    fetchViewerCount()
+    // fetchViewerCount()
 
     // Poll for viewer count every 50 seconds
-    pollIntervalRef.current = setInterval(() => {
-      fetchViewerCount()
-    }, 50000)
+    // pollIntervalRef.current = setInterval(() => {
+    //   fetchViewerCount()
+    // }, 50000)
 
     // Heartbeat: update last_seen every 100 seconds
     heartbeatIntervalRef.current = setInterval(() => {
@@ -124,8 +124,8 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
       } else {
         // Resume when tab becomes visible
         registerViewer()
-        fetchViewerCount()
-        pollIntervalRef.current = setInterval(fetchViewerCount, 50000)
+        // fetchViewerCount()
+        // pollIntervalRef.current = setInterval(fetchViewerCount, 50000)
         heartbeatIntervalRef.current = setInterval(registerViewer, 100000)
       }
     }

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Radio } from 'lucide-react'
 import { StreamPlayer } from '@/app/components/StreamPlayer'
-import { LiveViewerCount } from '@/app/components/LiveViewerCount'
+// import { LiveViewerCount } from '@/app/components/LiveViewerCount'
 import { WatchBottomPanel } from '@/app/components/WatchBottomPanel'
 import { WatchPageActions } from '@/app/components/WatchPageActions'
 import { ExoclickOutstreamAd } from '@/app/components/exoclick/ExoclickOutstreamAd'
@@ -48,7 +48,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
 
   // Use match ID as video ID for live viewer tracking, fall back to URL if no match
   // If using URL, hash it to create a consistent ID
-  const videoId = matchId || (url ? url : '')
+  // const videoId = matchId || (url ? url : '')
 
   // All stream links for this match so users can switch without going back.
   // Handle both old string format and new {source, link} object format
@@ -93,7 +93,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
               url={url}
               title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
             />
-            <LiveViewerCount videoId={videoId} />
+            {/* <LiveViewerCount videoId={videoId} /> */}
           </div>
 
           {/* Alternate links */}
