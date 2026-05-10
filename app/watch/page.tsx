@@ -105,7 +105,7 @@ export default function WatchPage() {
                 </div>
               )}
             </div>
-            <WatchPageActions matchId={matchId} />
+            <WatchPageActions matchId={matchId || undefined} />
           </div>
 
           {/* Player with live viewer count overlay */}
