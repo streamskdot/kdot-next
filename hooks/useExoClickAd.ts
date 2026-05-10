@@ -39,7 +39,8 @@ function injectAdProvider(onError?: () => void): Promise<void> {
 export function useExoClickAd(
   containerRef: RefObject<HTMLDivElement | null>,
   config: AdConfig,
-  onAdLoadError?: () => void
+  onAdLoadError?: () => void,
+  reinitTrigger?: number
 ) {
   useEffect(() => {
     if (!containerRef.current) return
@@ -109,5 +110,5 @@ export function useExoClickAd(
         containerRef.current.innerHTML = ''
       }
     }
-  }) // NO dependency array — fires on every mount
+  }, [reinitTrigger]) // <-- ONLY reinitTrigger in dep array
 }

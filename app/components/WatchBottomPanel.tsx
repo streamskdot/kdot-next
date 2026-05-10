@@ -10,6 +10,7 @@ export interface WatchBottomPanelProps {
   matchDate?: string
   children?: ReactNode
   expandedContent?: ReactNode
+  onExpand?: () => void
 }
 
 export function WatchBottomPanel({
@@ -17,7 +18,8 @@ export function WatchBottomPanel({
   status,
   matchDate,
   children,
-  expandedContent
+  expandedContent,
+  onExpand
 }: WatchBottomPanelProps) {
   const router = useRouter()
   const [isExpanded, setIsExpanded] = useState(true)
@@ -43,6 +45,7 @@ export function WatchBottomPanel({
       // Immediately reopen after 100ms
       setTimeout(() => {
         setIsExpanded(true)
+        onExpand?.()
       }, 100)
     }
 
@@ -51,13 +54,14 @@ export function WatchBottomPanel({
     return () => {
       clearInterval(timer)
     }
-  }, [])
+  }, [onExpand])
 
   // If manually closed, reopen after 30 seconds
   useEffect(() => {
     if (manualCloseTime && !isExpanded) {
       const timer = setTimeout(() => {
         setIsExpanded(true)
+        onExpand?.()
         setManualCloseTime(null)
       }, 30000)
 
@@ -65,14 +69,12 @@ export function WatchBottomPanel({
         clearTimeout(timer)
       }
     }
-  }, [manualCloseTime, isExpanded])
+  }, [manualCloseTime, isExpanded, onExpand])
 
   const handleToggle = () => {
-    if (isExpanded) {
-      // User is manually closing
-      setManualCloseTime(Date.now())
-    }
-    setIsExpanded(!isExpanded)
+    const next = !isExpanded
+    setIsExpanded(next)
+    if (next) onExpand?.()
   }
 
   return (
@@ -118,11 +120,18 @@ export function WatchBottomPanel({
       </div>
 
       {/* Expanded Content */}
-      {isExpanded && (
-        <div className="p-4 min-h-[40vh] max-h-[40vh] overflow-y-auto">
-          {expandedContent || children}
-        </div>
-      )}
+      <div
+        className="overflow-y-auto transition-all duration-300"
+        style={{
+          minHeight: isExpanded ? '40vh' : '0',
+          maxHeight: isExpanded ? '40vh' : '0',
+          padding: isExpanded ? '1rem' : '0',
+          overflow: isExpanded ? 'auto' : 'hidden',
+          visibility: isExpanded ? 'visible' : 'hidden',
+        }}
+      >
+        {expandedContent || children}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,10 @@
+'use client'
+
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Radio } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { StreamPlayer } from '@/app/components/StreamPlayer'
 // import { LiveViewerCount } from '@/app/components/LiveViewerCount'
 import { WatchBottomPanel } from '@/app/components/WatchBottomPanel'
@@ -8,15 +12,20 @@ import { WatchPageActions } from '@/app/components/WatchPageActions'
 import { ExoclickOutstreamAd } from '@/app/components/exoclick/ExoclickOutstreamAd'
 import { supabase } from '@/lib/supabase'
 
-interface WatchPageProps {
-  searchParams: Promise<{
-    url?: string
-    match?: string
-    n?: string
-  }>
+interface MatchData {
+  id: string
+  team1: string
+  team2: string
+  stream_links: any
+  status: string
+  match_date: string
+  display_time: string
+  raw_data: any
+  team1Name?: string
+  team2Name?: string
 }
 
-async function getMatchLite(id: string) {
+async function getMatchLite(id: string): Promise<MatchData | null> {
   const { data } = await supabase
     .from('matches')
     .select('id, team1, team2, stream_links, status, match_date, display_time, raw_data')
@@ -38,12 +47,25 @@ async function getMatchLite(id: string) {
   }
 }
 
-export default async function WatchPage({ searchParams }: WatchPageProps) {
-  const { url, match: matchId, n } = await searchParams
+export default function WatchPage() {
+  const searchParams = useSearchParams()
+  const url = searchParams.get('url')
+  const matchId = searchParams.get('match')
+  const n = searchParams.get('n')
+  const [matchData, setMatchData] = useState<MatchData | null>(null)
+  const [adExpandCount, setAdExpandCount] = useState(0)
 
-  if (!url) notFound()
+  useEffect(() => {
+    if (!url) {
+      notFound()
+      return
+    }
 
-  const matchData = matchId ? await getMatchLite(matchId) : null
+    if (matchId) {
+      getMatchLite(matchId).then(setMatchData)
+    }
+  }, [url, matchId])
+
   const streamIndex = n ? Number(n) : null
 
   // Use match ID as video ID for live viewer tracking, fall back to URL if no match
@@ -88,11 +110,13 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
 
           {/* Player with live viewer count overlay */}
           <div className="relative mb-4">
-            <StreamPlayer
-              key={url}
-              url={url}
-              title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
-            />
+            {url && (
+              <StreamPlayer
+                key={url}
+                url={url}
+                title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
+              />
+            )}
             {/* <LiveViewerCount videoId={videoId} /> */}
           </div>
 
@@ -139,8 +163,9 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
       <WatchBottomPanel
         streamName={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
         matchDate={matchData?.match_date}
+        onExpand={() => setAdExpandCount(c => c + 1)}
       >
-        <ExoclickOutstreamAd />
+        <ExoclickOutstreamAd reinitTrigger={adExpandCount} />
       </WatchBottomPanel>
     </div>
   )
