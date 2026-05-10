@@ -101,7 +101,7 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
                   </div>
                   <div className="flex-1 text-left">
                     <p className={`font-medium text-zinc-900 dark:text-white ${isRecommended ? 'text-amber-700 dark:text-amber-300' : ''}`}>
-                      {isRecommended ? ` Stream Link 1 [HD]` : (index === 1 ? `Stream Link HD ${index + 1} [ENGLISH]` : `Stream Link ${index + 1} (HD)`)}
+                      {isRecommended ? ` Premium Link  [2160p]` : (index === 1 ? `Stream Link HD ${index + 1} [E]` : `Stream Link ${index + 1} (HD)`)}
                     </p>
                   </div>
                   <ExternalLink className={`h-5 w-5 ${isRecommended ? 'text-amber-500' : 'text-zinc-400'}`} />
