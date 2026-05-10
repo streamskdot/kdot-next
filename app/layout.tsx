@@ -60,7 +60,7 @@ export default function RootLayout({
           <SkyscraperAdSection />
           <LeaderboardAdSection />
           {children}
-          <ExoclickVideoSliderAd />
+          {/* <ExoclickVideoSliderAd /> */}
           <TelegramDialog />
           <ExoclickInterstitialAd />
           <div className="mx-auto max-w-5xl w-full px-4 pb-6 sm:px-6">
