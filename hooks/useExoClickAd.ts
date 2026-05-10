@@ -47,10 +47,10 @@ export function useExoClickAd(
     let cancelled = false
 
     const run = async () => {
+      if (!containerRef.current) return
+
       // 1. Wipe the container
-      if (containerRef.current) {
-        containerRef.current.innerHTML = ''
-      }
+      containerRef.current.innerHTML = ''
 
       // 2. Destroy old AdProvider instance completely
       destroyAdProvider()
@@ -65,19 +65,30 @@ export function useExoClickAd(
         containerRef.current.appendChild(ins)
       }
 
-      // 4. Re-inject ad-provider.js from scratch — it will scan the DOM
-      //    and find our fresh <ins> with no prior state
+      // 4. Re-inject ad-provider.js from scratch
       await injectAdProvider(onAdLoadError)
 
-      // 5. Push serve after script is loaded and DOM has settled
-      if (!cancelled) {
+      if (cancelled) return
+
+      // 5. Wait for the container to be visible in viewport BEFORE pushing serve.
+      //    ExoClick outstream ads silently skip slots not yet visible.
+      const pushServe = () => {
+        if (cancelled) return
+
+        ;(window as any).AdProvider = (window as any).AdProvider || []
+        ;(window as any).AdProvider.push({ serve: {} })
+
+        // ExoClick outstream waits for browser visibility/scroll signals to activate.
+        // Fire them manually so the ad activates immediately without user interaction.
         setTimeout(() => {
-          if (!cancelled) {
-            ;(window as any).AdProvider = (window as any).AdProvider || []
-            ;(window as any).AdProvider.push({ serve: {} })
-          }
-        }, 200)
+          if (cancelled) return
+          window.dispatchEvent(new Event('scroll'))
+          window.dispatchEvent(new Event('resize'))
+          document.dispatchEvent(new Event('visibilitychange'))
+        }, 300)
       }
+
+      setTimeout(pushServe, 200)
     }
 
     const errorHandler = (event: ErrorEvent) => {
