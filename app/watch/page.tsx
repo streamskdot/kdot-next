@@ -138,7 +138,7 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
       {/* Bottom Panel */}
       <WatchBottomPanel
         streamName={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
-        status={matchData?.status === 'live' ? 'LIVE' : matchData?.status === 'upcoming' ? 'UPCOMING' : 'ENDED'}
+        matchDate={matchData?.match_date}
       >
         <ExoclickOutstreamAd />
       </WatchBottomPanel>

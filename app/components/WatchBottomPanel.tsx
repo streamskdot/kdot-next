@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect, ReactNode } from 'react'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ChevronUp, ChevronDown, ArrowLeft } from 'lucide-react'
 
 export interface WatchBottomPanelProps {
   streamName?: string
   status?: string
+  matchDate?: string
   children?: ReactNode
   expandedContent?: ReactNode
 }
@@ -13,25 +15,63 @@ export interface WatchBottomPanelProps {
 export function WatchBottomPanel({
   streamName,
   status,
+  matchDate,
   children,
   expandedContent
 }: WatchBottomPanelProps) {
+  const router = useRouter()
   const [isExpanded, setIsExpanded] = useState(true)
+  const [manualCloseTime, setManualCloseTime] = useState<number | null>(null)
 
-  // Auto-expand every 1 minute when collapsed
+  // Calculate status from DB data if matchDate is provided
+  const calculatedStatus = matchDate ? (() => {
+    const now = new Date()
+    const match = new Date(matchDate)
+    const diff = match.getTime() - now.getTime()
+    const hours = diff / (1000 * 60 * 60)
+
+    if (hours > 0) return 'UPCOMING'
+    if (hours > -5) return 'LIVE' // Assume live for 5 hours after start
+    return 'ENDED'
+  })() : status
+
+  // Auto-collapse after 45 seconds, then immediately reopen, and repeat cycle
   useEffect(() => {
-    if (!isExpanded) {
-      const expandTimer = setInterval(() => {
+    const cycle = () => {
+      // Close
+      setIsExpanded(false)
+      // Immediately reopen after 100ms
+      setTimeout(() => {
         setIsExpanded(true)
-      }, 60000)
+      }, 100)
+    }
+
+    const timer = setInterval(cycle, 45000)
+
+    return () => {
+      clearInterval(timer)
+    }
+  }, [])
+
+  // If manually closed, reopen after 30 seconds
+  useEffect(() => {
+    if (manualCloseTime && !isExpanded) {
+      const timer = setTimeout(() => {
+        setIsExpanded(true)
+        setManualCloseTime(null)
+      }, 30000)
 
       return () => {
-        clearInterval(expandTimer)
+        clearTimeout(timer)
       }
     }
-  }, [isExpanded])
+  }, [manualCloseTime, isExpanded])
 
   const handleToggle = () => {
+    if (isExpanded) {
+      // User is manually closing
+      setManualCloseTime(Date.now())
+    }
     setIsExpanded(!isExpanded)
   }
 
@@ -40,14 +80,21 @@ export function WatchBottomPanel({
       {/* Header Bar - Always Visible */}
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center gap-3 flex-1 min-w-0">
+          <button
+            onClick={() => router.back()}
+            className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 shadow-sm transition-all duration-200"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-4 w-4 text-white" />
+          </button>
           <div className="flex-1 min-w-0 flex items-center gap-2">
-            {status && (
+            {calculatedStatus && (
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                status === 'LIVE' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                status === 'UPCOMING' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                calculatedStatus === 'LIVE' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                calculatedStatus === 'UPCOMING' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
                 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400'
               }`}>
-                {status}
+                {calculatedStatus}
               </span>
             )}
             {streamName && (
