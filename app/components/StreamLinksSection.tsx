@@ -116,7 +116,7 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
               {isUpcoming ? 'Links will be available when match is about to start' : 'Match Has Ended'}
             </p>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              {isUpcoming ? 'Sorry for the delay' : 'No stream links available for this match'}
+              {isUpcoming ? 'If the links are still not available after match start, please wait for some time...' : 'No stream links available for this match'}
             </p>
             <div className="hidden lg:block mt-6">
               <ExoclickDesktopStreamLinkBanner />

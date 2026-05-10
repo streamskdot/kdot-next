@@ -75,15 +75,15 @@ export default async function WatchPage({ searchParams }: WatchPageProps) {
           <div className="mb-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               {streamIndex != null && Number.isFinite(streamIndex) && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md">
-                  <Radio className="h-3.5 w-3.5 animate-pulse" />
-                  <p className="text-sm font-semibold">
+                <div className="inline-flex items-center gap-2">
+                  <Radio className="h-3.5 w-3.5 animate-pulse text-zinc-500" />
+                  <p className="text-xs text-zinc-500">
                     {sortedLinks[streamIndex]?.source === 'ppv' ? 'Channel 1' : (sortedLinks[streamIndex]?.source === 'yosintv' && streamIndex === 2 ? 'English HD' : `Channel ${streamIndex + 1}`)}
                   </p>
                 </div>
               )}
             </div>
-            <WatchPageActions />
+            <WatchPageActions matchId={matchId} />
           </div>
 
           {/* Player with live viewer count overlay */}

@@ -17,6 +17,7 @@ export type Match = {
   match_date: string | null
   stream_links: string[] | null
   raw_data: Record<string, unknown> | null
+  is_highlighted: boolean | null
 }
 
 export type League = {
