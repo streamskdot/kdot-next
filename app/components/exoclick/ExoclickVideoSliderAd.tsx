@@ -67,7 +67,7 @@ export function ExoclickVideoSliderAd({ className = '', onAdLoadError }: Exoclic
       <ins
         className="eas6a97888e31"
         data-zoneid="5923014"
-        data-block-ad-types="0"
+        data-block-ad-types="31,45,69,27,101"
       />
     </div>
   )

@@ -9,7 +9,7 @@ interface ExoclickAdProps {
   key?: string | number
 }
 
-export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = '31,45,69,27', key, onAdLoadError }: ExoclickAdProps & { onAdLoadError?: () => void }) {
+export function ExoclickAd({ zoneId = '5922060', className = '', blockedAdIds = '31,45,69,27,101', key, onAdLoadError }: ExoclickAdProps & { onAdLoadError?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const initializedRef = useRef(false)
 
