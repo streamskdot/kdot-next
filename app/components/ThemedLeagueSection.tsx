@@ -5,7 +5,7 @@ import { LeagueLogo } from './LeagueLogo'
 import { ThemedMatchCard } from './ThemedMatchCard'
 import { getLeagueTheme } from './leagueThemes'
 import { ExoclickLeaderboardAd } from './exoclick/ExoclickLeaderboardAd'
-import { ExoclickMobileMatchCardBanner } from './exoclick/ExoclickMobileMatchCardBanner'
+import { AdsterraBanner320x50WithRefresh } from './adsterra/AdsterraBanner320x50Refresh'
 import type { Match, League } from '@/lib/supabase'
 import { useEffect, useState, useMemo } from 'react'
 import { deriveMatchStatus, computeStartMs } from './MatchTimer'
@@ -215,8 +215,9 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
                 />
                 {/* Insert mobile banner after every 2 match cards on mobile */}
                 {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
-                  <div className="lg:hidden col-span-full flex items-center justify-center py-2">
-                    <ExoclickMobileMatchCardBanner key={`mobile-banner-${index}`} />
+                  <div className="lg:hidden col-span-full flex flex-col items-center justify-center gap-2 py-2">
+                    <AdsterraBanner320x50WithRefresh key={`mobile-banner-1-${index}`} />
+                    <AdsterraBanner320x50WithRefresh key={`mobile-banner-2-${index}`} />
                   </div>
                 )}
                 {/* Insert banner after every 3 match cards on desktop */}
