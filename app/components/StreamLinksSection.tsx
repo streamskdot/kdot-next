@@ -6,6 +6,7 @@ import { ExternalLink, Radio, Trophy, Star } from 'lucide-react'
 import { ExoclickDialog } from './exoclick'
 import { ExoclickDesktopStreamLinkBanner } from './exoclick/ExoclickDesktopStreamLinkBanner'
 import { ExoclickMobileSquareBanner } from './exoclick/ExoclickMobileSquareBanner'
+import { PremiumUnlockDialog } from './PremiumUnlockDialog'
 
 interface StreamLinksSectionProps {
   streamLinks: Array<{source: string, link: string}> | string[] | null
@@ -17,6 +18,8 @@ interface StreamLinksSectionProps {
 export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog = true }: StreamLinksSectionProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedStream, setSelectedStream] = useState<{ url: string; index: number } | null>(null)
+  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false)
+  const [premiumWatchUrl, setPremiumWatchUrl] = useState('')
   const router = useRouter()
   
   // Handle both old string format and new {source, link} object format
@@ -35,12 +38,21 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
   const hasLinks = sortedLinks.length > 0
   const isUpcoming = status === 'upcoming'
 
-  const handleStreamClick = (url: string, index: number) => {
+  const handleStreamClick = (url: string, index: number, source: string) => {
+    const watchHref = `/watch?url=${encodeURIComponent(url)}&match=${matchId}&n=${index}`
+    if (source === 'ppv') {
+      // Append premium=1 so the watch page knows this user already passed
+      // the unlock flow and shouldn't be shown the dialog again when they
+      // click the Premium button in the alternate-links section.
+      setPremiumWatchUrl(`${watchHref}&premium=1`)
+      setPremiumDialogOpen(true)
+      return
+    }
     if (showAdDialog) {
       setSelectedStream({ url, index })
       setDialogOpen(true)
     } else {
-      router.push(`/watch?url=${encodeURIComponent(url)}&match=${matchId}&n=${index}`)
+      router.push(watchHref)
     }
   }
 
@@ -83,7 +95,7 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
               return (
                 <button
                   key={index}
-                  onClick={() => handleStreamClick(link, index)}
+                  onClick={() => handleStreamClick(link, index, source)}
                   className={`relative flex w-full items-center gap-3 rounded-xl border p-4 transition-all ${
                     isRecommended
                       ? 'border-amber-400 bg-linear-to-r from-amber-50 to-yellow-50 hover:border-amber-500 hover:from-amber-100 hover:to-yellow-100 dark:border-amber-500/50 dark:from-amber-900/20 dark:to-yellow-900/20 dark:hover:border-amber-500 dark:hover:from-amber-900/30 dark:hover:to-yellow-900/30'
@@ -137,6 +149,15 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
           streamIndex={selectedStream.index}
         />
       )}
+
+      <PremiumUnlockDialog
+        open={premiumDialogOpen}
+        onClose={() => setPremiumDialogOpen(false)}
+        watchUrl={premiumWatchUrl}
+        requiredAdViews={2}
+        skipDialog={false}
+        onStandardWatch={() => setPremiumDialogOpen(false)}
+      />
     </>
   )
 }

@@ -6,6 +6,12 @@ import { AlertTriangle } from 'lucide-react'
 interface StreamPlayerProps {
   url: string
   title?: string
+  /**
+   * When true, hides the kdotTV watermark and the red translucent
+   * banner overlay inside the iframe stage. Used for the Premium
+   * (PPV) channel where these overlays should not appear.
+   */
+  isPremium?: boolean
 }
 
 /**
@@ -63,7 +69,7 @@ function TVStatic() {
  * Kept as a standalone client component so it can be reused on the dedicated
  * /watch page or embedded inline on a match detail page.
  */
-export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) {
+export function StreamPlayer({ url, title = 'Live Stream', isPremium = false }: StreamPlayerProps) {
   const [loading, setLoading] = useState(true)
   const [errored, setErrored] = useState(false)
 
@@ -167,8 +173,9 @@ export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) 
               </div>
             )}
 
-            {/* kdotTV watermark — sits over the provider's own URL overlay. */}
-            {!loading && !errored && (
+            {/* kdotTV watermark — sits over the provider's own URL overlay.
+                Hidden for Premium (PPV) streams. */}
+            {!loading && !errored && !isPremium && (
               <div
                 aria-hidden
                 data-kdotv-watermark
@@ -195,8 +202,8 @@ export function StreamPlayer({ url, title = 'Live Stream' }: StreamPlayerProps) 
               </div>
             )}
 
-            {/* Blurred line above center */}
-            {!loading && !errored && (
+            {/* Blurred line above center — hidden for Premium streams. */}
+            {!loading && !errored && !isPremium && (
               <div
                 aria-hidden
                 data-blurred-line

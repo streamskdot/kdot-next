@@ -1,15 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { Radio } from 'lucide-react'
+import { notFound, useRouter } from 'next/navigation'
+import { Radio, Star, ArrowLeft } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { StreamPlayer } from '@/app/components/StreamPlayer'
 // import { LiveViewerCount } from '@/app/components/LiveViewerCount'
 import { WatchBottomPanel } from '@/app/components/WatchBottomPanel'
 import { WatchPageActions } from '@/app/components/WatchPageActions'
-import { ExoclickOutstreamAd } from '@/app/components/exoclick/ExoclickOutstreamAd'
+import { AdsterraNativeBanner } from '@/app/components/adsterra/direct/AdsterraNativeBanner'
+import { AdsterraBanner300x250 } from '@/app/components/adsterra/direct/AdsterraBanner300x250'
+import { AdsterraBanner728x90 } from '@/app/components/adsterra/direct/AdsterraBanner728x90'
+import { AdsterraBanner468x60 } from '@/app/components/adsterra/direct/AdsterraBanner468x60'
+import { Navbar } from '@/app/components/Navbar'
+import { PremiumUnlockDialog } from '@/app/components/PremiumUnlockDialog'
 import { supabase } from '@/lib/supabase'
 
 interface MatchData {
@@ -48,12 +53,36 @@ async function getMatchLite(id: string): Promise<MatchData | null> {
 }
 
 export default function WatchPage() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const url = searchParams.get('url')
   const matchId = searchParams.get('match')
   const n = searchParams.get('n')
   const [matchData, setMatchData] = useState<MatchData | null>(null)
   const [adExpandCount, setAdExpandCount] = useState(0)
+  const [nativeAdTick, setNativeAdTick] = useState(0)
+  const [bannerAdTick, setBannerAdTick] = useState(0)
+  const [belowPlayerAdTick, setBelowPlayerAdTick] = useState(0)
+  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false)
+  const [premiumWatchUrl, setPremiumWatchUrl] = useState('')
+
+  // Re-render the Adsterra native banner every 10s to boost impressions.
+  useEffect(() => {
+    const id = setInterval(() => setNativeAdTick(t => t + 1), 10000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Re-render the 300x250 banner every 7s.
+  useEffect(() => {
+    const id = setInterval(() => setBannerAdTick(t => t + 1), 7000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Re-render desktop below-player ads (2x 728x90 + 1x 468x60) every 25s.
+  useEffect(() => {
+    const id = setInterval(() => setBelowPlayerAdTick(t => t + 1), 15000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (!url) {
@@ -91,33 +120,88 @@ export default function WatchPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+      {/* Navbar shown on tablet & desktop only (hidden on mobile, where the
+          bottom panel handles nav). Using `md:contents` ensures the wrapper
+          doesn't form its own containing block on desktop, so the inner
+          `sticky top-0` <nav> sticks against the page scroll instead of
+          getting trapped inside an element the size of the navbar itself. */}
+      <div className="hidden md:contents">
+        <Navbar />
+      </div>
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 py-2 sm:px-6">
           {/* Channel name and action buttons */}
           <div className="mb-4 flex items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              {streamIndex != null && Number.isFinite(streamIndex) && (
-                <div className="inline-flex items-center gap-2">
-                  <Radio className="h-3.5 w-3.5 animate-pulse text-zinc-500" />
-                  <p className="text-xs text-zinc-500">
-                    {sortedLinks[streamIndex]?.source === 'ppv' ? 'Channel 1' : (sortedLinks[streamIndex]?.source === 'yosintv' && streamIndex === 2 ? 'English HD' : `Channel ${streamIndex + 1}`)}
-                  </p>
-                </div>
-              )}
+            <div className="flex flex-1 min-w-0 items-center gap-3">
+              {/* Desktop back button — mobile gets the equivalent button in
+                  the bottom panel, so this is hidden below md. */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (matchId) router.push(`/match/${matchId}`)
+                  else router.back()
+                }}
+                className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br from-red-500 to-red-600 text-white shadow-sm shadow-red-500/30 transition-all duration-200 hover:from-red-600 hover:to-red-700 hover:shadow-md active:scale-95"
+                aria-label="Back to match page"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+              {(() => {
+                const current = (streamIndex != null && Number.isFinite(streamIndex)
+                  ? normalizedLinks.find(l => l.originalIndex === streamIndex)
+                  : undefined)
+                  ?? normalizedLinks.find(l => l.link === url)
+                if (!current) return null
+                const isPPV = current.source === 'ppv'
+                const isEnglish = current.source === 'yosintv' && current.originalIndex === 1
+                const label = isPPV ? 'Premium [2160p]' : (isEnglish ? 'English' : `Channel ${current.originalIndex + 1}`)
+                return (
+                  <div className="inline-flex items-center gap-2">
+                    {isPPV ? (
+                      <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                    ) : (
+                      <Radio className="h-3.5 w-3.5 animate-pulse text-zinc-500" />
+                    )}
+                    <p className={`text-xs font-medium ${isPPV ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500'}`}>
+                      {label}
+                    </p>
+                  </div>
+                )
+              })()}
             </div>
             <WatchPageActions matchId={matchId || undefined} />
           </div>
 
           {/* Player with live viewer count overlay */}
           <div className="relative mb-4">
-            {url && (
-              <StreamPlayer
-                key={url}
-                url={url}
-                title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
-              />
-            )}
+            {url && (() => {
+              // Determine whether the currently playing stream is the
+              // Premium (PPV) channel so the player can suppress the
+              // kdotTV watermark and red translucent banner overlay.
+              const currentStream = (streamIndex != null && Number.isFinite(streamIndex)
+                ? normalizedLinks.find(l => l.originalIndex === streamIndex)
+                : undefined)
+                ?? normalizedLinks.find(l => l.link === url)
+              const isPremiumStream = currentStream?.source === 'ppv'
+              return (
+                <StreamPlayer
+                  key={url}
+                  url={url}
+                  title={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
+                  isPremium={isPremiumStream}
+                />
+              )
+            })()}
             {/* <LiveViewerCount videoId={videoId} /> */}
+          </div>
+
+          {/* Desktop-only below-player ad row: 2x 728x90 + 1x 468x60.
+              Hidden on mobile/tablet to avoid horizontal overflow.
+              Refreshed every 25s via direct-DOM hook. */}
+          <div className="hidden lg:flex flex-col items-center gap-3 mb-4">
+            <AdsterraBanner728x90 reinitTrigger={belowPlayerAdTick} />
+            {/* <AdsterraBanner728x90 reinitTrigger={belowPlayerAdTick + 1} /> */}
+            {/* <AdsterraBanner468x60 reinitTrigger={belowPlayerAdTick + 2} /> */}
           </div>
 
           {/* Alternate links */}
@@ -127,25 +211,49 @@ export default function WatchPage() {
                 Change Language / Streams below: 
               </h2>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-                {otherLinks.map(({ link, source }, index) => {
-                  const isActive = link === url
+                {otherLinks.map(({ link, source, originalIndex }) => {
+                  const isActive = streamIndex != null && Number.isFinite(streamIndex)
+                    ? originalIndex === streamIndex
+                    : link === url
                   const isPPV = source === 'ppv'
-                  const isYosintvThird = source === 'yosintv' && index === 2
-                  const label = isPPV ? 'Channel 1' : (isYosintvThird ? 'English HD' : `Channel ${index + 1}`)
-                  return (
-                    <Link
-                      key={index}
-                      href={`/watch?url=${encodeURIComponent(link)}&match=${matchId}&n=${index}`}
-                      className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
-                        isActive
-                          ? 'border-green-500 bg-green-50 text-green-700 dark:border-green-600 dark:bg-green-950/40 dark:text-green-400'
-                          : isPPV
-                            ? 'border-amber-400 bg-amber-50 text-amber-700 hover:border-amber-500 hover:bg-amber-100 dark:border-amber-500/50 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:border-amber-500 dark:hover:bg-amber-900/30'
-                            : 'border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-750'
-                      }`}
-                    >
-                      <Radio className="h-3.5 w-3.5" />
+                  const isEnglish = source === 'yosintv' && originalIndex === 1
+                  const label = isPPV ? 'Premium' : (isEnglish ? 'English' : `Channel ${originalIndex + 1}`)
+                  const href = `/watch?url=${encodeURIComponent(link)}&match=${matchId}&n=${originalIndex}`
+                  const className = `relative flex items-center justify-center gap-1.5 rounded-lg border-2 px-3 py-2 text-xs font-semibold transition-all ${
+                    isActive
+                      ? 'border-green-500 bg-green-50 text-green-700 dark:border-green-600 dark:bg-green-950/40 dark:text-green-400'
+                      : isPPV
+                        ? 'border-amber-400 bg-linear-to-r from-amber-50 to-yellow-50 text-amber-700 shadow-sm shadow-amber-200 hover:border-amber-500 hover:from-amber-100 hover:to-yellow-100 dark:border-amber-500/60 dark:from-amber-900/20 dark:to-yellow-900/20 dark:text-amber-300 dark:shadow-none dark:hover:border-amber-500 dark:hover:from-amber-900/30 dark:hover:to-yellow-900/30'
+                        : 'border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-750'
+                  }`
+                  const inner = (
+                    <>
+                      {isPPV ? (
+                        <Star className={`h-3.5 w-3.5 ${isActive ? '' : 'fill-amber-500 text-amber-500'}`} />
+                      ) : (
+                        <Radio className="h-3.5 w-3.5" />
+                      )}
                       {label}
+                    </>
+                  )
+                  if (isPPV) {
+                    return (
+                      <button
+                        key={originalIndex}
+                        type="button"
+                        onClick={() => {
+                          setPremiumWatchUrl(href)
+                          setPremiumDialogOpen(true)
+                        }}
+                        className={className}
+                      >
+                        {inner}
+                      </button>
+                    )
+                  }
+                  return (
+                    <Link key={originalIndex} href={href} className={className}>
+                      {inner}
                     </Link>
                   )
                 })}
@@ -153,7 +261,10 @@ export default function WatchPage() {
               <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
                 If this link did not work please try others below
               </p>
+            <AdsterraBanner728x90 reinitTrigger={belowPlayerAdTick + 1} />
+
             </div>
+            
           )}
 
         </div>
@@ -163,10 +274,27 @@ export default function WatchPage() {
       <WatchBottomPanel
         streamName={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
         matchDate={matchData?.match_date}
+        matchId={matchId || undefined}
         onExpand={() => setAdExpandCount(c => c + 1)}
       >
-        <ExoclickOutstreamAd reinitTrigger={adExpandCount} />
+        <div className="flex flex-col items-center gap-3 pb-4">
+          {/* Direct-DOM (no iframe) Adsterra ads. The custom hook captures
+              invoke.js's document.write output on each refresh tick so the
+              ad keeps its native CPM while still re-rendering. */}
+          <AdsterraNativeBanner reinitTrigger={nativeAdTick + adExpandCount} />
+          <AdsterraBanner300x250 reinitTrigger={bannerAdTick + adExpandCount} />
+        </div>
       </WatchBottomPanel>
+
+      <PremiumUnlockDialog
+        open={premiumDialogOpen}
+        onClose={() => setPremiumDialogOpen(false)}
+        watchUrl={premiumWatchUrl}
+        requiredAdViews={2}
+        skipDialog={false}
+        onStandardWatch={() => setPremiumDialogOpen(false)}
+        streamName={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : undefined}
+      />
     </div>
   )
 }

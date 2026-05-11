@@ -9,10 +9,11 @@ import { FeatureCards } from './components/FeatureCards'
 import { ThemedMatchCard } from './components/ThemedMatchCard'
 import { ThemedLeagueSection } from './components/ThemedLeagueSection'
 import { ExoclickLeaderboardAdWithKey } from './components/exoclick/ExoclickLeaderboardAdWithKey'
-import { ExoclickMobileMatchCardBannerWithKey } from './components/exoclick/ExoclickMobileMatchCardBannerWithKey'
+import { AdsterraBanner468x60 } from './components/adsterra/direct/AdsterraBanner468x60'
 import { supabase, type Match, type League } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
+
 
 interface HomeProps {
   searchParams: Promise<{ league?: string }>
@@ -82,9 +83,10 @@ function EmptyState() {
   )
 }
 
+
+
 async function MatchesGrid({ league }: { league?: string }) {
   const { leagues, matches, teamsMap } = await getData(league)
-
   if (matches.length === 0) {
     return <EmptyState />
   }
@@ -120,7 +122,7 @@ async function MatchesGrid({ league }: { league?: string }) {
               {/* Insert mobile banner after every 2 match cards on mobile */}
               {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
                 <div className="lg:hidden col-span-full flex items-center justify-center py-2">
-                  <ExoclickMobileMatchCardBannerWithKey key={`mobile-${league}-${index}`} />
+                  <AdsterraBanner468x60 key={`mobile-${league}-${index}`} />
                 </div>
               )}
               {/* Insert banner after every 3 match cards on desktop */}
@@ -202,7 +204,7 @@ async function MatchesGrid({ league }: { league?: string }) {
                   {/* Insert mobile banner after every 2 match cards on mobile */}
                   {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="lg:hidden col-span-full flex items-center justify-center py-2">
-                      <ExoclickMobileMatchCardBannerWithKey key={`mobile-${lg.slug}-${index}`} />
+                      <AdsterraBanner468x60 key={`mobile-${lg.slug}-${index}`} />
                     </div>
                   )}
                   {/* Insert banner after every 3 match cards on desktop */}
@@ -248,7 +250,7 @@ async function MatchesGrid({ league }: { league?: string }) {
                   {/* Insert mobile banner after every 2 match cards on mobile */}
                   {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="lg:hidden col-span-full flex items-center justify-center py-2">
-                      <ExoclickMobileMatchCardBannerWithKey key={`mobile-orphan-${slug}-${index}`} />
+                      <AdsterraBanner468x60 key={`mobile-orphan-${slug}-${index}`} />
                     </div>
                   )}
                   {/* Insert banner after every 3 match cards on desktop */}

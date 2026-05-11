@@ -5,10 +5,11 @@ import { ThemeProvider } from './components/ThemeProvider'
 import { DMCAFooter } from './components/DMCAFooter'
 import { TelegramDialog } from './components/TelegramDialog'
 import { ExoclickInterstitialAd } from './components/exoclick/ExoclickInterstitialAd'
-import { LeaderboardAdSection } from './components/exoclick/LeaderboardAdSection'
-import { MobileLeaderboardAdSection } from './components/exoclick/MobileLeaderboardAdSection'
-import { SkyscraperAdSection } from './components/exoclick/SkyscraperAdSection'
+import { AdsterraLeaderboardSection } from './components/adsterra/direct/AdsterraLeaderboardSection'
+import { AdsterraMobileLeaderboardSection } from './components/adsterra/direct/AdsterraMobileLeaderboardSection'
+import { AdsterraSkyscraperSection } from './components/adsterra/direct/AdsterraSkyscraperSection'
 import { ExoclickVideoSliderAd } from './components/exoclick/ExoclickVideoSliderAd'
+import { AdsterraSocialBar } from './components/adsterra/AdsterraSocialBar'
 import { Analytics } from '@vercel/analytics/react'
 
 const geistSans = Geist({
@@ -56,11 +57,12 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <MobileLeaderboardAdSection />
-          <SkyscraperAdSection />
-          <LeaderboardAdSection />
+          <AdsterraMobileLeaderboardSection />
+          <AdsterraSkyscraperSection />
+          <AdsterraLeaderboardSection />
           {children}
-          <ExoclickVideoSliderAd />
+          {/* <ExoclickVideoSliderAd /> */}
+          <AdsterraSocialBar />
           <TelegramDialog />
           <ExoclickInterstitialAd />
           <div className="mx-auto max-w-5xl w-full px-4 pb-6 sm:px-6">
