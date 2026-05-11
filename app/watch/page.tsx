@@ -261,7 +261,12 @@ export default function WatchPage() {
               <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
                 If this link did not work please try others below
               </p>
-            <AdsterraBanner728x90 reinitTrigger={belowPlayerAdTick + 1} />
+            {/* Desktop 728x90 ad */}
+            <AdsterraBanner728x90 className="hidden lg:block" reinitTrigger={belowPlayerAdTick + 1} />
+            {/* Mobile 300x250 ad */}
+            <div className="lg:hidden flex items-center justify-center">
+              <AdsterraBanner300x250 reinitTrigger={belowPlayerAdTick + 1} />
+            </div>
 
             </div>
             

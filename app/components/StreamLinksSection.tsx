@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ExternalLink, Radio, Trophy, Star } from 'lucide-react'
 import { ExoclickDialog } from './exoclick'
-import { ExoclickDesktopStreamLinkBanner } from './exoclick/ExoclickDesktopStreamLinkBanner'
-import { ExoclickMobileSquareBanner } from './exoclick/ExoclickMobileSquareBanner'
+import { AdsterraBanner300x250 } from './adsterra/direct/AdsterraBanner300x250'
 import { PremiumUnlockDialog } from './PremiumUnlockDialog'
 
 interface StreamLinksSectionProps {
@@ -130,11 +129,8 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               {isUpcoming ? 'If the links are still not available after match start, please wait for some time...' : 'No stream links available for this match'}
             </p>
-            <div className="hidden lg:block mt-6">
-              <ExoclickDesktopStreamLinkBanner />
-            </div>
-            <div className="lg:hidden flex justify-center mt-6">
-              <ExoclickMobileSquareBanner />
+            <div className="flex flex-col items-center justify-center gap-2 mt-6">
+              <AdsterraBanner300x250 />
             </div>
           </div>
         )}

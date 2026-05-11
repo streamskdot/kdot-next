@@ -8,7 +8,7 @@ import { LeagueLogo } from './components/LeagueLogo'
 import { FeatureCards } from './components/FeatureCards'
 import { ThemedMatchCard } from './components/ThemedMatchCard'
 import { ThemedLeagueSection } from './components/ThemedLeagueSection'
-import { ExoclickLeaderboardAdWithKey } from './components/exoclick/ExoclickLeaderboardAdWithKey'
+import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
 import { supabase, type Match, type League } from '@/lib/supabase'
 import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'
 
@@ -127,8 +127,11 @@ async function MatchesGrid({ league }: { league?: string }) {
               )}
               {/* Insert banner after every 3 match cards on desktop */}
               {(index + 1) % 3 === 0 && index !== sortedMatches.length - 1 && (
-                <div className="hidden lg:block lg:col-span-full text-center py-2">
-                  <ExoclickLeaderboardAdWithKey key={`inline-${league}-${index}`} />
+                <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
+                  <div className="flex flex-row gap-0" style={{ width: 936 }}>
+                    <AdsterraBanner468x60WithRefresh key={`inline-1-${league}-${index}`} />
+                    <AdsterraBanner468x60WithRefresh key={`inline-2-${league}-${index}`} />
+                  </div>
                 </div>
               )}
             </React.Fragment>
@@ -136,8 +139,11 @@ async function MatchesGrid({ league }: { league?: string }) {
         </div>
         {/* Pop under banner if there are 3 or more match cards */}
         {sortedMatches.length >= 3 && (
-          <div className="hidden lg:block mt-4 text-center">
-            <ExoclickLeaderboardAdWithKey key={`popunder-${league}`} />
+          <div className="hidden lg:block mt-4 text-center flex flex-row items-center justify-center gap-0 flex-nowrap">
+            <div className="flex flex-row gap-0" style={{ width: 936 }}>
+              <AdsterraBanner468x60WithRefresh key={`popunder-1-${league}`} />
+              <AdsterraBanner468x60WithRefresh key={`popunder-2-${league}`} />
+            </div>
           </div>
         )}
       </>
@@ -210,8 +216,11 @@ async function MatchesGrid({ league }: { league?: string }) {
                   )}
                   {/* Insert banner after every 3 match cards on desktop */}
                   {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
-                    <div className="hidden lg:block lg:col-span-full text-center py-2">
-                      <ExoclickLeaderboardAdWithKey key={`inline-${lg.slug}-${index}`} />
+                    <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
+                      <div className="flex flex-row gap-0" style={{ width: 936 }}>
+                        <AdsterraBanner468x60WithRefresh key={`inline-1-${lg.slug}-${index}`} />
+                        <AdsterraBanner468x60WithRefresh key={`inline-2-${lg.slug}-${index}`} />
+                      </div>
                     </div>
                   )}
                 </React.Fragment>
@@ -219,8 +228,11 @@ async function MatchesGrid({ league }: { league?: string }) {
             </div>
             {/* Pop under banner if there are 3 or more match cards */}
             {sectionMatches.length >= 3 && (
-              <div className="hidden lg:block mt-4 text-center">
-                <ExoclickLeaderboardAdWithKey key={`popunder-${lg.slug}`} />
+              <div className="hidden lg:block mt-4 text-center flex flex-row items-center justify-center gap-0 flex-nowrap">
+                <div className="flex flex-row gap-0" style={{ width: 936 }}>
+                  <AdsterraBanner468x60WithRefresh key={`popunder-1-${lg.slug}`} />
+                  <AdsterraBanner468x60WithRefresh key={`popunder-2-${lg.slug}`} />
+                </div>
               </div>
             )}
           </section>
@@ -257,8 +269,11 @@ async function MatchesGrid({ league }: { league?: string }) {
                   )}
                   {/* Insert banner after every 3 match cards on desktop */}
                   {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
-                    <div className="hidden lg:block lg:col-span-full text-center py-2">
-                      <ExoclickLeaderboardAdWithKey key={`inline-orphan-${slug}-${index}`} />
+                    <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
+                      <div className="flex flex-row gap-0" style={{ width: 936 }}>
+                        <AdsterraBanner468x60WithRefresh key={`inline-orphan-1-${slug}-${index}`} />
+                        <AdsterraBanner468x60WithRefresh key={`inline-orphan-2-${slug}-${index}`} />
+                      </div>
                     </div>
                   )}
                 </React.Fragment>
@@ -266,8 +281,11 @@ async function MatchesGrid({ league }: { league?: string }) {
             </div>
             {/* Pop under banner if there are 3 or more match cards */}
             {sectionMatches.length >= 3 && (
-              <div className="hidden lg:block mt-4 text-center">
-                <ExoclickLeaderboardAdWithKey key={`popunder-orphan-${slug}`} />
+              <div className="hidden lg:block mt-4 text-center flex flex-row items-center justify-center gap-0 flex-nowrap">
+                <div className="flex flex-row gap-0" style={{ width: 936 }}>
+                  <AdsterraBanner468x60WithRefresh key={`popunder-orphan-1-${slug}`} />
+                  <AdsterraBanner468x60WithRefresh key={`popunder-orphan-2-${slug}`} />
+                </div>
               </div>
             )}
           </section>

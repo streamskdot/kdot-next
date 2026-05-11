@@ -4,7 +4,7 @@ import React from 'react'
 import { LeagueLogo } from './LeagueLogo'
 import { ThemedMatchCard } from './ThemedMatchCard'
 import { getLeagueTheme } from './leagueThemes'
-import { ExoclickLeaderboardAd } from './exoclick/ExoclickLeaderboardAd'
+import { AdsterraBanner468x60WithRefresh } from './adsterra/AdsterraBanner468x60Refresh'
 import { AdsterraBanner320x50WithRefresh } from './adsterra/AdsterraBanner320x50Refresh'
 import type { Match, League } from '@/lib/supabase'
 import { useEffect, useState, useMemo } from 'react'
@@ -212,6 +212,7 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
                   leagueSlug={league.slug}
                   team1Data={teamsMap.get(match.team1) ?? null}
                   team2Data={teamsMap.get(match.team2) ?? null}
+                  showAd={false}
                 />
                 {/* Insert mobile banner after every 2 match cards on mobile */}
                 {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
@@ -222,8 +223,11 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
                 )}
                 {/* Insert banner after every 3 match cards on desktop */}
                 {(index + 1) % 3 === 0 && index !== matches.length - 1 && (
-                  <div className="hidden lg:block lg:col-span-full text-center py-2">
-                    <ExoclickLeaderboardAd key={`banner-${index}`} />
+                  <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
+                    <div className="flex flex-row gap-0" style={{ width: 936 }}>
+                      <AdsterraBanner468x60WithRefresh key={`banner-1-${index}`} />
+                      <AdsterraBanner468x60WithRefresh key={`banner-2-${index}`} />
+                    </div>
                   </div>
                 )}
               </React.Fragment>
@@ -231,8 +235,11 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
           </div>
           {/* Pop under banner if there are 3 or more match cards */}
           {sortedMatches.length >= 3 && (
-            <div className="hidden lg:block mt-4 text-center">
-              <ExoclickLeaderboardAd key="pop-under-banner" />
+            <div className="hidden lg:block mt-4 text-center flex flex-row items-center justify-center gap-0 flex-nowrap">
+              <div className="flex flex-row gap-0" style={{ width: 936 }}>
+                <AdsterraBanner468x60WithRefresh key="pop-under-banner-1" />
+                <AdsterraBanner468x60WithRefresh key="pop-under-banner-2" />
+              </div>
             </div>
           )}
         </div>

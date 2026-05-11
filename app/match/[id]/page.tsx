@@ -6,8 +6,7 @@ import type { Metadata } from 'next'
 import { Navbar } from '@/app/components/Navbar'
 import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { StreamLinksSection } from '@/app/components/StreamLinksSection'
-import { ExoclickLeaderboardAd } from '@/app/components/exoclick/ExoclickLeaderboardAd'
-import { ExoclickMobileSquareBanner } from '@/app/components/exoclick/ExoclickMobileSquareBanner'
+import { MatchDetailAdWrapper } from './MatchDetailAdWrapper'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Trophy, Users, HelpCircle, MonitorPlay, ChevronDown, Eye } from 'lucide-react'
 
@@ -360,21 +359,11 @@ async function MatchDetailContent({ id }: { id: string }) {
         </div>
       </div>
 
-      <div className="hidden lg:block">
-        <ExoclickLeaderboardAd />
-      </div>
-      <div className="lg:hidden flex justify-center">
-        <ExoclickMobileSquareBanner />
-      </div>
+      <MatchDetailAdWrapper offset={0} />
 
       {/* Stream Links Section */}
       <StreamLinksSection showAdDialog={false} streamLinks={match.stream_links} status={match.status} matchId={match.id} />
-      <div className="hidden lg:block">
-        <ExoclickLeaderboardAd />
-      </div>
-      <div className="lg:hidden flex justify-center">
-        <ExoclickMobileSquareBanner />
-      </div>
+      <MatchDetailAdWrapper offset={1} />
 
       {/* Match Info Section */}
       <div className="rounded-2xl border border-zinc-200 bg-linear-to-br from-zinc-50 to-white p-6 shadow-sm dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-800">
@@ -395,22 +384,12 @@ async function MatchDetailContent({ id }: { id: string }) {
 
       </div>
 
-      <div className="hidden lg:block">
-        <ExoclickLeaderboardAd />
-      </div>
-      <div className="lg:hidden flex justify-center">
-        <ExoclickMobileSquareBanner />
-      </div>
+      <MatchDetailAdWrapper offset={2} />
 
       {/* Lineup Info Section */}
       <LineupInfoSection />
 
-      <div className="hidden lg:block">
-        <ExoclickLeaderboardAd />
-      </div>
-      <div className="lg:hidden flex justify-center">
-        <ExoclickMobileSquareBanner />
-      </div>
+      <MatchDetailAdWrapper offset={3} />
 
       {/* FAQ Section */}
       <FAQSection

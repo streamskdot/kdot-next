@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { AdsterraBanner320x50 } from './direct/AdsterraBanner320x50'
+import { AdsterraBanner468x60 } from './AdsterraBanner468x60'
 
 interface Props {
   className?: string
 }
 
-export function AdsterraBanner320x50WithRefresh({ className = '' }: Props) {
+export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
   const [refreshTick, setRefreshTick] = useState(0)
 
   // Re-render the banner every 15 seconds, but pause when tab is hidden
@@ -23,5 +23,5 @@ export function AdsterraBanner320x50WithRefresh({ className = '' }: Props) {
     return () => clearInterval(intervalId)
   }, [])
 
-  return <AdsterraBanner320x50 className={className} reinitTrigger={refreshTick} />
+  return <AdsterraBanner468x60 key={refreshTick} className={className} reinitTrigger={refreshTick} />
 }

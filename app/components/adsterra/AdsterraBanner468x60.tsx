@@ -1,25 +1,27 @@
 'use client'
 import { useRef } from 'react'
-import { useAdsteraBanner } from '@/hooks/useAdsteraBanner'
+import { useAdsterraDirectRefresh } from '@/hooks/useAdsterraDirectRefresh'
 
 interface Props {
   className?: string
-  onAdLoadError?: () => void
   reinitTrigger?: number
 }
 
-export function AdsterraBanner468x60({ className = '', onAdLoadError, reinitTrigger }: Props) {
+const KEY = '7077010ec8194988c50b2be130a48d12'
+const INVOKE_URL = `https://rhubarbambassadorweep.com/${KEY}/invoke.js`
+
+export function AdsterraBanner468x60({ className = '', reinitTrigger }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
-  useAdsteraBanner(
+  useAdsterraDirectRefresh(
     containerRef,
-    {
-      key: '7077010ec8194988c50b2be130a48d12',
-      invokeUrl: 'https://rhubarbambassadorweep.com/7077010ec8194988c50b2be130a48d12/invoke.js',
-      width: 468,
-      height: 60,
-    },
-    onAdLoadError,
-    reinitTrigger
+    { key: KEY, invokeUrl: INVOKE_URL, width: 468, height: 60 },
+    reinitTrigger,
   )
-  return <div ref={containerRef} className={className} />
+  return (
+    <div
+      ref={containerRef}
+      className={className}
+      style={{ width: 468, minHeight: 60 }}
+    />
+  )
 }

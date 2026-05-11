@@ -76,7 +76,7 @@ export function useAdsterraDirectRefresh(
           if (settled) return
           settled = true
           // Give invoke.js a tick to mutate the DOM after it evaluates.
-          setTimeout(resolve, 100)
+          setTimeout(resolve, 0)
         }
         script.onload = done
         script.onerror = () => {
@@ -85,7 +85,7 @@ export function useAdsterraDirectRefresh(
         }
         host.appendChild(script)
         // Safety net so the queue doesn't hang if onload never fires.
-        setTimeout(done, 4000)
+        setTimeout(done, 2000)
       })
     })
 
