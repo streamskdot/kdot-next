@@ -85,8 +85,8 @@ function EmptyState() {
 
 
 
-async function MatchesGrid({ league }: { league?: string }) {
-  const { leagues, matches, teamsMap } = await getData(league)
+async function MatchesGrid({ league, initialData }: { league?: string; initialData?: Awaited<ReturnType<typeof getData>> }) {
+  const { leagues, matches, teamsMap } = initialData ?? await getData(league)
   if (matches.length === 0) {
     return <EmptyState />
   }
@@ -298,26 +298,8 @@ async function MatchesGrid({ league }: { league?: string }) {
 export default async function Home({ searchParams }: HomeProps) {
   const { league } = await searchParams
 
-  // First, get matches to determine which leagues have them
-  const twentyFourHoursAgo = new Date(CURRENT_TIMESTAMP - 24 * 60 * 60 * 1000).toISOString()
-  const { data: matchesWithLeagues } = await supabase
-    .from('matches')
-    .select('league')
-    .or(`status.in.(live,upcoming),and(status.eq.ended,ended_at.gt.${twentyFourHoursAgo})`)
-
-  // Get unique league slugs that have matches
-  const leagueSlugsWithMatches = new Set(
-    (matchesWithLeagues ?? []).map(m => m.league).filter(Boolean)
-  )
-
-  // Fetch only leagues that have matches
-  const { data: leagues } = await supabase
-    .from('leagues')
-    .select('*')
-    .eq('is_active', true)
-    .eq('sport', 'football')
-    .in('slug', Array.from(leagueSlugsWithMatches))
-    .order('sort_order')
+  // Fetch data once for both league tabs and matches grid
+  const { leagues, matches, teamsMap } = await getData(league)
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 transition-colors dark:bg-zinc-950">
@@ -335,12 +317,12 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
 
           {/* League Tabs - No Suspense, renders immediately on client */}
-          <LeagueTabsClient leagues={(leagues ?? []) as League[]} />
+          <LeagueTabsClient leagues={leagues} />
 
           {/* Matches Grid - Only this shows skeleton when loading */}
           <div className="mt-6">
             <Suspense key={league || 'all'} fallback={<MatchesSkeleton />}>
-              <MatchesGrid league={league} />
+              <MatchesGrid league={league} initialData={{ leagues, matches, teamsMap }} />
             </Suspense>
           </div>
 

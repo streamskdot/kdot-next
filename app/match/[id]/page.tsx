@@ -283,11 +283,11 @@ function FAQSection({ team1Name, team2Name, leagueName, matchDate }: { team1Name
   )
 }
 
-async function MatchDetailContent({ id }: { id: string }) {
+async function MatchDetailContent({ id, initialData }: { id: string; initialData?: Awaited<ReturnType<typeof getMatchDetails>> }) {
   // Increment view count only once per page visit
   await incrementViewCount(id)
   
-  const data = await getMatchDetails(id)
+  const data = initialData ?? await getMatchDetails(id)
   
   if (!data) {
     notFound()
@@ -448,6 +448,9 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
 export default async function MatchDetailPage({ params }: MatchDetailPageProps) {
   const { id } = await params
   
+  // Fetch data once to avoid duplicate queries
+  const initialData = await getMatchDetails(id)
+  
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 transition-colors dark:bg-zinc-950">
       <Navbar />
@@ -475,7 +478,7 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
               <div className="h-48 animate-pulse rounded-2xl bg-zinc-200 dark:bg-zinc-800" />
             </div>
           }>
-            <MatchDetailContent id={id} />
+            <MatchDetailContent id={id} initialData={initialData} />
           </Suspense>
         </div>
       </main>

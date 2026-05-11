@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase'
 
 export const runtime = 'edge'
 
+export const revalidate = 3600 // Cache for 1 hour to reduce Supabase edge requests
+
 export const size = {
   width: 1200,
   height: 630,

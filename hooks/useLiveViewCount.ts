@@ -95,46 +95,14 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
     //   }
     // }
 
-    // Initial registration and count
+    // Initial registration
     registerViewer()
-    // fetchViewerCount()
 
-    // Poll for viewer count every 50 seconds
-    // pollIntervalRef.current = setInterval(() => {
-    //   fetchViewerCount()
-    // }, 50000)
-
-    // Heartbeat: update last_seen every 100 seconds
-    heartbeatIntervalRef.current = setInterval(() => {
-      registerViewer()
-    }, 100000)
-
-    // Handle tab visibility
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Stop polling when tab is hidden
-        if (pollIntervalRef.current) {
-          clearInterval(pollIntervalRef.current)
-          pollIntervalRef.current = null
-        }
-        if (heartbeatIntervalRef.current) {
-          clearInterval(heartbeatIntervalRef.current)
-          heartbeatIntervalRef.current = null
-        }
-      } else {
-        // Resume when tab becomes visible
-        registerViewer()
-        // fetchViewerCount()
-        // pollIntervalRef.current = setInterval(fetchViewerCount, 50000)
-        heartbeatIntervalRef.current = setInterval(registerViewer, 100000)
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    // Heartbeat polling removed - will be replaced with websockets
 
     // Cleanup function
     return () => {
-      // Clear intervals
+      // Clear intervals (no longer used, kept for safety)
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current)
         pollIntervalRef.current = null
@@ -144,12 +112,8 @@ export function useLiveViewCount(videoId: string): UseLiveViewCountReturn {
         heartbeatIntervalRef.current = null
       }
 
-      // Remove visibility listener
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-
       // Note: We don't delete the viewer record on unmount
-      // The 2-minute timeout in fetchViewerCount will naturally expire inactive viewers
-      // This prevents count fluctuations on page refresh
+      // Websockets will handle active viewer tracking when implemented
     }
   }, [videoId])
 
