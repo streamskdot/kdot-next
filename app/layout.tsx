@@ -57,9 +57,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <AdsterraMobileLeaderboardSection />
+          {/* <AdsterraMobileLeaderboardSection />
           <AdsterraSkyscraperSection />
-          <AdsterraLeaderboardSection />
+          <AdsterraLeaderboardSection /> */}
           {children}
           {/* <ExoclickVideoSliderAd /> */}
           {/* <AdsterraSocialBar /> */}
