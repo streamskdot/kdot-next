@@ -62,9 +62,9 @@ export default function RootLayout({
           <AdsterraLeaderboardSection />
           {children}
           {/* <ExoclickVideoSliderAd /> */}
-          <AdsterraSocialBar />
+          {/* <AdsterraSocialBar /> */}
           <TelegramDialog />
-          <ExoclickInterstitialAd />
+          {/* <ExoclickInterstitialAd /> */}
           <div className="mx-auto max-w-5xl w-full px-4 pb-6 sm:px-6">
             <DMCAFooter />
           </div>
