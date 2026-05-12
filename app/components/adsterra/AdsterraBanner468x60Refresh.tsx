@@ -10,9 +10,9 @@ interface Props {
 export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
   const [refreshTick, setRefreshTick] = useState(0)
 
-  // Re-render the banner every 15 seconds, but pause when tab is hidden
+  // Re-render the banner every 20 seconds, but pause when tab is hidden
   useEffect(() => {
-    const refreshInterval = 15000 // 15 seconds
+    const refreshInterval = 20000 // 25 seconds
 
     const intervalId = setInterval(() => {
       if (!document.hidden) {

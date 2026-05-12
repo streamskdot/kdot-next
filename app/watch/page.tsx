@@ -68,7 +68,7 @@ export default function WatchPage() {
 
   // Re-render the Adsterra native banner every 10s to boost impressions.
   useEffect(() => {
-    const id = setInterval(() => setNativeAdTick(t => t + 1), 10000)
+    const id = setInterval(() => setNativeAdTick(t => t + 1), 15000)
     return () => clearInterval(id)
   }, [])
 
@@ -287,7 +287,7 @@ export default function WatchPage() {
               invoke.js's document.write output on each refresh tick so the
               ad keeps its native CPM while still re-rendering. */}
           <AdsterraNativeBanner reinitTrigger={nativeAdTick + adExpandCount} />
-          <AdsterraBanner300x250 reinitTrigger={bannerAdTick + adExpandCount} />
+          {/* <AdsterraBanner300x250 reinitTrigger={bannerAdTick + adExpandCount} /> */}
         </div>
       </WatchBottomPanel>
 
