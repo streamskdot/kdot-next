@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Check, Crown, Lock, Loader2, Play } from 'lucide-react'
-// import { useAdsteraPopunder } from '@/hooks/useAdsteraPopunder'
 
 interface PremiumUnlockDialogProps {
   open: boolean
@@ -25,7 +24,6 @@ export function PremiumUnlockDialog({
 }: PremiumUnlockDialogProps) {
   const [adViewCount, setAdViewCount] = useState(0)
   const [prevOpen, setPrevOpen] = useState(open)
-  // const { triggerPopunder, disarmPopunder } = useAdsteraPopunder()
 
   // Reset counter every time the dialog closes (React-recommended derived-state pattern).
   if (prevOpen !== open) {
@@ -45,28 +43,6 @@ export function PremiumUnlockDialog({
 
   const unlocked = adViewCount >= requiredAdViews
   const remaining = Math.max(0, requiredAdViews - adViewCount)
-
-  // Pre-arm the popunder while the dialog is open and we still owe ads.
-  // Adsterra's script attaches its click listener AFTER it loads (async),
-  // so arming on the click itself misses that click. Loading ahead of time
-  // ensures the listener is live by the time the user clicks View Ad.
-  // We re-arm on every adViewCount change so a fresh popunder is queued
-  // for each remaining click. Once unlocked, we stop arming so the Watch
-  // button click never fires a popunder.
-  // useEffect(() => {
-  //   if (!open || skipDialog) return
-  //   if (adViewCount >= requiredAdViews) {
-  //     disarmPopunder()
-  //     return
-  //   }
-  //   triggerPopunder()
-  //   // Cleanup runs when dialog closes, count changes, or component unmounts.
-  //   // This guarantees no armed popunder script survives outside the dialog,
-  //   // so clicks on the Premium Link / Watch / anywhere else don't fire one.
-  //   return () => {
-  //     disarmPopunder()
-  //   }
-  // }, [open, skipDialog, adViewCount, requiredAdViews, triggerPopunder, disarmPopunder])
 
   if (!open || skipDialog) return null
 

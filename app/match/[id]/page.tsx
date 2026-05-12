@@ -359,11 +359,11 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
         </div>
       </div>
 
-      <MatchDetailAdWrapper offset={0} />
+      <MatchDetailAdWrapper />
 
       {/* Stream Links Section */}
       <StreamLinksSection showAdDialog={false} streamLinks={match.stream_links} status={match.status} matchId={match.id} />
-      <MatchDetailAdWrapper offset={1} />
+      <MatchDetailAdWrapper />
 
       {/* Match Info Section */}
       <div className="rounded-2xl border border-zinc-200 bg-linear-to-br from-zinc-50 to-white p-6 shadow-sm dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-800">
@@ -384,12 +384,12 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
 
       </div>
 
-      <MatchDetailAdWrapper offset={2} />
+      <MatchDetailAdWrapper />
 
       {/* Lineup Info Section */}
       <LineupInfoSection />
 
-      <MatchDetailAdWrapper offset={3} />
+      <MatchDetailAdWrapper />
 
       {/* FAQ Section */}
       <FAQSection

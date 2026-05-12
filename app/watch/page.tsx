@@ -9,10 +9,11 @@ import { StreamPlayer } from '@/app/components/StreamPlayer'
 // import { LiveViewerCount } from '@/app/components/LiveViewerCount'
 import { WatchBottomPanel } from '@/app/components/WatchBottomPanel'
 import { WatchPageActions } from '@/app/components/WatchPageActions'
-import { AdsterraNativeBanner } from '@/app/components/adsterra/direct/AdsterraNativeBanner'
-import { AdsterraBanner300x250 } from '@/app/components/adsterra/direct/AdsterraBanner300x250'
-import { AdsterraBanner728x90 } from '@/app/components/adsterra/direct/AdsterraBanner728x90'
-import { AdsterraBanner468x60 } from '@/app/components/adsterra/direct/AdsterraBanner468x60'
+import {
+  AdSlotNative,
+  AdSlot300x250,
+  AdSlot728x90,
+} from '@/app/components/AdSlot'
 import { Navbar } from '@/app/components/Navbar'
 import { PremiumUnlockDialog } from '@/app/components/PremiumUnlockDialog'
 import { supabase } from '@/lib/supabase'
@@ -59,30 +60,8 @@ export default function WatchPage() {
   const matchId = searchParams.get('match')
   const n = searchParams.get('n')
   const [matchData, setMatchData] = useState<MatchData | null>(null)
-  const [adExpandCount, setAdExpandCount] = useState(0)
-  const [nativeAdTick, setNativeAdTick] = useState(0)
-  const [bannerAdTick, setBannerAdTick] = useState(0)
-  const [belowPlayerAdTick, setBelowPlayerAdTick] = useState(0)
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false)
   const [premiumWatchUrl, setPremiumWatchUrl] = useState('')
-
-  // Re-render the Adsterra native banner every 10s to boost impressions.
-  useEffect(() => {
-    const id = setInterval(() => setNativeAdTick(t => t + 1), 15000)
-    return () => clearInterval(id)
-  }, [])
-
-  // Re-render the 300x250 banner every 7s.
-  useEffect(() => {
-    const id = setInterval(() => setBannerAdTick(t => t + 1), 7000)
-    return () => clearInterval(id)
-  }, [])
-
-  // Re-render desktop below-player ads (2x 728x90 + 1x 468x60) every 25s.
-  useEffect(() => {
-    const id = setInterval(() => setBelowPlayerAdTick(t => t + 1), 15000)
-    return () => clearInterval(id)
-  }, [])
 
   useEffect(() => {
     if (!url) {
@@ -199,9 +178,7 @@ export default function WatchPage() {
               Hidden on mobile/tablet to avoid horizontal overflow.
               Refreshed every 25s via direct-DOM hook. */}
           <div className="hidden lg:flex flex-col items-center gap-3 mb-4">
-            <AdsterraBanner728x90 reinitTrigger={belowPlayerAdTick} />
-            {/* <AdsterraBanner728x90 reinitTrigger={belowPlayerAdTick + 1} /> */}
-            {/* <AdsterraBanner468x60 reinitTrigger={belowPlayerAdTick + 2} /> */}
+            <AdSlot728x90 />
           </div>
 
           {/* Alternate links */}
@@ -262,10 +239,10 @@ export default function WatchPage() {
                 If this link did not work please try others below
               </p>
             {/* Desktop 728x90 ad */}
-            <AdsterraBanner728x90 className="hidden lg:block" reinitTrigger={belowPlayerAdTick + 1} />
+            <AdSlot728x90 className="hidden lg:block" />
             {/* Mobile 300x250 ad */}
             <div className="lg:hidden flex items-center justify-center">
-              <AdsterraBanner300x250 reinitTrigger={belowPlayerAdTick + 1} />
+              <AdSlot300x250 />
             </div>
 
             </div>
@@ -280,14 +257,10 @@ export default function WatchPage() {
         streamName={matchData ? `${matchData.team1Name} vs ${matchData.team2Name}` : 'Live Stream'}
         matchDate={matchData?.match_date}
         matchId={matchId || undefined}
-        onExpand={() => setAdExpandCount(c => c + 1)}
       >
         <div className="flex flex-col items-center gap-3 pb-4">
-          {/* Direct-DOM (no iframe) Adsterra ads. The custom hook captures
-              invoke.js's document.write output on each refresh tick so the
-              ad keeps its native CPM while still re-rendering. */}
-          <AdsterraNativeBanner reinitTrigger={nativeAdTick + adExpandCount} />
-          {/* <AdsterraBanner300x250 reinitTrigger={bannerAdTick + adExpandCount} /> */}
+          {/* Native ad placeholder — wire HilltopAds (or other) here later. */}
+          <AdSlotNative />
         </div>
       </WatchBottomPanel>
 
