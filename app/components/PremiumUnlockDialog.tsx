@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Check, Crown, Lock, Loader2, Play } from 'lucide-react'
+import { useHilltopPopunder } from '@/hooks/useHilltopPopunder'
 
 interface PremiumUnlockDialogProps {
   open: boolean
@@ -24,6 +25,45 @@ export function PremiumUnlockDialog({
 }: PremiumUnlockDialogProps) {
   const [adViewCount, setAdViewCount] = useState(0)
   const [prevOpen, setPrevOpen] = useState(open)
+  const { armPopunder, disarmPopunder } = useHilltopPopunder(open && !skipDialog)
+
+  // -------- DIAGNOSTIC LOGGING (remove after debugging) --------
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[dialog] render', { open, skipDialog, adViewCount, href: typeof window !== 'undefined' ? window.location.href : 'ssr' })
+  }
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return
+    console.log('[dialog] MOUNT')
+    const onPageHide = () => console.log('[dialog] pagehide fired — page is navigating away')
+    const onBeforeUnload = () => console.log('[dialog] beforeunload fired — page is navigating')
+    const onPopState = () => console.log('[dialog] popstate', window.location.href)
+    window.addEventListener('pagehide', onPageHide)
+    window.addEventListener('beforeunload', onBeforeUnload)
+    window.addEventListener('popstate', onPopState)
+    // Also monitor location.href via setInterval (cheap, dev-only)
+    let lastHref = window.location.href
+    const t = setInterval(() => {
+      if (window.location.href !== lastHref) {
+        console.log('[dialog] location changed', lastHref, '→', window.location.href)
+        lastHref = window.location.href
+      }
+    }, 200)
+    return () => {
+      console.log('[dialog] UNMOUNT')
+      window.removeEventListener('pagehide', onPageHide)
+      window.removeEventListener('beforeunload', onBeforeUnload)
+      window.removeEventListener('popstate', onPopState)
+      clearInterval(t)
+    }
+  }, [])
+  // -------- /DIAGNOSTIC LOGGING --------
+
+  // One popunder URL per required View Ad click, consumed in order.
+  // Index N is armed when adViewCount === N. Length should be >= requiredAdViews.
+  const POPUNDER_URLS = [
+    '//crookedagreement.com/cdDe9C6.bz2B5BlDSJWHQE9hNjzGAqzGOGD-YI5_NxyB0v3WMVDHMS4TNVzUA/xb',
+    '//crookedagreement.com/cyD.9s6/bI2H5/l-StWVQB9ONJzuA/zoOzD/cKzPMKyN0P3dMZDIMn4WNNzKMd3c',
+  ]
 
   // Reset counter every time the dialog closes (React-recommended derived-state pattern).
   if (prevOpen !== open) {
@@ -44,13 +84,40 @@ export function PremiumUnlockDialog({
   const unlocked = adViewCount >= requiredAdViews
   const remaining = Math.max(0, requiredAdViews - adViewCount)
 
+  // Arm a DIFFERENT popunder script per click. When adViewCount === 0 we
+  // arm URL[0]; the first View Ad click fires it. After the click,
+  // adViewCount becomes 1, this effect re-runs, swaps in URL[1] for the
+  // second click. Once adViewCount >= requiredAdViews we disarm fully.
+  // (Hooks must run unconditionally — placed before the early return below.)
+  useEffect(() => {
+    if (!open || skipDialog) {
+      disarmPopunder()
+      return
+    }
+    if (adViewCount >= requiredAdViews) {
+      disarmPopunder()
+      return
+    }
+    const url = POPUNDER_URLS[adViewCount]
+    if (!url) {
+      disarmPopunder()
+      return
+    }
+    armPopunder(url)
+    return () => {
+      disarmPopunder()
+    }
+    // POPUNDER_URLS is a stable in-component literal; safe to omit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, skipDialog, adViewCount, requiredAdViews, armPopunder, disarmPopunder])
+
   if (!open || skipDialog) return null
 
   const handleViewAd = () => {
-    // Adsterra catches the `click` event on `document` with stopPropagation,
-    // so React's onClick on this button never runs. We bind to onMouseDown
-    // instead — mousedown fires before click, so the counter advances even
-    // if Adsterra swallows the subsequent click event.
+    // The popunder gate (in useHilltopPopunder) allows window.open through
+    // for any click whose target is inside [data-popunder-allow]. The
+    // View Ad button below carries that attribute, so the vendor's
+    // click handler fires window.open normally on this click.
     setAdViewCount((c) => c + 1)
   }
 
@@ -78,13 +145,30 @@ export function PremiumUnlockDialog({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity duration-300"
-      onClick={onClose}
+      // NOTE: backdrop click does NOT close the dialog. The HilltopAds
+      // popunder script dispatches synthetic clicks whose target lands
+      // on this backdrop element, which used to fire onClose
+      // unintentionally. Users dismiss the dialog via the explicit
+      // "No Thanks, watch in Standard HD" button further down.
+      onClick={(e) => {
+        if (process.env.NODE_ENV !== 'production') {
+          // Forensic log so we can see what the popunder dispatched.
+          console.log(
+            '[dialog] backdrop click (ignored)',
+            'target=', (e.target as Element).tagName,
+            'currentTarget=', (e.currentTarget as Element).tagName,
+            'isTrusted=', (e.nativeEvent as MouseEvent).isTrusted,
+            'sameTarget=', e.target === e.currentTarget,
+          )
+        }
+      }}
       role="dialog"
       aria-modal="true"
     >
       <div
         className="relative w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl transition-all duration-500 dark:border-zinc-800 dark:bg-zinc-900"
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Animated gold shimmer bar */}
         <div className="relative h-1 w-full overflow-hidden bg-amber-200/40 dark:bg-amber-900/30">
@@ -150,6 +234,7 @@ export function PremiumUnlockDialog({
               popunder fires. */}
           {!unlocked && (
             <button
+              data-popunder-allow="1"
               onMouseDown={handleViewAd}
               onTouchStart={handleViewAd}
               className="mt-6 w-full rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-zinc-800 active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"

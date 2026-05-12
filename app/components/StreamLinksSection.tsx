@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ExternalLink, Radio, Trophy, Star } from 'lucide-react'
 import { ExoclickDialog } from './exoclick'
@@ -17,9 +17,23 @@ interface StreamLinksSectionProps {
 export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog = true }: StreamLinksSectionProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedStream, setSelectedStream] = useState<{ url: string; index: number } | null>(null)
-  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false)
+  const [premiumDialogOpen, _setPremiumDialogOpen] = useState(false)
   const [premiumWatchUrl, setPremiumWatchUrl] = useState('')
   const router = useRouter()
+
+  // Trace every premiumDialogOpen mutation in dev so we know exactly who closed the dialog.
+  const setPremiumDialogOpen = (v: boolean) => {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[stream-links] setPremiumDialogOpen', v, 'stack:', new Error().stack)
+    }
+    _setPremiumDialogOpen(v)
+  }
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return
+    console.log('[stream-links] MOUNT')
+    return () => console.log('[stream-links] UNMOUNT')
+  }, [])
   
   // Handle both old string format and new {source, link} object format
   const normalizedLinks = (streamLinks ?? []).map((l, i) => {
