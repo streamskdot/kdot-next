@@ -11,7 +11,7 @@ import { ThemedLeagueSection } from './components/ThemedLeagueSection'
 import { AdSlot468x60, AdSlot320x50 } from './components/AdSlot'
 import { supabase, type Match, type League } from '@/lib/supabase'
 import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'
-// import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
+import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
 
 export const dynamic = 'force-dynamic'
 
@@ -219,8 +219,8 @@ async function MatchesGrid({ league, initialData }: { league?: string; initialDa
                   {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
                       <div className="flex flex-row gap-0" style={{ width: 936 }}>
-                        <AdsterraBanner468x60Refresh key={`inline-1-${lg.slug}-${index}`} />
-                        <AdsterraBanner468x60Refresh key={`inline-2-${lg.slug}-${index}`} />
+                        <AdsterraBanner468x60WithRefresh key={`inline-1-${lg.slug}-${index}`} />
+                        <AdsterraBanner468x60WithRefresh key={`inline-2-${lg.slug}-${index}`} />
                       </div>
                     </div>
                   )}
@@ -231,8 +231,8 @@ async function MatchesGrid({ league, initialData }: { league?: string; initialDa
             {sectionMatches.length >= 3 && (
               <div className="hidden lg:block mt-4 text-center flex flex-row items-center justify-center gap-0 flex-nowrap">
                 <div className="flex flex-row gap-0" style={{ width: 936 }}>
-                  <AdsterraBanner468x60Refresh key={`popunder-1-${lg.slug}`} />
-                  <AdsterraBanner468x60Refresh key={`popunder-2-${lg.slug}`} />
+                  <AdsterraBanner468x60WithRefresh key={`popunder-1-${lg.slug}`} />
+                  <AdsterraBanner468x60WithRefresh key={`popunder-2-${lg.slug}`} />
                 </div>
               </div>
             )}
@@ -272,8 +272,8 @@ async function MatchesGrid({ league, initialData }: { league?: string; initialDa
                   {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
                       <div className="flex flex-row gap-0" style={{ width: 936 }}>
-                        <AdsterraBanner468x60Refresh key={`inline-orphan-1-${slug}-${index}`} />
-                        <AdsterraBanner468x60Refresh key={`inline-orphan-2-${slug}-${index}`} />
+                        <AdsterraBanner468x60WithRefresh key={`inline-orphan-1-${slug}-${index}`} />
+                        <AdsterraBanner468x60WithRefresh key={`inline-orphan-2-${slug}-${index}`} />
                       </div>
                     </div>
                   )}
