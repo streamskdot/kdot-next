@@ -1,5 +1,4 @@
 import type { MetadataRoute } from 'next'
-import { supabase } from '@/lib/supabase'
 
 const BASE_URL = 'https://kdotv.com'
 
@@ -21,7 +20,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
+  // Only generate dynamic routes if Supabase environment variables are available
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.warn('Supabase environment variables not found, returning static routes only')
+    return staticRoutes
+  }
+
   try {
+    const { supabase } = await import('@/lib/supabase')
+    
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
 
     const { data: matches } = await supabase
