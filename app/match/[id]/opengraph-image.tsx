@@ -1,9 +1,9 @@
 import { ImageResponse } from 'next/og'
 import { supabase } from '@/lib/supabase'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 
-export const revalidate = 3600 // Cache for 1 hour to reduce Supabase edge requests
+export const revalidate = 86400 // Cache for 24 hours to reduce edge requests
 
 export const size = {
   width: 1200,

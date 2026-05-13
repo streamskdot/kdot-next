@@ -13,7 +13,7 @@ import { supabase, type Match, type League } from '@/lib/supabase'
 import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'
 import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30 // Revalidate every 30 seconds for live match data
 
 
 interface HomeProps {
