@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { AdSlot728x90, AdSlot320x50 } from '@/app/components/AdSlot'
 import { AdsterraBanner320x50 } from '@/app/components/adsterra/direct/AdsterraBanner320x50'
 import { AdsterraBanner728x90 } from '@/app/components/adsterra/direct/AdsterraBanner728x90'
 

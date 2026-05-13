@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 
 declare global {
   interface Window {
-    AdProvider?: any[]
+    AdProvider?: unknown[]
   }
 }
 

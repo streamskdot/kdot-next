@@ -4,13 +4,11 @@ import React from 'react'
 import { LeagueLogo } from './LeagueLogo'
 import { ThemedMatchCard } from './ThemedMatchCard'
 import { getLeagueTheme } from './leagueThemes'
-import { AdSlot468x60, AdSlot320x50 } from './AdSlot'
 import type { Match, League } from '@/lib/supabase'
 import { useEffect, useState, useMemo } from 'react'
 import { deriveMatchStatus, computeStartMs } from './MatchTimer'
 import { AdsterraBanner320x50WithRefreshOffset } from './adsterra/AdsterraBanner320x50WithRefreshOffset'
 import { AdsterraBanner468x60WithRefresh } from './adsterra/AdsterraBanner468x60Refresh'
-import { AdstuffBanner300x250WithRefresh } from './adstuff/AdstuffBanner300x250Refresh'
 
 interface ThemedLeagueSectionProps {
   league: League

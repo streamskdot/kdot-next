@@ -10,7 +10,6 @@ import {
   AdMobileLeaderboardSection,
   AdSkyscraperSection,
 } from './components/AdSlot'
-import { AdsterraSocialBar } from './components/adsterra/AdsterraSocialBar'
 import { Analytics } from '@vercel/analytics/react'
 
 const geistSans = Geist({

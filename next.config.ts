@@ -1,11 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  ...(process.env.CF_PAGES || process.env.CLOUDFLARE_PAGES ? {
-    experimental: {
-      runtime: 'edge',
-    } as never,
-  } : {}),
   headers: async () => {
     return [
       {
