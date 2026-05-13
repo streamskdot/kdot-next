@@ -7,7 +7,7 @@ import { Navbar } from '@/app/components/Navbar'
 import { MatchTimer, MatchStatusBadge } from '@/app/components/MatchTimer'
 import { StreamLinksSection } from '@/app/components/StreamLinksSection'
 import { MatchDetailAdWrapper } from './MatchDetailAdWrapper'
-import { AdstuffFullPageOverlay } from '@/app/components/adstuff/AdstuffFullPageOverlay'
+// import { AdstuffFullPageOverlay } from '@/app/components/adstuff/AdstuffFullPageOverlay'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Trophy, Users, HelpCircle, MonitorPlay, ChevronDown, Eye } from 'lucide-react'
 
