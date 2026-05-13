@@ -11,7 +11,7 @@ import { ThemedLeagueSection } from './components/ThemedLeagueSection'
 import { AdSlot468x60, AdSlot320x50 } from './components/AdSlot'
 import { supabase, type Match, type League } from '@/lib/supabase'
 import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'
-import { AdsterraBanner468x60Refresh } from './components/adsterra/AdsterraBanner468x60Refresh'
+// import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
 
 export const dynamic = 'force-dynamic'
 
