@@ -21,19 +21,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  try {
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
 
-  const { data: matches } = await supabase
-    .from('matches')
-    .select('id, status, match_date')
-    .or(`status.in.(live,upcoming),and(status.eq.ended,match_date.gt.${threeDaysAgo})`)
+    const { data: matches } = await supabase
+      .from('matches')
+      .select('id, status, match_date')
+      .or(`status.in.(live,upcoming),and(status.eq.ended,match_date.gt.${threeDaysAgo})`)
 
-  const matchRoutes: MetadataRoute.Sitemap = (matches ?? []).map((m) => ({
-    url: `${BASE_URL}/match/${m.id}`,
-    lastModified: m.match_date ? new Date(m.match_date) : new Date(),
-    changeFrequency: m.status === 'live' ? 'always' : 'hourly',
-    priority: m.status === 'live' ? 0.95 : m.status === 'upcoming' ? 0.85 : 0.6,
-  }))
+    const matchRoutes: MetadataRoute.Sitemap = (matches ?? []).map((m) => ({
+      url: `${BASE_URL}/match/${m.id}`,
+      lastModified: m.match_date ? new Date(m.match_date) : new Date(),
+      changeFrequency: m.status === 'live' ? 'always' : 'hourly',
+      priority: m.status === 'live' ? 0.95 : m.status === 'upcoming' ? 0.85 : 0.6,
+    }))
 
-  return [...staticRoutes, ...matchRoutes]
+    return [...staticRoutes, ...matchRoutes]
+  } catch (error) {
+    console.error('Failed to generate match routes for sitemap:', error)
+    return staticRoutes
+  }
 }

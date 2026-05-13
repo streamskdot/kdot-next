@@ -15,9 +15,9 @@ import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraB
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Watch Live Football Matches Free in HD',
+  title: 'Watch Live Football Matches in HD',
   description:
-    'Stream live football matches in HD on kdotTV. Premier League, Champions League, La Liga, Bundesliga, IPL, T20 & more. Event links, Real-time scores, schedules, and highlights.',
+    'Stream live football matches in HD on kdotTV. Premier League, Champions League, La Liga, Bundesliga, IPL, T20 & more. Real-time scores, schedules, and highlights.',
   alternates: { canonical: 'https://kdotv.com' },
 }
 
