@@ -12,8 +12,8 @@ import { ThemedLeagueSection } from './components/ThemedLeagueSection'
 export const runtime = 'edge'
 import { AdSlot468x60, AdSlot320x50 } from './components/AdSlot'
 import { supabase, type Match, type League } from '@/lib/supabase'
-import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'
-import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
+// import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'
+// import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -220,32 +220,32 @@ async function MatchesGrid({ league, initialData }: { league?: string; initialDa
                     showAd={false}
                   />
                   {/* Insert mobile banner after every 2 match cards on mobile */}
-                  {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
+                  {/* (index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="lg:hidden col-span-full flex items-center justify-center py-2">
                       <AdsterraBanner320x50WithRefresh key={`mobile-${lg.slug}-${index}`} />
                     </div>
-                  )}
+                  ) */}
                   {/* Insert banner after every 3 match cards on desktop */}
-                  {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
+                  {/* (index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
                       <div className="flex flex-row gap-0" style={{ width: 936 }}>
                         <AdsterraBanner468x60WithRefresh key={`inline-1-${lg.slug}-${index}`} />
                         <AdsterraBanner468x60WithRefresh key={`inline-2-${lg.slug}-${index}`} />
                       </div>
                     </div>
-                  )}
+                  ) */}
                 </React.Fragment>
               ))}
             </div>
             {/* Pop under banner if there are 3 or more match cards */}
-            {sectionMatches.length >= 3 && (
+            {/* sectionMatches.length >= 3 && (
               <div className="hidden lg:block mt-4 text-center flex flex-row items-center justify-center gap-0 flex-nowrap">
                 <div className="flex flex-row gap-0" style={{ width: 936 }}>
                   <AdsterraBanner468x60WithRefresh key={`popunder-1-${lg.slug}`} />
                   <AdsterraBanner468x60WithRefresh key={`popunder-2-${lg.slug}`} />
                 </div>
               </div>
-            )}
+            ) */}
           </section>
         )
       })}
@@ -273,20 +273,20 @@ async function MatchesGrid({ league, initialData }: { league?: string; initialDa
                     showAd={false}
                   />
                   {/* Insert mobile banner after every 2 match cards on mobile */}
-                  {(index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
+                  {/* (index + 1) % 2 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="lg:hidden col-span-full flex items-center justify-center py-2">
                       <AdsterraBanner320x50WithRefresh key={`mobile-orphan-${slug}-${index}`} />
                     </div>
-                  )}
+                  ) */}
                   {/* Insert banner after every 3 match cards on desktop */}
-                  {(index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
+                  {/* (index + 1) % 3 === 0 && index !== sectionMatches.length - 1 && (
                     <div className="hidden lg:block lg:col-span-full flex flex-row items-center justify-center gap-0 flex-nowrap">
                       <div className="flex flex-row gap-0" style={{ width: 936 }}>
                         <AdsterraBanner468x60WithRefresh key={`inline-orphan-1-${slug}-${index}`} />
                         <AdsterraBanner468x60WithRefresh key={`inline-orphan-2-${slug}-${index}`} />
                       </div>
                     </div>
-                  )}
+                  ) */}
                 </React.Fragment>
               ))}
             </div>

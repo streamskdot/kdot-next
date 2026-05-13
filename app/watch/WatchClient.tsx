@@ -10,8 +10,8 @@ import { StreamPlayer } from '@/app/components/StreamPlayer'
 import { WatchBottomPanel } from '@/app/components/WatchBottomPanel'
 import { WatchPageActions } from '@/app/components/WatchPageActions'
 // import { AdSlot728x90 } from '@/app/components/AdSlot'
-import { AdsterraBanner320x50 } from '@/app/components/adsterra/direct/AdsterraBanner320x50'
-import { AdsterraBanner728x90 } from '@/app/components/adsterra/direct/AdsterraBanner728x90'
+// import { AdsterraBanner320x50 } from '@/app/components/adsterra/direct/AdsterraBanner320x50'
+// import { AdsterraBanner728x90 } from '@/app/components/adsterra/direct/AdsterraBanner728x90'
 import { Navbar } from '@/app/components/Navbar'
 import { PremiumUnlockDialog } from '@/app/components/PremiumUnlockDialog'
 import { supabase } from '@/lib/supabase'
@@ -182,9 +182,9 @@ export default function WatchClient() {
           {/* Desktop-only below-player ad row: 2x 728x90 + 1x 468x60.
               Hidden on mobile/tablet to avoid horizontal overflow.
               Refreshed every 25s via direct-DOM hook. */}
-          <div className="hidden lg:flex flex-col items-center gap-3 mb-4">
+          {/* <div className="hidden lg:flex flex-col items-center gap-3 mb-4">
             <AdsterraBanner728x90 />
-          </div>
+          </div> */}
 
           {/* Alternate links */}
           {otherLinks.length > 1 && (
@@ -244,9 +244,9 @@ export default function WatchClient() {
                 If this link did not work please try others below
               </p>
             {/* Desktop 728x90 ad */}
-            <div className="flex items-center justify-center">
+            {/* <div className="flex items-center justify-center">
               <AdsterraBanner728x90 />
-            </div>
+            </div> */}
 
             </div>
             
@@ -262,11 +262,11 @@ export default function WatchClient() {
         matchId={matchId || undefined}
       >
         <div className="flex flex-col items-center gap-3 pb-4">
-          <AdsterraBanner320x50 reinitTrigger={refreshTick+5} />
+          {/* <AdsterraBanner320x50 reinitTrigger={refreshTick+5} />
           <AdsterraBanner320x50 reinitTrigger={refreshTick+7} />
           <AdsterraBanner320x50 reinitTrigger={refreshTick+8} />
           <AdsterraBanner320x50 reinitTrigger={refreshTick+5} />
-          <AdsterraBanner320x50 reinitTrigger={refreshTick+6} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+6} /> */}
         </div>
       </WatchBottomPanel>
 
