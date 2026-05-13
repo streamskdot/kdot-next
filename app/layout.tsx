@@ -40,6 +40,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <meta name="adstuff-verify-tag" content="xAbjTYLNTXsX8LH24G7-E" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
