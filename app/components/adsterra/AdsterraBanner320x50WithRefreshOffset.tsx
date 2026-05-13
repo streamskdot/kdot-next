@@ -70,7 +70,7 @@ export function AdsterraBanner320x50WithRefreshOffset({ className = '', offsetSe
 
   return (
     <div ref={containerRef}>
-      <AdsterraBanner320x50 className={className} reinitTrigger={refreshTick} />
+      <AdsterraBanner320x50 className={className} reinitTrigger={refreshTick+5} />
     </div>
   )
 }

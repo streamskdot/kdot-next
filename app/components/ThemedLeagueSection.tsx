@@ -220,8 +220,8 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
                 {/* Insert mobile banner after every 2 match cards on mobile */}
                 {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
                   <div className="lg:hidden col-span-full flex flex-col items-center justify-center gap-2 py-2">
-                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-1-${index}`} offsetSeconds={1} />
-                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-2-${index}`} offsetSeconds={2} />
+                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-1-${index}`} offsetSeconds={5} />
+                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-2-${index}`} offsetSeconds={7} />
                   </div>
                 )}
                 {/* Insert banner after every 3 match cards on desktop */}

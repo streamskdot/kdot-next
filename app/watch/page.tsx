@@ -68,7 +68,7 @@ export default function WatchPage() {
 
   // Re-render the banner every 5 seconds
   useEffect(() => {
-    const id = setInterval(() => setRefreshTick(t => t + 1), 5000)
+    const id = setInterval(() => setRefreshTick(t => t + 1), 10000)
     return () => clearInterval(id)
   }, [])
 
@@ -266,11 +266,11 @@ export default function WatchPage() {
         matchId={matchId || undefined}
       >
         <div className="flex flex-col items-center gap-3 pb-4">
-          <AdsterraBanner320x50 reinitTrigger={refreshTick+1} />
-          <AdsterraBanner320x50 reinitTrigger={refreshTick+2} />
-          <AdsterraBanner320x50 reinitTrigger={refreshTick+3} />
-          <AdsterraBanner320x50 reinitTrigger={refreshTick+1} />
-          <AdsterraBanner320x50 reinitTrigger={refreshTick+2} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+5} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+7} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+8} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+5} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+6} />
         </div>
       </WatchBottomPanel>
 

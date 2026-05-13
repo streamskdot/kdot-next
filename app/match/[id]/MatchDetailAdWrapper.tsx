@@ -20,9 +20,9 @@ export function MatchDetailAdWrapper() {
         <AdsterraBanner728x90 reinitTrigger={refreshTick}/>
       </div>
       <div className="lg:hidden flex flex-wrap justify-center gap-0">
-        <AdsterraBanner320x50 reinitTrigger={refreshTick+2} />
-        <AdsterraBanner320x50 reinitTrigger={refreshTick+1} />
-        <AdsterraBanner320x50 reinitTrigger={refreshTick+0.5} />
+        <AdsterraBanner320x50 reinitTrigger={refreshTick+5} />
+        <AdsterraBanner320x50 reinitTrigger={refreshTick+4} />
+        <AdsterraBanner320x50 reinitTrigger={refreshTick+1.5} />
       </div>
     </>
   )

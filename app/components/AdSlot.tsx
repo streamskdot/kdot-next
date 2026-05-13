@@ -207,7 +207,7 @@ export function AdMobileLeaderboardSection() {
 
   // Re-render the banner every 7 seconds
   useEffect(() => {
-    const id = setInterval(() => setRefreshTick(t => t + 1), 7000)
+    const id = setInterval(() => setRefreshTick(t => t + 1), 14000)
     return () => clearInterval(id)
   }, [])
 
