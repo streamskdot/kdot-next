@@ -8,6 +8,8 @@ import { LeagueLogo } from './components/LeagueLogo'
 import { FeatureCards } from './components/FeatureCards'
 import { ThemedMatchCard } from './components/ThemedMatchCard'
 import { ThemedLeagueSection } from './components/ThemedLeagueSection'
+
+export const runtime = 'edge'
 import { AdSlot468x60, AdSlot320x50 } from './components/AdSlot'
 import { supabase, type Match, type League } from '@/lib/supabase'
 import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'

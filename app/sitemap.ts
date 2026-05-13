@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://kdotv.com'
 
+export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

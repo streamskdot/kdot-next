@@ -7,6 +7,8 @@ import { LeagueLogo } from '../components/LeagueLogo'
 import { supabase, type Match, type League } from '@/lib/supabase'
 import type { Metadata } from 'next'
 
+export const runtime = 'edge'
+
 export const metadata: Metadata = {
   title: 'Live Cricket Streaming - IPL, International & T20 Matches',
   description:

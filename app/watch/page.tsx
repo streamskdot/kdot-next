@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import WatchClient from './WatchClient'
 
+export const runtime = 'edge'
+
 async function getMatchForMeta(id: string) {
   const { data: match } = await supabase
     .from('matches')
