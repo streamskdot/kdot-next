@@ -11,6 +11,7 @@ import { deriveMatchStatus, computeStartMs } from './MatchTimer'
 import { AdsterraBanner320x50WithRefresh } from './adsterra/AdsterraBanner320x50Refresh'
 import { AdsterraBanner320x50WithRefreshOffset } from './adsterra/AdsterraBanner320x50WithRefreshOffset'
 import { AdsterraBanner468x60WithRefresh } from './adsterra/AdsterraBanner468x60Refresh'
+import { AdstuffBanner250x150Static } from './adstuff/AdstuffBanner250x150Static'
 
 interface ThemedLeagueSectionProps {
   league: League
@@ -245,6 +246,10 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
             </div>
           )}
         </div>
+      </div>
+      {/* Adstuff banner below ThemedLeagueSection (mobile only, static) */}
+      <div className="mt-4 flex items-center justify-center lg:hidden">
+        <AdstuffBanner250x150Static />
       </div>
     </section>
   )
