@@ -13,6 +13,7 @@ interface Props {
 export function AdstuffBanner300x250WithRefresh({ className = '' }: Props) {
   const [refreshTick, setRefreshTick] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [shouldLoad, setShouldLoad] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -23,6 +24,14 @@ export function AdstuffBanner300x250WithRefresh({ className = '' }: Props) {
       (entries) => {
         const entry = entries[0]
         setIsVisible(entry.isIntersecting)
+        
+        // Load script when ad enters viewport for first time
+        if (entry.isIntersecting && !shouldLoad) {
+          setShouldLoad(true)
+          if (!document.hidden) {
+            setRefreshTick(t => t + 1)
+          }
+        }
       },
       { threshold: 0.1 } // Trigger when 10% of the ad is visible
     )
@@ -30,7 +39,7 @@ export function AdstuffBanner300x250WithRefresh({ className = '' }: Props) {
     observer.observe(containerRef.current)
 
     return () => observer.disconnect()
-  }, [])
+  }, [shouldLoad])
 
   useEffect(() => {
     const refreshInterval = 15000
@@ -47,7 +56,7 @@ export function AdstuffBanner300x250WithRefresh({ className = '' }: Props) {
 
   return (
     <div ref={containerRef}>
-      <AdstuffBanner300x250 key={refreshTick} className={className} reinitTrigger={refreshTick} />
+      {shouldLoad && <AdstuffBanner300x250 key={refreshTick} className={className} reinitTrigger={refreshTick} />}
     </div>
   )
 }

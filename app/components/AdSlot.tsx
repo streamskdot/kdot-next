@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import React from 'react'
 import { AdsterraBanner160x600 } from './adsterra/direct/AdsterraBanner160x600'
 import { AdsterraBanner728x90 } from './adsterra/direct/AdsterraBanner728x90'
@@ -204,17 +204,38 @@ export function AdLeaderboardSection() {
 
 export function AdMobileLeaderboardSection() {
   const [refreshTick, setRefreshTick] = useState(0)
+  const [shouldLoad, setShouldLoad] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  // Re-render the banner every 7 seconds
   useEffect(() => {
+    if (!containerRef.current) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry.isIntersecting && !shouldLoad) {
+          setShouldLoad(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(containerRef.current)
+
+    return () => observer.disconnect()
+  }, [shouldLoad])
+
+  useEffect(() => {
+    if (!shouldLoad) return
+
     const id = setInterval(() => setRefreshTick(t => t + 1), 14000)
     return () => clearInterval(id)
-  }, [])
+  }, [shouldLoad])
 
   return (
-    <div className="md:hidden w-full bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
+    <div ref={containerRef} className="md:hidden w-full bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-3 flex justify-center">
-        <AdsterraBanner320x50 reinitTrigger={refreshTick} />
+        {shouldLoad && <AdsterraBanner320x50 reinitTrigger={refreshTick} />}
       </div>
     </div>
   )

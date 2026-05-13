@@ -10,6 +10,7 @@ interface Props {
 export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
   const [refreshTick, setRefreshTick] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const [shouldLoad, setShouldLoad] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const isVisibleRef = useRef(false)
 
@@ -24,8 +25,9 @@ export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
         isVisibleRef.current = entry.isIntersecting
         setIsVisible(entry.isIntersecting)
         
-        // Trigger refresh when ad enters viewport
-        if (!wasVisible && entry.isIntersecting) {
+        // Load script when ad enters viewport for first time
+        if (!wasVisible && entry.isIntersecting && !shouldLoad) {
+          setShouldLoad(true)
           if (!document.hidden) {
             setRefreshTick(t => t + 1)
           }
@@ -37,7 +39,7 @@ export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
     observer.observe(containerRef.current)
 
     return () => observer.disconnect()
-  }, [])
+  }, [shouldLoad])
 
   useEffect(() => {
     const refreshInterval = 10000 // 10 seconds
@@ -54,7 +56,7 @@ export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
 
   return (
     <div ref={containerRef}>
-      <AdsterraBanner468x60 key={refreshTick} className={className} reinitTrigger={refreshTick} />
+      {shouldLoad && <AdsterraBanner468x60 key={refreshTick} className={className} reinitTrigger={refreshTick} />}
     </div>
   )
 }
