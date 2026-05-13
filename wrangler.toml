@@ -3,3 +3,9 @@ compatibility_date = "2026-05-13"
 compatibility_flags = ["nodejs_compat_v2"]
 
 pages_build_output_dir = ".open-next/assets"
+
+
+[vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://pxysvlfatfllflztskuk.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_NxAnsLucu9_oN0K7vpdHVw_UUz9s8Yr"
+SUPABASE_SERVICE_ROLE_KEY = "sb_publishable_NxAnsLucu9_oN0K7vpdHVw_UUz9s8Yr"
