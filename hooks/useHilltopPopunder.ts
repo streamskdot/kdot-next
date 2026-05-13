@@ -1,11 +1,14 @@
 'use client'
 import { useCallback, useEffect } from 'react'
 
+const POPUNDER_SRC =
+  '//crookedagreement.com/ciDm9n6Hb.2x5/liSbW/Q/9cNJzsAczcO/DBYQ5dNTyZ0P3/MRDyMk4_N/ztAWxa'
+
 /**
  * HilltopAds popunder loader.
  *
  * Architecture:
- *   - armPopunder(url) injects the vendor script. The script attaches a
+ *   - armPopunder() injects the vendor script. The script attaches a
  *     click listener to `document` and fires `window.open(adUrl)` on the
  *     next user click anywhere on the page.
  *   - To make sure ONLY clicks on the View Ad button trigger a popunder,
@@ -66,8 +69,8 @@ export function useHilltopPopunder(active: boolean) {
     }
   }, [active])
 
-  /** Inject (or swap to) a popunder script with the given vendor URL. */
-  const armPopunder = useCallback((url: string) => {
+  /** Inject (or swap to) a popunder script. */
+  const armPopunder = useCallback(() => {
     if (typeof window === 'undefined') return
 
     // Tear down any previously armed instance so it re-arms fresh.
@@ -77,7 +80,7 @@ export function useHilltopPopunder(active: boolean) {
     clearVendorInternals()
 
     const s = document.createElement('script')
-    s.src = url
+    s.src = POPUNDER_SRC
     s.async = true
     s.referrerPolicy = 'no-referrer-when-downgrade'
     s.setAttribute('data-hilltop-popunder', '1')
@@ -95,7 +98,7 @@ export function useHilltopPopunder(active: boolean) {
       document.head.appendChild(s)
     }
     if (process.env.NODE_ENV !== 'production') {
-      console.log('[hilltop] armed popunder', url)
+      console.log('[hilltop] armed popunder', POPUNDER_SRC)
     }
   }, [])
 

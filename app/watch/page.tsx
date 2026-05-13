@@ -14,6 +14,8 @@ import {
   AdSlot300x250,
   AdSlot728x90,
 } from '@/app/components/AdSlot'
+import { AdsterraBanner320x50 } from '@/app/components/adsterra/direct/AdsterraBanner320x50'
+import { AdsterraBanner728x90 } from '@/app/components/adsterra/direct/AdsterraBanner728x90'
 import { Navbar } from '@/app/components/Navbar'
 import { PremiumUnlockDialog } from '@/app/components/PremiumUnlockDialog'
 import { supabase } from '@/lib/supabase'
@@ -62,6 +64,13 @@ export default function WatchPage() {
   const [matchData, setMatchData] = useState<MatchData | null>(null)
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false)
   const [premiumWatchUrl, setPremiumWatchUrl] = useState('')
+  const [refreshTick, setRefreshTick] = useState(0)
+
+  // Re-render the banner every 5 seconds
+  useEffect(() => {
+    const id = setInterval(() => setRefreshTick(t => t + 1), 5000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (!url) {
@@ -178,7 +187,7 @@ export default function WatchPage() {
               Hidden on mobile/tablet to avoid horizontal overflow.
               Refreshed every 25s via direct-DOM hook. */}
           <div className="hidden lg:flex flex-col items-center gap-3 mb-4">
-            <AdSlot728x90 />
+            <AdsterraBanner728x90 />
           </div>
 
           {/* Alternate links */}
@@ -239,10 +248,8 @@ export default function WatchPage() {
                 If this link did not work please try others below
               </p>
             {/* Desktop 728x90 ad */}
-            <AdSlot728x90 className="hidden lg:block" />
-            {/* Mobile 300x250 ad */}
-            <div className="lg:hidden flex items-center justify-center">
-              <AdSlot300x250 />
+            <div className="flex items-center justify-center">
+              <AdsterraBanner728x90 />
             </div>
 
             </div>
@@ -259,8 +266,11 @@ export default function WatchPage() {
         matchId={matchId || undefined}
       >
         <div className="flex flex-col items-center gap-3 pb-4">
-          {/* Native ad placeholder — wire HilltopAds (or other) here later. */}
-          <AdSlotNative />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+1} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+2} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+3} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+1} />
+          <AdsterraBanner320x50 reinitTrigger={refreshTick+2} />
         </div>
       </WatchBottomPanel>
 

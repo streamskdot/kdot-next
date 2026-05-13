@@ -1,6 +1,10 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import React from 'react'
+import { AdsterraBanner160x600 } from './adsterra/direct/AdsterraBanner160x600'
+import { AdsterraBanner728x90 } from './adsterra/direct/AdsterraBanner728x90'
+import { AdsterraBanner320x50 } from './adsterra/direct/AdsterraBanner320x50'
 
 /**
  * Generic ad placeholder. Reserves the exact pixel footprint of a future ad
@@ -178,12 +182,20 @@ export const AdSlotNative = (p: PresetProps) => (
 // Layout-level sections (replace the previous Adsterra*Section components).
 
 export function AdLeaderboardSection() {
+  const [refreshTick, setRefreshTick] = useState(0)
+
+  // Re-render the banner every 20 seconds
+  useEffect(() => {
+    const id = setInterval(() => setRefreshTick(t => t + 1), 20000)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <div className="hidden md:block w-full bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-3">
         <div className="flex flex-col lg:flex-row gap-3 items-center justify-center">
-          <AdSlot728x90 />
-          <AdSlot728x90 />
+          <AdsterraBanner728x90 reinitTrigger={refreshTick} />
+          <AdsterraBanner728x90 reinitTrigger={refreshTick} />
         </div>
       </div>
     </div>
@@ -191,26 +203,42 @@ export function AdLeaderboardSection() {
 }
 
 export function AdMobileLeaderboardSection() {
+  const [refreshTick, setRefreshTick] = useState(0)
+
+  // Re-render the banner every 7 seconds
+  useEffect(() => {
+    const id = setInterval(() => setRefreshTick(t => t + 1), 7000)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <div className="md:hidden w-full bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-3 flex justify-center">
-        <AdSlot320x50 />
+        <AdsterraBanner320x50 reinitTrigger={refreshTick} />
       </div>
     </div>
   )
 }
 
 export function AdSkyscraperSection() {
+  const [refreshTick, setRefreshTick] = useState(0)
+
+  // Re-render the banner every 20 seconds
+  useEffect(() => {
+    const id = setInterval(() => setRefreshTick(t => t + 1), 20000)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <>
       <div className="hidden xl:block fixed left-0 top-[114px] h-[calc(100vh-114px)] w-40 bg-zinc-50 dark:bg-zinc-900/50 border-r border-zinc-200/50 dark:border-zinc-800/50 z-40">
         <div className="h-full flex items-center justify-center py-4">
-          <AdSlot160x600 />
+          <AdsterraBanner160x600 reinitTrigger={refreshTick} />
         </div>
       </div>
       <div className="hidden xl:block fixed right-0 top-[114px] h-[calc(100vh-114px)] w-40 bg-zinc-50 dark:bg-zinc-900/50 border-l border-zinc-200/50 dark:border-zinc-800/50 z-40">
         <div className="h-full flex items-center justify-center py-4">
-          <AdSlot160x600 />
+          <AdsterraBanner160x600 reinitTrigger={refreshTick} />
         </div>
       </div>
     </>

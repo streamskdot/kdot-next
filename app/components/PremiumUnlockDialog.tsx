@@ -25,45 +25,7 @@ export function PremiumUnlockDialog({
 }: PremiumUnlockDialogProps) {
   const [adViewCount, setAdViewCount] = useState(0)
   const [prevOpen, setPrevOpen] = useState(open)
-  const { armPopunder, disarmPopunder } = useHilltopPopunder(open && !skipDialog)
-
-  // -------- DIAGNOSTIC LOGGING (remove after debugging) --------
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('[dialog] render', { open, skipDialog, adViewCount, href: typeof window !== 'undefined' ? window.location.href : 'ssr' })
-  }
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'production') return
-    console.log('[dialog] MOUNT')
-    const onPageHide = () => console.log('[dialog] pagehide fired — page is navigating away')
-    const onBeforeUnload = () => console.log('[dialog] beforeunload fired — page is navigating')
-    const onPopState = () => console.log('[dialog] popstate', window.location.href)
-    window.addEventListener('pagehide', onPageHide)
-    window.addEventListener('beforeunload', onBeforeUnload)
-    window.addEventListener('popstate', onPopState)
-    // Also monitor location.href via setInterval (cheap, dev-only)
-    let lastHref = window.location.href
-    const t = setInterval(() => {
-      if (window.location.href !== lastHref) {
-        console.log('[dialog] location changed', lastHref, '→', window.location.href)
-        lastHref = window.location.href
-      }
-    }, 200)
-    return () => {
-      console.log('[dialog] UNMOUNT')
-      window.removeEventListener('pagehide', onPageHide)
-      window.removeEventListener('beforeunload', onBeforeUnload)
-      window.removeEventListener('popstate', onPopState)
-      clearInterval(t)
-    }
-  }, [])
-  // -------- /DIAGNOSTIC LOGGING --------
-
-  // One popunder URL per required View Ad click, consumed in order.
-  // Index N is armed when adViewCount === N. Length should be >= requiredAdViews.
-  const POPUNDER_URLS = [
-    '//crookedagreement.com/cdDe9C6.bz2B5BlDSJWHQE9hNjzGAqzGOGD-YI5_NxyB0v3WMVDHMS4TNVzUA/xb',
-    '//crookedagreement.com/cyD.9s6/bI2H5/l-StWVQB9ONJzuA/zoOzD/cKzPMKyN0P3dMZDIMn4WNNzKMd3c',
-  ]
+  const { armPopunder, disarmPopunder } = useHilltopPopunder(open && !skipDialog && adViewCount < requiredAdViews)
 
   // Reset counter every time the dialog closes (React-recommended derived-state pattern).
   if (prevOpen !== open) {
@@ -84,36 +46,33 @@ export function PremiumUnlockDialog({
   const unlocked = adViewCount >= requiredAdViews
   const remaining = Math.max(0, requiredAdViews - adViewCount)
 
-  // Arm a DIFFERENT popunder script per click. When adViewCount === 0 we
-  // arm URL[0]; the first View Ad click fires it. After the click,
-  // adViewCount becomes 1, this effect re-runs, swaps in URL[1] for the
-  // second click. Once adViewCount >= requiredAdViews we disarm fully.
-  // (Hooks must run unconditionally — placed before the early return below.)
+  // Pre-arm the popunder while the dialog is open and we still owe ads.
+  // HilltopAds' script attaches its click listener AFTER it loads (async),
+  // so arming on the click itself misses that click. Loading ahead of time
+  // ensures the listener is live by the time the user clicks View Ad.
+  // We re-arm on every adViewCount change so a fresh popunder is queued
+  // for each remaining click. Once unlocked, we stop arming so the Watch
+  // button click never fires a popunder.
   useEffect(() => {
-    if (!open || skipDialog) {
-      disarmPopunder()
-      return
-    }
+    if (!open || skipDialog) return
     if (adViewCount >= requiredAdViews) {
       disarmPopunder()
       return
     }
-    const url = POPUNDER_URLS[adViewCount]
-    if (!url) {
-      disarmPopunder()
-      return
-    }
-    armPopunder(url)
+    armPopunder()
+    // Cleanup runs when dialog closes, count changes, or component unmounts.
+    // This guarantees no armed popunder script survives outside the dialog,
+    // so clicks on the Premium Link / Watch / anywhere else don't fire one.
     return () => {
       disarmPopunder()
     }
-    // POPUNDER_URLS is a stable in-component literal; safe to omit.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, skipDialog, adViewCount, requiredAdViews, armPopunder, disarmPopunder])
 
   if (!open || skipDialog) return null
 
   const handleViewAd = () => {
+    // Re-arm the popunder script on each click to ensure it fires
+    armPopunder()
     // The popunder gate (in useHilltopPopunder) allows window.open through
     // for any click whose target is inside [data-popunder-allow]. The
     // View Ad button below carries that attribute, so the vendor's

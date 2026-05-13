@@ -1,17 +1,28 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { AdSlot728x90, AdSlot320x50 } from '@/app/components/AdSlot'
+import { AdsterraBanner320x50 } from '@/app/components/adsterra/direct/AdsterraBanner320x50'
+import { AdsterraBanner728x90 } from '@/app/components/adsterra/direct/AdsterraBanner728x90'
 
 export function MatchDetailAdWrapper() {
+  const [refreshTick, setRefreshTick] = useState(0)
+
+  // Re-render the banner every 15 seconds
+  useEffect(() => {
+    const id = setInterval(() => setRefreshTick(t => t + 1), 15000)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <>
       <div className="hidden lg:block">
-        <AdSlot728x90 />
+        <AdsterraBanner728x90 reinitTrigger={refreshTick}/>
       </div>
       <div className="lg:hidden flex flex-wrap justify-center gap-0">
-        <AdSlot320x50 />
-        <AdSlot320x50 />
-        <AdSlot320x50 />
+        <AdsterraBanner320x50 reinitTrigger={refreshTick+2} />
+        <AdsterraBanner320x50 reinitTrigger={refreshTick+1} />
+        <AdsterraBanner320x50 reinitTrigger={refreshTick+0.5} />
       </div>
     </>
   )
