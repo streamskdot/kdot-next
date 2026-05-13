@@ -12,6 +12,14 @@ import { AdSlot468x60, AdSlot320x50 } from './components/AdSlot'
 import { supabase, type Match, type League } from '@/lib/supabase'
 import { AdsterraBanner320x50WithRefresh } from './components/adsterra/AdsterraBanner320x50Refresh'
 import { AdsterraBanner468x60WithRefresh } from './components/adsterra/AdsterraBanner468x60Refresh'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Watch Live Football Matches Free in HD',
+  description:
+    'Stream live football matches in HD on kdotTV. Premier League, Champions League, La Liga, Bundesliga, IPL, T20 & more. Event links, Real-time scores, schedules, and highlights.',
+  alternates: { canonical: 'https://kdotv.com' },
+}
 
 export const revalidate = 30 // Revalidate every 30 seconds for live match data
 
@@ -310,11 +318,11 @@ export default async function Home({ searchParams }: HomeProps) {
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
           {/* Header */}
           <div className="mb-4">
-            {/* <h1 className="text-2xl font-bold text-zinc-900 transition-colors dark:text-white sm:text-3xl">
-              Browse Live Matches
-            </h1> */}
-                      {/* Feature Cards */}
-          <FeatureCards />
+            <h1 className="sr-only text-2xl font-bold text-zinc-900 transition-colors dark:text-white sm:text-3xl">
+              Watch Live Football and Cricket Matches on kdotTV
+            </h1>
+            {/* Feature Cards */}
+            <FeatureCards />
           </div>
 
           {/* League Tabs - No Suspense, renders immediately on client */}

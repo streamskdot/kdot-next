@@ -3,3 +3,6 @@ Allow: /
 Crawl-delay: 2
 
 Disallow: /api/
+Disallow: /watch
+
+Sitemap: https://kdotv.com/sitemap.xml

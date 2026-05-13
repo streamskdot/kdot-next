@@ -5,6 +5,14 @@ import { MatchCard } from '../components/MatchCard'
 import { MatchesSkeleton } from '../components/MatchesSkeleton'
 import { LeagueLogo } from '../components/LeagueLogo'
 import { supabase, type Match, type League } from '@/lib/supabase'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Live Cricket Streaming - IPL, International & T20 Matches',
+  description:
+    'Watch live cricket matches in HD on kdotTV. IPL, T20, ODI, Test cricket streaming with real-time scores, schedules, and highlights.',
+  alternates: { canonical: 'https://kdotv.com/cricket' },
+}
 
 export const dynamic = 'force-dynamic'
 

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from './components/ThemeProvider'
@@ -24,8 +24,83 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "kdoTV - Live Football & Cricket Matches in HD",
-  description: "Watch upcoming and live football matches & Highlights",
+  metadataBase: new URL('https://kdotv.com'),
+  title: {
+    default: 'kdotTV - Watch Live Football & Cricket Matches Free in HD',
+    template: '%s | kdotTV',
+  },
+  description:
+    'Watch live football and cricket matches in HD for free on kdotTV. Stream Premier League, Champions League, La Liga, Bundesliga, IPL, and more. Get real-time scores, match schedules, and highlights.',
+  keywords: [
+    'live football stream',
+    'live cricket stream',
+    'watch football free',
+    'live sports hd',
+    'match streaming',
+    'premier league live',
+    'champions league stream',
+    'la liga live',
+    'bundesliga stream',
+    'ipl live',
+    't20 cricket',
+    'live match today',
+    'free sports streaming',
+  ],
+  applicationName: 'kdotTV',
+  authors: [{ name: 'kdotTV' }],
+  creator: 'kdotTV',
+  publisher: 'kdotTV',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'kdotTV',
+    url: '/',
+    images: [
+      {
+        url: '/ground.png',
+        width: 1200,
+        height: 630,
+        alt: 'kdotTV - Live Sports Streaming in HD',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'kdotTV - Watch Live Football & Cricket Matches Free in HD',
+    description:
+      'Watch live football and cricket matches in HD for free. Premier League, Champions League, IPL & more.',
+    images: ['/ground.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: '/',
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/logo.png',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

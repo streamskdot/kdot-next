@@ -298,8 +298,48 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
   const team2Name = team2Data?.name || match.team2
   const formattedTime = formatMatchTimeOnly(match.match_date, match.display_time)
   
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SportsEvent',
+    name: `${team1Name} vs ${team2Name}`,
+    sport: 'Soccer',
+    startDate: match.match_date,
+    description: `Watch ${team1Name} vs ${team2Name} live in HD FREE ${leagueData ? ` in the ${leagueData.name}` : ''}.`,
+    eventStatus:
+      match.status === 'live'
+        ? 'https://schema.org/EventInProgress'
+        : match.status === 'upcoming'
+          ? 'https://schema.org/EventScheduled'
+          : 'https://schema.org/EventScheduled',
+    performer: [
+      { '@type': 'SportsTeam', name: team1Name },
+      { '@type': 'SportsTeam', name: team2Name },
+    ],
+    ...(match.team1_score && match.team2_score
+      ? {
+          homeTeam: {
+            '@type': 'SportsTeam',
+            name: team1Name,
+            score: { '@type': 'QuantitativeValue', value: match.team1_score },
+          },
+          awayTeam: {
+            '@type': 'SportsTeam',
+            name: team2Name,
+            score: { '@type': 'QuantitativeValue', value: match.team2_score },
+          },
+        }
+      : {}),
+    ...(leagueData?.name
+      ? { subEvents: [{ '@type': 'SportsEvent', name: leagueData.name }] }
+      : {}),
+  }
+
   return (
     <div className="space-y-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Match Card Header */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         {/* Teams VS */}
@@ -422,14 +462,17 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
   return {
     title,
     description,
+    alternates: {
+      canonical: `/match/${id}`,
+    },
     openGraph: {
       title,
       description,
       type: 'website',
-      url: `https://kdotv.com/match/${id}`,
+      url: `/match/${id}`,
       images: [
         {
-            url: '/ground.png',
+          url: `/match/${id}/opengraph-image`,
           width: 1200,
           height: 630,
           alt: `${team1Name} vs ${team2Name}`,
@@ -440,7 +483,7 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
       card: 'summary_large_image',
       title,
       description,
-      images: ['/ground.png'],
+      images: [`/match/${id}/opengraph-image`],
     },
   }
 }

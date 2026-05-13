@@ -74,6 +74,8 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
   const team1Name = team1Data?.name || match.team1
   const team2Name = team2Data?.name || match.team2
   const isLive = match.status === 'live'
+  const isEnded = match.status === 'ended'
+  const hasScores = match.team1_score && match.team2_score
 
   return new ImageResponse(
     (
@@ -89,8 +91,8 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
           backgroundImage: 'url(/ground.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          padding: '60px',
-          fontFamily: 'system-ui, sans-serif',
+          padding: '50px',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
           position: 'relative',
         }}
       >
@@ -99,61 +101,72 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.55)',
           }}
         />
-        {/* Live Badge */}
-        {isLive && (
+
+        {/* Top bar with status and branding */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '28px 48px',
+            zIndex: 10,
+          }}
+        >
+          {/* kdotTV branding */}
           <div
             style={{
-              position: 'absolute',
-              top: '40px',
-              right: '40px',
-              zIndex: 10,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '12px 24px',
-              backgroundColor: '#ef4444',
-              borderRadius: '8px',
-              boxShadow: '0 4px 20px rgba(239, 68, 68, 0.4)',
+              fontSize: '26px',
+              fontWeight: '800',
+              color: '#ffffff',
+              letterSpacing: '1px',
             }}
           >
-            <div
-              style={{
-                width: '12px',
-                height: '12px',
-                backgroundColor: '#ffffff',
-                borderRadius: '50%',
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }}
-            />
+            kdot<span style={{ color: '#ef4444' }}>TV</span>
+          </div>
+
+          {/* Status badge */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '10px 20px',
+              backgroundColor: isLive ? '#ef4444' : isEnded ? '#22c55e' : '#3b82f6',
+              borderRadius: '999px',
+              boxShadow: isLive
+                ? '0 4px 20px rgba(239, 68, 68, 0.5)'
+                : '0 4px 20px rgba(0, 0, 0, 0.3)',
+            }}
+          >
+            {isLive && (
+              <div
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '50%',
+                }}
+              />
+            )}
             <span
               style={{
                 color: '#ffffff',
-                fontSize: '24px',
-                fontWeight: '800',
-                letterSpacing: '2px',
+                fontSize: '18px',
+                fontWeight: '700',
+                letterSpacing: '1.5px',
+                textTransform: 'uppercase',
               }}
             >
-              LIVE
+              {isLive ? 'LIVE' : isEnded ? 'ENDED' : 'UPCOMING'}
             </span>
           </div>
-        )}
-
-        {/* kdotTV Logo/Branding */}
-        <div
-          style={{
-            marginBottom: '40px',
-            fontSize: '32px',
-            fontWeight: '800',
-            color: '#ffffff',
-            letterSpacing: '1px',
-            zIndex: 10,
-            position: 'relative',
-          }}
-        >
-          kdot<span style={{ color: '#ef4444' }}>TV</span>
         </div>
 
         {/* Teams and VS */}
@@ -162,8 +175,7 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '60px',
-            marginBottom: '40px',
+            gap: '48px',
             zIndex: 10,
             position: 'relative',
           }}
@@ -174,39 +186,40 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '20px',
+              gap: '16px',
+              width: '280px',
             }}
           >
             {team1Data?.logo_url ? (
               <img
                 src={team1Data.logo_url}
                 alt={team1Name}
-                width={120}
-                height={120}
+                width={140}
+                height={140}
                 style={{
-                  width: '120px',
-                  height: '120px',
+                  width: '140px',
+                  height: '140px',
                   objectFit: 'contain',
-                  borderRadius: '16px',
+                  borderRadius: '20px',
                   backgroundColor: '#ffffff',
                   padding: '16px',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
                 }}
               />
             ) : (
               <div
                 style={{
-                  width: '120px',
-                  height: '120px',
+                  width: '140px',
+                  height: '140px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   backgroundColor: '#ffffff',
-                  borderRadius: '16px',
-                  fontSize: '36px',
+                  borderRadius: '20px',
+                  fontSize: '42px',
                   fontWeight: 'bold',
                   color: '#1a1a1a',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
                 }}
               >
                 {team1Name.slice(0, 2).toUpperCase()}
@@ -215,16 +228,25 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             <div
               style={{
                 color: '#ffffff',
-                fontSize: '28px',
+                fontSize: '26px',
                 fontWeight: '700',
                 textAlign: 'center',
-                maxWidth: '200px',
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
+                maxWidth: '260px',
               }}
             >
               {team1Name}
             </div>
+            {hasScores && (
+              <div
+                style={{
+                  color: '#ef4444',
+                  fontSize: '40px',
+                  fontWeight: '900',
+                }}
+              >
+                {match.team1_score}
+              </div>
+            )}
           </div>
 
           {/* VS */}
@@ -233,28 +255,33 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '8px',
+              justifyContent: 'center',
+              gap: '12px',
             }}
           >
             <div
               style={{
-                fontSize: '48px',
+                fontSize: '52px',
                 fontWeight: '900',
                 color: '#ef4444',
                 letterSpacing: '4px',
-                textShadow: '0 2px 10px rgba(239, 68, 68, 0.5)',
+                textShadow: '0 2px 12px rgba(239, 68, 68, 0.6)',
               }}
             >
               VS
             </div>
-            <div
-              style={{
-                width: '4px',
-                height: '80px',
-                backgroundColor: '#333333',
-                borderRadius: '2px',
-              }}
-            />
+            {hasScores && (
+              <div
+                style={{
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  letterSpacing: '2px',
+                }}
+              >
+                FT
+              </div>
+            )}
           </div>
 
           {/* Team 2 */}
@@ -263,39 +290,40 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '20px',
+              gap: '16px',
+              width: '280px',
             }}
           >
             {team2Data?.logo_url ? (
               <img
                 src={team2Data.logo_url}
                 alt={team2Name}
-                width={120}
-                height={120}
+                width={140}
+                height={140}
                 style={{
-                  width: '120px',
-                  height: '120px',
+                  width: '140px',
+                  height: '140px',
                   objectFit: 'contain',
-                  borderRadius: '16px',
+                  borderRadius: '20px',
                   backgroundColor: '#ffffff',
                   padding: '16px',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
                 }}
               />
             ) : (
               <div
                 style={{
-                  width: '120px',
-                  height: '120px',
+                  width: '140px',
+                  height: '140px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   backgroundColor: '#ffffff',
-                  borderRadius: '16px',
-                  fontSize: '36px',
+                  borderRadius: '20px',
+                  fontSize: '42px',
                   fontWeight: 'bold',
                   color: '#1a1a1a',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
                 }}
               >
                 {team2Name.slice(0, 2).toUpperCase()}
@@ -304,57 +332,69 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
             <div
               style={{
                 color: '#ffffff',
-                fontSize: '28px',
+                fontSize: '26px',
                 fontWeight: '700',
                 textAlign: 'center',
-                maxWidth: '200px',
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
+                maxWidth: '260px',
               }}
             >
               {team2Name}
             </div>
+            {hasScores && (
+              <div
+                style={{
+                  color: '#ef4444',
+                  fontSize: '40px',
+                  fontWeight: '900',
+                }}
+              >
+                {match.team2_score}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Watch Live HD */}
-        <div
-          style={{
-            marginTop: '30px',
-            padding: '16px 48px',
-            backgroundColor: 'rgba(239, 68, 68, 0.15)',
-            border: '2px solid #ef4444',
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(239, 68, 68, 0.3)',
-            zIndex: 10,
-            position: 'relative',
-          }}
-        >
-          <span
-            style={{
-              color: '#ffffff',
-              fontSize: '32px',
-              fontWeight: '800',
-              letterSpacing: '2px',
-              textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
-            }}
-          >
-            WATCH LIVE HD
-          </span>
-        </div>
-
-        {/* Footer */}
+        {/* CTA */}
         <div
           style={{
             position: 'absolute',
-            bottom: '40px',
-            fontSize: '18px',
-            color: '#888888',
-            fontWeight: '500',
+            bottom: '50px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '14px',
             zIndex: 10,
           }}
         >
-          kdotv.com
+          <div
+            style={{
+              padding: '14px 40px',
+              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+              border: '2px solid #ef4444',
+              borderRadius: '12px',
+              boxShadow: '0 4px 24px rgba(239, 68, 68, 0.35)',
+            }}
+          >
+            <span
+              style={{
+                color: '#ffffff',
+                fontSize: '28px',
+                fontWeight: '800',
+                letterSpacing: '2px',
+              }}
+            >
+              WATCH LIVE HD
+            </span>
+          </div>
+          <span
+            style={{
+              color: 'rgba(255, 255, 255, 0.45)',
+              fontSize: '16px',
+              fontWeight: '500',
+            }}
+          >
+            kdotv.com
+          </span>
         </div>
       </div>
     ),
