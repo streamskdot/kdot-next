@@ -16,7 +16,6 @@ interface ThemedLeagueSectionProps {
   league: League
   matches: Match[]
   teamsMap: Map<string, { name: string; logo_url: string | null }>
-  isFirstSection?: boolean
 }
 
 const STATUS_ORDER = { live: 0, upcoming: 1, ended: 2 } as const
@@ -45,7 +44,7 @@ function sortMatches(matches: Match[]): Match[] {
   return sorted
 }
 
-export function ThemedLeagueSection({ league, matches, teamsMap, isFirstSection = false }: ThemedLeagueSectionProps) {
+export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueSectionProps) {
   const theme = getLeagueTheme(league.slug)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
@@ -220,8 +219,8 @@ export function ThemedLeagueSection({ league, matches, teamsMap, isFirstSection 
                 {/* Insert mobile banner after every 2 match cards on mobile */}
                 {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
                   <div className="lg:hidden col-span-full flex flex-col items-center justify-center gap-2 py-2">
-                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-1-${index}`} offsetSeconds={0} eager={isFirstSection && index === 1} />
-                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-2-${index}`} offsetSeconds={2} eager={isFirstSection && index === 1} />
+                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-1-${index}`} />
+                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-2-${index}`} />
                   </div>
                 )}
                 {/* Insert banner after every 3 match cards on desktop */}

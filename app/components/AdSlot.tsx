@@ -186,7 +186,7 @@ export function AdLeaderboardSection() {
 
   // Re-render the banner every 20 seconds
   useEffect(() => {
-    const id = setInterval(() => setRefreshTick(t => t + 1), 20000)
+    const id = setInterval(() => setRefreshTick(t => t + 1), 90000)
     return () => clearInterval(id)
   }, [])
 
@@ -246,7 +246,7 @@ export function AdSkyscraperSection() {
 
   // Re-render the banner every 20 seconds
   useEffect(() => {
-    const id = setInterval(() => setRefreshTick(t => t + 1), 20000)
+    const id = setInterval(() => setRefreshTick(t => t + 1), 90000)
     return () => clearInterval(id)
   }, [])
 
