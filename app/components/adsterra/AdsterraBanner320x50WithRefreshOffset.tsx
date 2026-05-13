@@ -6,12 +6,13 @@ import { AdsterraBanner320x50 } from './direct/AdsterraBanner320x50'
 interface Props {
   className?: string
   offsetSeconds?: number
+  eager?: boolean
 }
 
-export function AdsterraBanner320x50WithRefreshOffset({ className = '', offsetSeconds = 0 }: Props) {
-  const [refreshTick, setRefreshTick] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
-  const [shouldLoad, setShouldLoad] = useState(false)
+export function AdsterraBanner320x50WithRefreshOffset({ className = '', offsetSeconds = 0, eager = false }: Props) {
+  const [refreshTick, setRefreshTick] = useState(eager ? 1 : 0)
+  const [isVisible, setIsVisible] = useState(eager)
+  const [shouldLoad, setShouldLoad] = useState(eager)
   const containerRef = useRef<HTMLDivElement>(null)
   const isVisibleRef = useRef(false)
 
@@ -34,7 +35,7 @@ export function AdsterraBanner320x50WithRefreshOffset({ className = '', offsetSe
           }
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0 }
     )
 
     observer.observe(containerRef.current)

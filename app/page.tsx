@@ -177,7 +177,7 @@ async function MatchesGrid({ league, initialData }: { league?: string; initialDa
 
   return (
     <div className="flex flex-col gap-8">
-      {orderedLeagues.map((lg) => {
+      {orderedLeagues.map((lg, index) => {
         const sectionMatches = sortMatches(matchesByLeague.get(lg.slug) ?? [])
         const isThemedLeague = lg.slug === 'champions-league' || lg.slug === 'europa-league' || lg.slug === 'uefa-conference-league-knockout-stage' || lg.slug === 'premier-league' || lg.slug === 'laliga' || lg.slug === 'la-liga' || lg.slug === 'bundesliga' || lg.slug === 'serie-a' || lg.slug === 'ligue-1'
 
@@ -188,6 +188,7 @@ async function MatchesGrid({ league, initialData }: { league?: string; initialDa
               league={lg}
               matches={sectionMatches}
               teamsMap={teamsMap}
+              isFirstSection={index === 0}
             />
           )
         }

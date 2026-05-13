@@ -8,7 +8,6 @@ import { AdSlot468x60, AdSlot320x50 } from './AdSlot'
 import type { Match, League } from '@/lib/supabase'
 import { useEffect, useState, useMemo } from 'react'
 import { deriveMatchStatus, computeStartMs } from './MatchTimer'
-import { AdsterraBanner320x50WithRefresh } from './adsterra/AdsterraBanner320x50Refresh'
 import { AdsterraBanner320x50WithRefreshOffset } from './adsterra/AdsterraBanner320x50WithRefreshOffset'
 import { AdsterraBanner468x60WithRefresh } from './adsterra/AdsterraBanner468x60Refresh'
 import { AdstuffBanner300x250WithRefresh } from './adstuff/AdstuffBanner300x250Refresh'
@@ -17,6 +16,7 @@ interface ThemedLeagueSectionProps {
   league: League
   matches: Match[]
   teamsMap: Map<string, { name: string; logo_url: string | null }>
+  isFirstSection?: boolean
 }
 
 const STATUS_ORDER = { live: 0, upcoming: 1, ended: 2 } as const
@@ -45,7 +45,7 @@ function sortMatches(matches: Match[]): Match[] {
   return sorted
 }
 
-export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueSectionProps) {
+export function ThemedLeagueSection({ league, matches, teamsMap, isFirstSection = false }: ThemedLeagueSectionProps) {
   const theme = getLeagueTheme(league.slug)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
@@ -220,8 +220,8 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
                 {/* Insert mobile banner after every 2 match cards on mobile */}
                 {(index + 1) % 2 === 0 && index !== sortedMatches.length - 1 && (
                   <div className="lg:hidden col-span-full flex flex-col items-center justify-center gap-2 py-2">
-                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-1-${index}`} offsetSeconds={5} />
-                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-2-${index}`} offsetSeconds={7} />
+                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-1-${index}`} offsetSeconds={0} eager={isFirstSection && index === 1} />
+                    <AdsterraBanner320x50WithRefreshOffset key={`mobile-banner-2-${index}`} offsetSeconds={2} eager={isFirstSection && index === 1} />
                   </div>
                 )}
                 {/* Insert banner after every 3 match cards on desktop */}

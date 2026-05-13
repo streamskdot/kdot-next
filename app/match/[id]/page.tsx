@@ -304,7 +304,7 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
     name: `${team1Name} vs ${team2Name}`,
     sport: 'Soccer',
     startDate: match.match_date,
-    description: `Watch ${team1Name} vs ${team2Name} live in HD FREE ${leagueData ? ` in the ${leagueData.name}` : ''}.`,
+    description: `Watch ${team1Name} vs ${team2Name} live FREE in HD ${leagueData ? ` in the ${leagueData.name}` : ''}.`,
     eventStatus:
       match.status === 'live'
         ? 'https://schema.org/EventInProgress'
