@@ -337,7 +337,7 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
 
   return (
     <div className="space-y-6">
-      <AdstuffFullPageOverlay />
+      {/* <AdstuffFullPageOverlay /> */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
