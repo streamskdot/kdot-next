@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { AdsterraBanner320x50 } from './direct/AdsterraBanner320x50'
 
 interface Props {
@@ -10,30 +10,67 @@ interface Props {
 
 export function AdsterraBanner320x50WithRefreshOffset({ className = '', offsetSeconds = 0 }: Props) {
   const [refreshTick, setRefreshTick] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const isVisibleRef = useRef(false)
 
-  // Re-render the banner every 15 seconds, but pause when tab is hidden
-  // Apply offset to stagger refresh timing
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    // Intersection Observer to detect when ad is in viewport
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        const wasVisible = isVisibleRef.current
+        isVisibleRef.current = entry.isIntersecting
+        setIsVisible(entry.isIntersecting)
+        
+        // Trigger refresh when ad enters viewport
+        if (!wasVisible && entry.isIntersecting) {
+          if (!document.hidden) {
+            setRefreshTick(t => t + 1)
+          }
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(containerRef.current)
+
+    return () => observer.disconnect()
+  }, [])
+
   useEffect(() => {
     const refreshInterval = 15000 // 15 seconds
 
-    // Initial delay based on offset
-    const initialDelay = offsetSeconds * 1000
+    // Start interval immediately, but apply offset to the first refresh
+    const intervalId = setInterval(() => {
+      // Only refresh if tab is visible AND ad is in viewport
+      if (!document.hidden && isVisible) {
+        setRefreshTick(t => t + 1)
+      }
+    }, refreshInterval)
 
-    const timeoutId = setTimeout(() => {
-      setRefreshTick(t => t + 1)
-      
-      // Start the interval after initial delay
-      const intervalId = setInterval(() => {
-        if (!document.hidden) {
+    // If offset is set, trigger first refresh after offset delay
+    if (offsetSeconds > 0) {
+      const timeoutId = setTimeout(() => {
+        if (!document.hidden && isVisible) {
           setRefreshTick(t => t + 1)
         }
-      }, refreshInterval)
+      }, offsetSeconds * 1000)
 
-      return () => clearInterval(intervalId)
-    }, initialDelay)
+      return () => {
+        clearTimeout(timeoutId)
+        clearInterval(intervalId)
+      }
+    }
 
-    return () => clearTimeout(timeoutId)
-  }, [offsetSeconds])
+    return () => clearInterval(intervalId)
+  }, [offsetSeconds, isVisible])
 
-  return <AdsterraBanner320x50 className={className} reinitTrigger={refreshTick} />
+  return (
+    <div ref={containerRef}>
+      <AdsterraBanner320x50 className={className} reinitTrigger={refreshTick} />
+    </div>
+  )
 }

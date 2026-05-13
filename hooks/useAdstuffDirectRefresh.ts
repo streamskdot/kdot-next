@@ -54,7 +54,6 @@ export function useAdstuffDirectRefresh(
       try {
         await new Promise<void>((resolve) => {
           const script = document.createElement('script')
-          script.async = false
           script.src = url
           let settled = false
           const done = () => {

@@ -1,17 +1,19 @@
 'use client'
-
 import { useEffect, useState, useRef } from 'react'
-import { AdsterraBanner468x60 } from './AdsterraBanner468x60'
+import { AdstuffBanner300x250 } from './direct/AdstuffBanner300x250'
 
 interface Props {
   className?: string
 }
 
-export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
+/**
+ * Wrapper that refreshes the 300x250 banner every 15 seconds.
+ * Pauses when tab is hidden or when ad is not in viewport.
+ */
+export function AdstuffBanner300x250WithRefresh({ className = '' }: Props) {
   const [refreshTick, setRefreshTick] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const isVisibleRef = useRef(false)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -20,18 +22,9 @@ export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0]
-        const wasVisible = isVisibleRef.current
-        isVisibleRef.current = entry.isIntersecting
         setIsVisible(entry.isIntersecting)
-        
-        // Trigger refresh when ad enters viewport
-        if (!wasVisible && entry.isIntersecting) {
-          if (!document.hidden) {
-            setRefreshTick(t => t + 1)
-          }
-        }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 } // Trigger when 10% of the ad is visible
     )
 
     observer.observe(containerRef.current)
@@ -40,7 +33,7 @@ export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
   }, [])
 
   useEffect(() => {
-    const refreshInterval = 10000 // 10 seconds
+    const refreshInterval = 15000
 
     const intervalId = setInterval(() => {
       // Only refresh if tab is visible AND ad is in viewport
@@ -54,7 +47,7 @@ export function AdsterraBanner468x60WithRefresh({ className = '' }: Props) {
 
   return (
     <div ref={containerRef}>
-      <AdsterraBanner468x60 key={refreshTick} className={className} reinitTrigger={refreshTick} />
+      <AdstuffBanner300x250 key={refreshTick} className={className} reinitTrigger={refreshTick} />
     </div>
   )
 }
