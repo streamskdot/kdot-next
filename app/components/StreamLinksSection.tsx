@@ -105,6 +105,7 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
           <div className="space-y-3">
             {sortedLinks.map(({ link, source, index }) => {
               const isRecommended = source === 'ppv'
+              const isYosintv = source === 'yosintv'
               return (
                 <button
                   key={index}
@@ -113,7 +114,7 @@ export function StreamLinksSection({ streamLinks, status, matchId, showAdDialog 
                     isRecommended
                       ? 'border-amber-400 bg-linear-to-r from-amber-50 to-yellow-50 hover:border-amber-500 hover:from-amber-100 hover:to-yellow-100 dark:border-amber-500/50 dark:from-amber-900/20 dark:to-yellow-900/20 dark:hover:border-amber-500 dark:hover:from-amber-900/30 dark:hover:to-yellow-900/30'
                       : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-750'
-                  }`}
+                  } ${isYosintv ? 'adstuff-trigger' : ''}`}
                 >
                   {isRecommended && (
                     <div className="absolute -top-2 -right-2 flex items-center gap-1 rounded-full bg-linear-to-r from-amber-400 to-yellow-400 px-2 py-1 shadow-md dark:from-amber-500 dark:to-yellow-500">

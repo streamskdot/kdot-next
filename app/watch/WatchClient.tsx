@@ -64,7 +64,7 @@ export default function WatchClient() {
 
   // Re-render the banner every 5 seconds
   useEffect(() => {
-    const id = setInterval(() => setRefreshTick(t => t + 1), 10000)
+    const id = setInterval(() => setRefreshTick(t => t + 1), 12000)
     return () => clearInterval(id)
   }, [])
 

@@ -156,7 +156,7 @@ function matchRow(match, index) {
   }
 })();
 
-const TARGET_URL = 'https://yosintv.getemoji.online/';
+const TARGET_URL = 'https://www.yosintv.net/football.html';
 const NAV_TIMEOUT_MS = 45_000;
 const SETTLE_MS = 6_000;
 

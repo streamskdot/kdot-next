@@ -248,7 +248,7 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
       </div>
       {/* Adstuff banner below ThemedLeagueSection (mobile only) */}
       <div className="mt-4 flex items-center justify-center lg:hidden">
-        <AdstuffBanner300x250WithRefresh key={`adstuff-${league.slug}`} />
+        {/* <AdstuffBanner300x250WithRefresh key={`adstuff-${league.slug}`} /> */}
       </div>
     </section>
   )
