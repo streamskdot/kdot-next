@@ -68,7 +68,7 @@ export function useAdstuffDirectRefresh(
             console.warn('[Adstuff] script load failed:', url, error)
             done()
           }
-          document.body.appendChild(script)
+          host.appendChild(script)
           // Safety net so the queue doesn't hang if onload never fires.
           setTimeout(() => {
             if (!settled) {
