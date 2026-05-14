@@ -473,7 +473,7 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
       url: `/match/${id}`,
       images: [
         {
-          url: `/match/${id}/opengraph-image`,
+          url: '/ground.png',
           width: 1200,
           height: 630,
           alt: `${team1Name} vs ${team2Name}`,
@@ -484,7 +484,7 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
       card: 'summary_large_image',
       title,
       description,
-      images: [`/match/${id}/opengraph-image`],
+      images: ['/ground.png'],
     },
   }
 }
