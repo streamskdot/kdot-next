@@ -17,9 +17,9 @@ import { supabase, type Match, type League } from '@/lib/supabase'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Watch Live Football Matches in HD',
+  title: 'Watch Live Football Matches Scores & highlights in HD',
   description:
-    'Stream live football matches in HD on kdotTV. Premier League, Champions League, La Liga, Bundesliga, IPL, T20 & more. Real-time scores, schedules, and highlights.',
+    'Stream live football matches Scores , stats, events on kdotTV. Premier League, Champions League, La Liga, Bundesliga, IPL, T20 & more. Real-time scores, schedules, and highlights.',
   alternates: { canonical: 'https://kdotv.com' },
 }
 
