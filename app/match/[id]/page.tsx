@@ -239,10 +239,6 @@ function FAQSection({ team1Name, team2Name, leagueName, matchDate }: { team1Name
         : `The exact match date and time will be updated soon. Please bookmark this page and check back later for the latest information.`
     },
     {
-      question: `Where can I watch ${team1Name} vs ${team2Name} live stream?`,
-      answer: `You can watch the live stream of this match by scrolling up to the "Watch Live" section. We provide multiple stream links for the best viewing experience. Additionally, join our Telegram channel for instant updates.`
-    },
-    {
       question: `Which league or competition is this match part of?`,
       answer: leagueName 
         ? `This match is part of the ${leagueName}. It is an official competitive fixture.`
