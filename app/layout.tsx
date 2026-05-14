@@ -10,7 +10,7 @@ import {
   AdMobileLeaderboardSection,
   AdSkyscraperSection,
 } from './components/AdSlot'
-import { Analytics } from '@vercel/analytics/react'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -144,7 +144,7 @@ export default function RootLayout({
             <DMCAFooter />
           </div>
         </ThemeProvider>
-        <Analytics />
+        <GoogleAnalytics gaId="G-P611VSD7SF" />
       </body>
     </html>
   );
