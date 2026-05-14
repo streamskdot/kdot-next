@@ -60,7 +60,7 @@ function LeagueTabButton({
           className="h-4 w-4 shrink-0"
         />
       )}
-      <span className="truncate">{isAll ? 'All Leagues' : league?.name}</span>
+      <span>{isAll ? 'All Leagues' : league?.name}</span>
       {isPending && (
         <span className="absolute right-2 top-2 h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
       )}

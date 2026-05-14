@@ -45,20 +45,20 @@ async function getData(leagueSlug?: string) {
   // Get football league slugs to filter matches
   const footballLeagueSlugs = new Set((leagues ?? []).map(l => l.slug))
 
-  // Fetch matches (upcoming, live, and ended within last 24h)
+  // Fetch matches (upcoming, live, and ended within last 24h) - always fetch all for tabs
   const twentyFourHoursAgo = new Date(CURRENT_TIMESTAMP - 24 * 60 * 60 * 1000).toISOString()
-  let matchesQuery = supabase
+  const allMatchesQuery = supabase
     .from('matches')
     .select('*')
     .or(`status.in.(live,upcoming),and(status.eq.ended,ended_at.gt.${twentyFourHoursAgo})`)
     .in('league', Array.from(footballLeagueSlugs))
 
-  // Filter by league if selected
-  if (leagueSlug) {
-    matchesQuery = matchesQuery.eq('league', leagueSlug)
-  }
+  const { data: allMatches } = await allMatchesQuery.order('match_date', { ascending: true })
 
-  const { data: matches } = await matchesQuery.order('match_date', { ascending: true })
+  // Filter matches by league if selected (for the grid only)
+  const filteredMatches = leagueSlug
+    ? (allMatches ?? []).filter(m => m.league === leagueSlug)
+    : (allMatches ?? [])
 
   // Fetch teams for logo lookup
   const { data: teams } = await supabase
@@ -69,7 +69,8 @@ async function getData(leagueSlug?: string) {
 
   return {
     leagues: (leagues ?? []) as League[],
-    matches: (matches ?? []) as Match[],
+    matches: filteredMatches as Match[],
+    allMatches: (allMatches ?? []) as Match[],
     teamsMap,
   }
 }
@@ -310,7 +311,11 @@ export default async function Home({ searchParams }: HomeProps) {
   const { league } = await searchParams
 
   // Fetch data once for both league tabs and matches grid
-  const { leagues, matches, teamsMap } = await getData(league)
+  const { leagues, matches, allMatches, teamsMap } = await getData(league)
+
+  // Filter leagues to only show those with matches (using allMatches, not filtered matches)
+  const leagueSlugsWithMatches = new Set(allMatches.map(m => m.league))
+  const leaguesWithMatches = leagues.filter(l => leagueSlugsWithMatches.has(l.slug))
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 transition-colors dark:bg-zinc-950">
@@ -328,12 +333,12 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
 
           {/* League Tabs - No Suspense, renders immediately on client */}
-          <LeagueTabsClient leagues={leagues} />
+          <LeagueTabsClient leagues={leaguesWithMatches} />
 
           {/* Matches Grid - Only this shows skeleton when loading */}
           <div className="mt-6">
             <Suspense key={league || 'all'} fallback={<MatchesSkeleton />}>
-              <MatchesGrid league={league} initialData={{ leagues, matches, teamsMap }} />
+              <MatchesGrid league={league} initialData={{ leagues, matches, allMatches, teamsMap }} />
             </Suspense>
           </div>
 

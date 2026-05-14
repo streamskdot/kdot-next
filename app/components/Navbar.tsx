@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { ThemeToggle } from './ThemeToggle'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -12,6 +11,36 @@ function TelegramIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.697.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.751-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
     </svg>
+  )
+}
+
+// kdotTV Logo component (light navbar version)
+function KdotTVLogo() {
+  return (
+    <div className="flex items-center gap-3">
+      <svg width="26" height="26" viewBox="0 0 26 26" className="shrink-0">
+        <defs>
+          <linearGradient id="redgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ff2d44"/>
+            <stop offset="100%" stopColor="#b50020"/>
+          </linearGradient>
+        </defs>
+        <rect width="26" height="26" rx="6" fill="url(#redgrad)"/>
+        <rect x="7" y="4" width="3.5" height="18" rx="1.5" fill="white"/>
+        <line x1="10.5" y1="13" x2="20" y2="4" stroke="white" strokeWidth="3.5" strokeLinecap="round"/>
+        <line x1="10.5" y1="13" x2="20.5" y2="22" stroke="white" strokeWidth="3.5" strokeLinecap="round"/>
+        <circle cx="10.5" cy="13" r="2" fill="#e63946"/>
+        <circle cx="10.5" cy="13" r="1.2" fill="white"/>
+      </svg>
+      <div className="flex items-baseline gap-1">
+        <span className="text-xl font-bold text-zinc-900 dark:text-white" style={{ fontFamily: 'Georgia, serif' }}>
+          kdot
+        </span>
+        <span className="text-xl font-normal text-red-600 dark:text-red-500" style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.05em' }}>
+          TV
+        </span>
+      </div>
+    </div>
   )
 }
 
@@ -66,21 +95,9 @@ export function Navbar() {
             </button>
 
             {/* Logo */}
-            <div className="flex items-center gap-2.5 group cursor-pointer">
-              <div className="relative">
-                <div className="absolute inset-0 rounded-lg bg-linear-to-br from-red-500 to-red-600 blur-sm opacity-0 transition-opacity duration-300 group-hover:opacity-30" />
-                <Image
-                  src="/logo.png"
-                  alt="kdotTV logo"
-                  width={36}
-                  height={36}
-                  className="relative h-9 w-9 transition-transform duration-300 group-hover:scale-110"
-                />
-              </div>
-              <span className="text-xl font-bold text-zinc-900 dark:text-white transition-colors duration-300">
-                kdot<span className="text-red-600 dark:text-red-500">TV</span>
-              </span>
-            </div>
+            <Link href="/" className="flex items-center gap-2.5 group cursor-pointer">
+              <KdotTVLogo />
+            </Link>
           </div>
 
           {/* Sport Switcher - desktop only */}
