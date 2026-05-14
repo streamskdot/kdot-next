@@ -24,6 +24,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
+import ws from 'ws';
 
 // --------------------------- terminal colors ---------------------------
 const C = {
@@ -175,6 +176,14 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-scraper',
+    },
+  },
+  realtime: {
+    ws: ws,
+  },
 });
 
 // --------------------------- helpers ---------------------------------
