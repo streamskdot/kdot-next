@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "deploy": "next build && npx @opennextjs/cloudflare build && cp .open-next/worker.js .open-next/assets/_worker.js"    "start": "next start",
+    "deploy": "next build && npx @opennextjs/cloudflare build && cp .open-next/worker.js .open-next/assets/_worker.js",   
+    "start": "next start",
     "lint": "eslint",
     "scrape": "node scripts/scraper.mjs",
     "scrape:football": "node scripts/scraper-football.mjs",
