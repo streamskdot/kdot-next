@@ -445,49 +445,88 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
 
 export async function generateMetadata({ params }: MatchDetailPageProps): Promise<Metadata> {
   const { id } = await params
-  const data = await getMatchDetails(id)
 
-  if (!data) {
-    return {
-      title: 'Match Not Found - kdotTV',
-    }
-  }
+  try {
+    const data = await getMatchDetails(id)
 
-  const { match, team1Data, team2Data, leagueData } = data
-  const team1Name = team1Data?.name || match.team1
-  const team2Name = team2Data?.name || match.team2
-
-  const title = `${team1Name} vs ${team2Name} - Watch Live HD`
-  const description = `Watch ${team1Name} vs ${team2Name} live in HD${leagueData ? ` in ${leagueData.name}` : ''}. Watch your favorite team play on kdotTV.`
-
-  return {
-    metadataBase: new URL('https://kdotv.com'),
-    title,
-    description,
-    alternates: {
-      canonical: `/match/${id}`,
-    },
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-      url: `https://kdotv.com/match/${id}`,
-      siteName: 'kdotTV',
-      images: [
-        {
-          url: 'https://kdotv.com/ground.png',
-          width: 1200,
-          height: 630,
-          alt: `${team1Name} vs ${team2Name}`,
+    if (!data) {
+      return {
+        title: 'Match Not Found - kdotTV',
+        description: 'The requested match could not be found on kdotTV.',
+        openGraph: {
+          title: 'Match Not Found - kdotTV',
+          description: 'The requested match could not be found on kdotTV.',
+          type: 'website',
+          url: `https://kdotv.com/match/${id}`,
+          images: [
+            {
+              url: 'https://kdotv.com/ground.png',
+              width: 1200,
+              height: 630,
+              alt: 'kdotTV',
+            },
+          ],
         },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
+      }
+    }
+
+    const { match, team1Data, team2Data, leagueData } = data
+    const team1Name = team1Data?.name || match.team1
+    const team2Name = team2Data?.name || match.team2
+
+    const title = `${team1Name} vs ${team2Name} - Watch Live HD`
+    const description = `Watch ${team1Name} vs ${team2Name} live in HD${leagueData ? ` in ${leagueData.name}` : ''}. Watch your favorite team play on kdotTV.`
+
+    return {
+      metadataBase: new URL('https://kdotv.com'),
       title,
       description,
-      images: ['https://kdotv.com/ground.png'],
-    },
+      alternates: {
+        canonical: `/match/${id}`,
+      },
+      openGraph: {
+        title,
+        description,
+        type: 'website',
+        url: `https://kdotv.com/match/${id}`,
+        siteName: 'kdotTV',
+        images: [
+          {
+            url: 'https://kdotv.com/ground.png',
+            width: 1200,
+            height: 630,
+            alt: `${team1Name} vs ${team2Name}`,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: ['https://kdotv.com/ground.png'],
+        site: '@kdotTV',
+      },
+    }
+  } catch {
+    // Fallback metadata if data fetching fails
+    return {
+      title: 'Watch Live Sports on kdotTV',
+      description: 'Watch live football and cricket matches in HD for free on kdotTV.',
+      openGraph: {
+        title: 'Watch Live Sports on kdotTV',
+        description: 'Watch live football and cricket matches in HD for free on kdotTV.',
+        type: 'website',
+        url: `https://kdotv.com/match/${id}`,
+        images: [
+          {
+            url: 'https://kdotv.com/ground.png',
+            width: 1200,
+            height: 630,
+            alt: 'kdotTV',
+          },
+        ],
+      },
+    }
   }
 }
 
