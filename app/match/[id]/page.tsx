@@ -206,6 +206,7 @@ function BulletinBanner() {
   )
 }
 
+
 function LineupInfoSection() {
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
@@ -303,7 +304,7 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
     name: `${team1Name} vs ${team2Name}`,
     sport: 'Soccer',
     startDate: match.match_date,
-    description: `Watch ${team1Name} vs ${team2Name} live FREE in HD ${leagueData ? ` in the ${leagueData.name}` : ''}.`,
+    description: `Watch ${team1Name} vs ${team2Name} Match Live Highlights in HD ${leagueData ? ` in the ${leagueData.name}` : ''}.`,
     eventStatus:
       match.status === 'live'
         ? 'https://schema.org/EventInProgress'

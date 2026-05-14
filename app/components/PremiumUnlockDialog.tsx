@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Check, Crown, Lock, Loader2, Play } from 'lucide-react'
+import { Check, Crown, Lock, Loader2, Play, Sparkles, Video, BadgeCheck, Heart } from 'lucide-react'
 import { useHilltopPopunder } from '@/hooks/useHilltopPopunder'
 
 interface PremiumUnlockDialogProps {
@@ -92,14 +92,14 @@ export function PremiumUnlockDialog({
     onClose()
   }
 
-  const subtitle =
-    adViewCount === 0
-      ? "Click 'View Ad' twice below to unlock. Thank you for supporting us — your support keeps this service free. 🙏"
-      : !unlocked
-      ? remaining === 1
-        ? 'Almost there! One more ad view to go...'
-        : `Almost there! ${remaining} more ad views to go...`
-      : "You're all set! Enjoy the match. Thank you for your support 🙏"
+  // const subtitle =
+  //   adViewCount === 0
+  //     ? "Click 'View Ad' twice below to unlock. — your support keeps this service free. 🙏"
+  //     : !unlocked
+  //     ? remaining === 1
+  //       ? 'Almost there! One more ad view to go...'
+  //       : `Almost there! ${remaining} more ad views to go...`
+  //     : "You're all set! Enjoy the match. Thank you for your support 🙏"
 
   return (
     <div
@@ -154,7 +154,7 @@ export function PremiumUnlockDialog({
 
           {/* Title */}
           <h2 className="mt-4 text-center text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-2xl">
-            Watch in Crystal Clear 2160p
+            Watch in HD+ for <i>FREE</i> 
           </h2>
           {streamName && (
             <p className="mt-1 text-center text-sm font-medium text-amber-600 dark:text-amber-400">
@@ -163,9 +163,37 @@ export function PremiumUnlockDialog({
           )}
 
           {/* Subtitle (transitions per stage) */}
-          <p className="mt-3 min-h-12 text-center text-sm leading-relaxed text-zinc-600 transition-all duration-500 dark:text-zinc-300">
+          {/* <p className="mt-3 min-h-12 text-center text-sm leading-relaxed text-zinc-600 transition-all duration-500 dark:text-zinc-300">
             {subtitle}
-          </p>
+          </p> */}
+
+          {/* Feature Section */}
+          <div className="mt-5 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 p-4 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200/50 dark:border-amber-800/30">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-200">Premium Features</span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-start gap-2">
+                <BadgeCheck className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                  <span className="font-semibold">No Watermark:</span> Clean viewing experience in non-fullscreen mode
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <Video className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                  <span className="font-semibold">2K 60 FPS:</span> Crystal clear video rendering at high frame rate
+                </p>
+              </div>
+              <div className="flex items-start gap-2">
+                <Heart className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+                <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                  <span className="font-semibold">Support Us:</span> Your support keeps our service free for everyone
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Progress circles */}
           <div className="mt-5 flex items-center justify-center gap-3">

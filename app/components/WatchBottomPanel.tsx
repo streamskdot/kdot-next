@@ -2,7 +2,111 @@
 
 import { useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronUp, ChevronDown, ArrowLeft } from 'lucide-react'
+import { ChevronUp, ChevronDown, ArrowLeft, Bell, Shield, Zap, MessageCircle } from 'lucide-react'
+
+function StayUpdatedBanner() {
+  return (
+    <div className="rounded-2xl border border-amber-200/80 bg-linear-to-br from-amber-50 via-orange-50 to-amber-100 p-6 shadow-lg dark:border-amber-800/50 dark:from-amber-900/30 dark:via-orange-900/20 dark:to-amber-900/30 mb-4 relative overflow-hidden">
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-r from-amber-100/50 via-transparent to-orange-100/50 dark:from-amber-800/20 dark:via-transparent dark:to-orange-800/20" />
+      
+      <div className="relative">
+        {/* Header with icon */}
+        <div className="mb-5 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30">
+            <Bell className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold bg-linear-to-r from-amber-800 to-orange-700 bg-clip-text text-transparent dark:from-amber-200 dark:to-orange-300">
+              Stay with KdotTV
+            </h3>
+            <p className="text-xs font-medium text-amber-600/80 dark:text-amber-400/80 uppercase tracking-wider">
+              Never miss a match
+            </p>
+          </div>
+        </div>
+        
+        {/* Social buttons with animated borders */}
+        <div className="mb-6 grid grid-cols-2 gap-4">
+          {/* Telegram Button */}
+          <a
+            href="https://t.me/+OpTUPK3X0NwyNmZh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-blue-500 to-cyan-500 p-1 shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-blue-500/50"
+          >
+            <div className="relative h-full rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 p-4 transition-all group-hover:from-blue-500 group-hover:to-cyan-500">
+              {/* Animated border effect */}
+              <div className="absolute inset-0 rounded-xl bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+              
+              <div className="relative flex flex-col items-center gap-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm transition-transform group-hover:scale-110">
+                  <MessageCircle className="h-6 w-6 text-white" />
+                </div>
+                <div className="text-center">
+                  <span className="block text-sm font-bold text-white">Telegram</span>
+                  <span className="block text-[10px] text-white/80">Join Channel</span>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          {/* WhatsApp Button */}
+          <a
+            href="https://chat.whatsapp.com/BJu6MrOqJw0HP950k5E3He"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-green-500 to-emerald-500 p-1 shadow-xl shadow-green-500/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-green-500/50"
+          >
+            <div className="relative h-full rounded-xl bg-linear-to-br from-green-600 to-emerald-600 p-4 transition-all group-hover:from-green-500 group-hover:to-emerald-500">
+              {/* Animated border effect */}
+              <div className="absolute inset-0 rounded-xl bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+              
+              <div className="relative flex flex-col items-center gap-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm transition-transform group-hover:scale-110">
+                  <MessageCircle className="h-6 w-6 text-white" />
+                </div>
+                <div className="text-center">
+                  <span className="block text-sm font-bold text-white">WhatsApp</span>
+                  <span className="block text-[10px] text-white/80">Join Group</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        
+        {/* Message with icons */}
+        <div className="space-y-3">
+          <div className="flex items-start gap-3 rounded-xl bg-white/50 p-3 dark:bg-white/5 backdrop-blur-sm">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+              <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <p className="text-sm leading-relaxed text-amber-900/90 dark:text-amber-100/90">
+              <span className="font-semibold">Platform Updates:</span> We occasionally update our infrastructure to ensure the best streaming experience.
+            </p>
+          </div>
+          
+          <div className="flex items-start gap-3 rounded-xl bg-white/50 p-3 dark:bg-white/5 backdrop-blur-sm">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+              <Zap className="h-4 w-4 text-green-600 dark:text-green-400" />
+            </div>
+            <p className="text-sm leading-relaxed text-amber-900/90 dark:text-amber-100/90">
+              <span className="font-semibold">Real-time Alerts:</span> Get instant notifications about new domains and fresh match links.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <style jsx>{`
+        @keyframes shimmer {
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
+    </div>
+  )
+}
 
 export interface WatchBottomPanelProps {
   streamName?: string
@@ -172,6 +276,7 @@ export function WatchBottomPanel({
           visibility: isExpanded ? 'visible' : 'hidden',
         }}
       >
+        <StayUpdatedBanner />
         {expandedContent || children}
       </div>
     </div>
