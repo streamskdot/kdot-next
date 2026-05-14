@@ -446,21 +446,22 @@ async function MatchDetailContent({ id, initialData }: { id: string; initialData
 export async function generateMetadata({ params }: MatchDetailPageProps): Promise<Metadata> {
   const { id } = await params
   const data = await getMatchDetails(id)
-  
+
   if (!data) {
     return {
       title: 'Match Not Found - kdotTV',
     }
   }
-  
+
   const { match, team1Data, team2Data, leagueData } = data
   const team1Name = team1Data?.name || match.team1
   const team2Name = team2Data?.name || match.team2
-  
+
   const title = `${team1Name} vs ${team2Name} - Watch Live HD`
   const description = `Watch ${team1Name} vs ${team2Name} live in HD${leagueData ? ` in ${leagueData.name}` : ''}. Watch your favorite team play on kdotTV.`
-  
+
   return {
+    metadataBase: new URL('https://kdotv.com'),
     title,
     description,
     alternates: {
@@ -470,10 +471,11 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
       title,
       description,
       type: 'website',
-      url: `/match/${id}`,
+      url: `https://kdotv.com/match/${id}`,
+      siteName: 'kdotTV',
       images: [
         {
-          url: '/ground.png',
+          url: 'https://kdotv.com/ground.png',
           width: 1200,
           height: 630,
           alt: `${team1Name} vs ${team2Name}`,
@@ -484,7 +486,7 @@ export async function generateMetadata({ params }: MatchDetailPageProps): Promis
       card: 'summary_large_image',
       title,
       description,
-      images: ['/ground.png'],
+      images: ['https://kdotv.com/ground.png'],
     },
   }
 }
