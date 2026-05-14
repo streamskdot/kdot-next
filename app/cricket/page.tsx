@@ -10,9 +10,9 @@ import type { Metadata } from 'next'
 export const runtime = 'edge'
 
 export const metadata: Metadata = {
-  title: 'Live Cricket Streaming - IPL, International & T20 Matches',
+  title: 'Live Cricket Highlights & Stats score - IPL, International & T20 Matches',
   description:
-    'Watch live cricket matches in HD on kdotTV. IPL, T20, ODI, Test cricket streaming with real-time scores, schedules, and highlights.',
+    'Watch live cricket matches in HD on kdotTV. IPL, T20, ODI, Test cricket with real-time scores, schedules, and highlights.',
   alternates: { canonical: 'https://kdotv.com/cricket' },
 }
 
