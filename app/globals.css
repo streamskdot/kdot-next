@@ -15,3 +15,8 @@ body {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
+
+/* Hide broken adstuff fraudscore tracking pixels */
+img[src*="fraudscore.ai"] {
+  display: none !important;
+}

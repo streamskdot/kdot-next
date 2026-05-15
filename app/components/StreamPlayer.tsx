@@ -270,7 +270,7 @@ export function StreamPlayer({ url, title = 'Live Stream', isPremium = false }: 
                     setErrored(true)
                   }}
                 />
-                <PlayerOverlay />
+                <PlayerOverlay visible={!loading} />
               </>
             )}
           </div>

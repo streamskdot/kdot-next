@@ -9,10 +9,11 @@ import { forwardRef, useRef, useState } from 'react'
  */
 interface PlayerOverlayProps {
   onFirstClick?: () => void
+  visible?: boolean
 }
 
 export const PlayerOverlay = forwardRef<HTMLDivElement, PlayerOverlayProps>(
-  ({ onFirstClick }, ref) => {
+  ({ onFirstClick, visible = true }, ref) => {
     const internalRef = useRef<HTMLDivElement>(null)
     const overlayRef = (ref as React.RefObject<HTMLDivElement>) || internalRef
     const [hasClicked, setHasClicked] = useState(false)
@@ -37,7 +38,12 @@ export const PlayerOverlay = forwardRef<HTMLDivElement, PlayerOverlayProps>(
         ref={overlayRef}
         onClick={handleClick}
         className="adstuff-popunder absolute inset-0 z-10 transition-opacity duration-300 group"
-        style={{ cursor: 'pointer', background: 'transparent' }}
+        style={{
+          cursor: 'pointer',
+          background: 'transparent',
+          opacity: visible ? 1 : 0,
+          pointerEvents: visible ? 'auto' : 'none',
+        }}
       >
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="flex flex-col items-center justify-center gap-3">
