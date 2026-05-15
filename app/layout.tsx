@@ -11,7 +11,6 @@ import {
   AdSkyscraperSection,
 } from './components/AdSlot'
 import { GoogleAnalytics } from '@next/third-parties/google'
-import { AdstuffScript } from './components/adstuff/AdstuffScript'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -130,7 +129,6 @@ export default function RootLayout({
             `,
           }}
         />
-        <AdstuffScript />
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
