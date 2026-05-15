@@ -15,7 +15,7 @@ import { WatchPageActions } from '@/app/components/WatchPageActions'
 import { Navbar } from '@/app/components/Navbar'
 import { PremiumUnlockDialog } from '@/app/components/PremiumUnlockDialog'
 import { supabase } from '@/lib/supabase'
-import { useAdstuffInPagePush } from '@/hooks/useAdstuffInPagePush'
+// import { useAdstuffInPagePush } from '@/hooks/useAdstuffInPagePush'
 
 interface MatchData {
   id: string
@@ -64,7 +64,7 @@ export default function WatchClient() {
   const [refreshTick, setRefreshTick] = useState(0)
 
   // Load in-page push notification script globally on watch page
-  useAdstuffInPagePush({ id: 'watch-page', enabled: true })
+  // useAdstuffInPagePush({ id: 'watch-page', enabled: true })
 
   // Re-render the banner every 5 seconds
   useEffect(() => {
