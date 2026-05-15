@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle } from 'lucide-react'
+import { PlayerOverlay } from './adstuff/PlayerOverlay'
 
 interface StreamPlayerProps {
   url: string
@@ -68,6 +69,9 @@ function TVStatic() {
  * The `url` is the embedded player URL (e.g. from yosintv / cricfoot wrappers).
  * Kept as a standalone client component so it can be reused on the dedicated
  * /watch page or embedded inline on a match detail page.
+ *
+ * Popunder handling: Adstuff popunders fire via overlay click detection on first click.
+ * Provider's own popunders on subsequent clicks are accepted as a trade-off.
  */
 export function StreamPlayer({ url, title = 'Live Stream', isPremium = false }: StreamPlayerProps) {
   const [loading, setLoading] = useState(true)
@@ -251,20 +255,23 @@ export function StreamPlayer({ url, title = 'Live Stream', isPremium = false }: 
                 </div>
               </div>
             ) : (
-              <iframe
-                id="kdotv-video-player"
-                src={url}
-                title={title}
-                className="absolute inset-0 h-full w-full"
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen; gyroscope; accelerometer"
-                allowFullScreen
-                referrerPolicy="no-referrer-when-downgrade"
-                onLoad={() => setLoading(false)}
-                onError={() => {
-                  setLoading(false)
-                  setErrored(true)
-                }}
-              />
+              <>
+                <iframe
+                  id="kdotv-video-player"
+                  src={url}
+                  title={title}
+                  className="absolute inset-0 h-full w-full"
+                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen; gyroscope; accelerometer"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  onLoad={() => setLoading(false)}
+                  onError={() => {
+                    setLoading(false)
+                    setErrored(true)
+                  }}
+                />
+                <PlayerOverlay />
+              </>
             )}
           </div>
         </div>
