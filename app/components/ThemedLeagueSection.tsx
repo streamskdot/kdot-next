@@ -67,7 +67,8 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
   const isBundesliga = league.slug === 'bundesliga'
   const isSerieA = league.slug === 'serie-a'
   const isLigue1 = league.slug === 'ligue-1'
-  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague || isPremierLeague || isLaLiga || isBundesliga || isSerieA || isLigue1
+  const isFACup = league.slug === 'fa-cup'
+  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague || isPremierLeague || isLaLiga || isBundesliga || isSerieA || isLigue1 || isFACup
   const isLightThemed = isLigue1 // Ligue 1 has light background
 
   const colors = isDarkMode ? theme.darkColors : theme.colors
@@ -147,6 +148,14 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
           </div>
         )}
 
+        {/* Decorative elements for FA Cup */}
+        {isFACup && (
+          <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+            <div className="absolute -top-10 -right-10 text-8xl">🏆</div>
+            <div className="absolute -bottom-10 -left-10 text-8xl">🥇</div>
+          </div>
+        )}
+
         {/* Compact League Header */}
         <div className="relative flex items-center gap-3 px-5 py-3 border-b border-white/10">
           <div
@@ -199,6 +208,9 @@ export function ThemedLeagueSection({ league, matches, teamsMap }: ThemedLeagueS
           )}
           {isLigue1 && (
             <div className="text-2xl opacity-50">🌟</div>
+          )}
+          {isFACup && (
+            <div className="text-2xl opacity-50">🏆</div>
           )}
         </div>
 

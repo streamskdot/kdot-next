@@ -90,7 +90,9 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug, showA
   const isBundesliga = leagueSlug === 'bundesliga'
   const isSerieA = leagueSlug === 'serie-a'
   const isLigue1 = leagueSlug === 'ligue-1'
-  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague || isPremierLeague || isLaLiga || isBundesliga || isSerieA || isLigue1
+  const isFACup = leagueSlug === 'fa-cup'
+  console.log('fa cup->', leagueSlug)
+  const isThemed = isChampionsLeague || isEuropaLeague || isConferenceLeague || isPremierLeague || isLaLiga || isBundesliga || isSerieA || isLigue1 || isFACup
   const isLightThemed = isLigue1 // Ligue 1 has light background
 
   const colors = isDarkMode ? theme.darkColors : theme.colors
@@ -179,6 +181,15 @@ export function ThemedMatchCard({ match, team1Data, team2Data, leagueSlug, showA
             <div className="absolute top-2 right-2 text-4xl">🇫🇷</div>
             <div className="absolute bottom-2 left-2 text-3xl">⚽</div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🌟</div>
+          </div>
+        )}
+
+        {/* Decorative elements for FA Cup */}
+        {isFACup && (
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="absolute top-2 right-2 text-4xl">🏆</div>
+            <div className="absolute bottom-2 left-2 text-3xl">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🥇</div>
           </div>
         )}
 

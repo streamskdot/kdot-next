@@ -262,6 +262,35 @@ export const leagueThemes: Record<string, LeagueTheme> = {
       header: 'linear-gradient(135deg, #006ba3 0%, #005082 100%)',
     },
   },
+  'fa-cup': {
+    name: 'FA Cup',
+    colors: {
+      primary: '#e60026', // Emirates red
+      primaryDark: '#b3001e',
+      accent: '#c0c0c0', // Silver (trophy)
+      background: '#ffffff',
+      border: '#e60026',
+      text: '#e60026',
+      textMuted: '#ff4d6d',
+    },
+    darkColors: {
+      primary: '#cc0022',
+      primaryDark: '#990019',
+      accent: '#a0a0a0', // Darker silver
+      background: '#1a0a0c',
+      border: '#cc0022',
+      text: '#ffffff',
+      textMuted: '#ff8099',
+    },
+    gradients: {
+      card: 'linear-gradient(135deg, #e60026 0%, #ff1a3c 50%, #ff3366 100%)',
+      header: 'linear-gradient(135deg, #e60026 0%, #cc0022 100%)',
+    },
+    darkGradients: {
+      card: 'linear-gradient(135deg, #990019 0%, #b3001e 50%, #cc0022 100%)',
+      header: 'linear-gradient(135deg, #990019 0%, #660011 100%)',
+    },
+  },
   'ligue-1': {
     name: 'Ligue 1',
     colors: {
