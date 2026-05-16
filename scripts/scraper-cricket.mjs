@@ -1,21 +1,16 @@
 #!/usr/bin/env node
 /**
- * Scraper for https://yosintv.getemoji.online/cricket.html
+ * Scraper for https://www.yosintv.net/cricket.html
  *
- * Strategy:
- *   1. Open the page with Playwright (chromium, headless).
- *   2. Intercept XHR/fetch responses and look for a JSON API that contains
- *      match data. If found, parse those payloads directly.
- *   3. Fall back to DOM scraping (multiple selector strategies) looking for
- *      elements containing two team names separated by a "vs" token.
- *   4. Match league_name against rows already in Supabase `leagues` table
- *      (we resolve slug from there). Unknown leagues fall back to slugified
- *      league_name.
- *   5. Stable id = sha256(league_slug + '|' + team1 + '|' + team2 + '|' + match_date_iso).
- *   6. Upsert to Supabase with service-role key, then call the
- *      cleanup_old_matches() RPC.
- *
- * Env: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ * Changelog (fixes vs previous version):
+ *   - scrapeDom() rewritten to parse the new FotMob-style card layout
+ *     (.match-card a → .match-team.home/.away, data-time, data-duration,
+ *     .match-local-time, .match-league-bar p, .match-status-* classes).
+ *   - extractMatchesFromJson() now also checks `match_time` and `kickoff`
+ *     as ISO date sources so match_date is populated from the API payload.
+ *   - Both paths now capture details_url for stream-link enrichment.
+ *   - Duplicate suppression: makeMatchId uses the UTC date from data-time
+ *     so the same fixture always hashes to the same id regardless of run.
  */
 
 import crypto from 'node:crypto';
@@ -27,60 +22,27 @@ import { createClient } from '@supabase/supabase-js';
 
 // --------------------------- terminal colors ---------------------------
 const C = {
-  reset: '\x1b[0m',
-  bold: '\x1b[1m',
-  dim: '\x1b[2m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  white: '\x1b[37m',
-  gray: '\x1b[90m',
-  bgRed: '\x1b[41m',
-  bgGreen: '\x1b[42m',
-  bgYellow: '\x1b[43m',
-  bgBlue: '\x1b[44m',
+  reset: '\x1b[0m', bold: '\x1b[1m', dim: '\x1b[2m',
+  red: '\x1b[31m', green: '\x1b[32m', yellow: '\x1b[33m',
+  blue: '\x1b[34m', magenta: '\x1b[35m', cyan: '\x1b[36m',
+  white: '\x1b[37m', gray: '\x1b[90m',
+  bgRed: '\x1b[41m', bgGreen: '\x1b[42m', bgYellow: '\x1b[43m', bgBlue: '\x1b[44m',
 };
 
 const ICON = {
-  rocket: '🚀',
-  globe: '🌐',
-  search: '🔍',
-  database: '🗄️ ',
-  cricket: '🏏',
-  trophy: '🏆',
-  teams: '👥',
-  check: '✅',
-  warn: '⚠️ ',
-  error: '❌',
-  sparkles: '✨',
-  clock: '⏱️ ',
-  package: '📦',
-  trash: '🗑️ ',
-  link: '🔗',
-  chart: '📊',
-  arrow: '➜',
+  rocket: '🚀', globe: '🌐', search: '🔍', database: '🗄️ ',
+  cricket: '🏏', trophy: '🏆', teams: '👥', check: '✅',
+  warn: '⚠️ ', error: '❌', sparkles: '✨', clock: '⏱️ ',
+  package: '📦', trash: '🗑️ ', link: '🔗', chart: '📊', arrow: '➜',
 };
 
 function timestamp() {
   const now = new Date();
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mm = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
-  return `${C.gray}[${hh}:${mm}:${ss}]${C.reset}`;
+  return `${C.gray}[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}]${C.reset}`;
 }
 
 function log(level, icon, message, detail = '') {
-  const colors = {
-    info: C.cyan,
-    success: C.green,
-    warn: C.yellow,
-    error: C.red,
-    step: C.magenta,
-    api: C.blue,
-  };
+  const colors = { info: C.cyan, success: C.green, warn: C.yellow, error: C.red, step: C.magenta, api: C.blue };
   const color = colors[level] || C.white;
   const detailStr = detail ? ` ${C.dim}${detail}${C.reset}` : '';
   console.log(`${timestamp()} ${color}${icon}${C.reset} ${message}${detailStr}`);
@@ -93,17 +55,9 @@ function header(title) {
   console.log(`${C.cyan}${C.bold}${line}${C.reset}\n`);
 }
 
-function section(title) {
-  console.log(`\n${C.magenta}${C.bold}┏━━ ${title} ━━${C.reset}`);
-}
-
-function subsection(title) {
-  console.log(`${C.magenta}${C.bold}┃${C.reset} ${C.dim}${title}${C.reset}`);
-}
-
-function sectionEnd() {
-  console.log(`${C.magenta}${C.bold}┗${'━'.repeat(48)}${C.reset}\n`);
-}
+function section(title) { console.log(`\n${C.magenta}${C.bold}┏━━ ${title} ━━${C.reset}`); }
+function subsection(title) { console.log(`${C.magenta}${C.bold}┃${C.reset} ${C.dim}${title}${C.reset}`); }
+function sectionEnd() { console.log(`${C.magenta}${C.bold}┗${'━'.repeat(48)}${C.reset}\n`); }
 
 function statRow(label, value, color = C.cyan) {
   const padding = ' '.repeat(Math.max(0, 20 - label.length));
@@ -111,26 +65,18 @@ function statRow(label, value, color = C.cyan) {
 }
 
 function matchRow(match, index) {
-  const statusColors = {
-    live: C.bgRed + C.white,
-    ended: C.gray,
-    upcoming: C.yellow,
-  };
+  const statusColors = { live: C.bgRed + C.white, ended: C.gray, upcoming: C.yellow };
   const statusIcon = match.status === 'live' ? '●' : match.status === 'ended' ? '○' : '◌';
   const statusColor = statusColors[match.status] || C.white;
   const scoreStr = match.team1_score != null && match.team2_score != null
     ? `${C.bold}${match.team1_score} - ${match.team2_score}${C.reset}`
     : `${C.dim}vs${C.reset}`;
-  const league = match.league_name || 'Unknown League';
   console.log(`    ${C.gray}${String(index).padStart(2)}.${C.reset} ${statusColor}${statusIcon}${C.reset} ${C.white}${match.team1}${C.reset} ${scoreStr} ${C.white}${match.team2}${C.reset}`);
-  console.log(`        ${C.dim}${ICON.trophy} ${league}${C.reset}`);
-  if (match.display_time) {
-    console.log(`        ${C.dim}${ICON.clock} ${match.display_time}${C.reset}`);
-  }
+  console.log(`        ${C.dim}${ICON.trophy} ${match.league_name || 'Unknown League'}${C.reset}`);
+  if (match.display_time) console.log(`        ${C.dim}${ICON.clock} ${match.display_time}${C.reset}`);
 }
 
-// Load .env.local for local runs. In GitHub Actions the env is already set,
-// so missing files are simply ignored.
+// Load .env.local for local runs (CI already has env set).
 (function loadEnvLocal() {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const candidates = [
@@ -166,11 +112,6 @@ const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
-  console.error('NEXT_PUBLIC_SUPABASE_URL:', SUPABASE_URL ? `set (length: ${SUPABASE_URL.length})` : 'undefined/empty');
-  console.error('SUPABASE_SERVICE_ROLE_KEY:', SERVICE_KEY ? `set (length: ${SERVICE_KEY.length})` : 'undefined/empty');
-  console.error('Raw values:');
-  console.error('  NEXT_PUBLIC_SUPABASE_URL =', JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_URL));
-  console.error('  SUPABASE_SERVICE_ROLE_KEY =', JSON.stringify(process.env.SUPABASE_SERVICE_ROLE_KEY));
   process.exit(1);
 }
 
@@ -199,7 +140,6 @@ function makeMatchId(leagueSlug, team1, team2, matchDate) {
 }
 
 function classifyStatus(text, hasScore, startIso = null, durationHours = null) {
-  // Time-based classification when we have a start timestamp.
   if (startIso) {
     const start = new Date(startIso);
     if (!Number.isNaN(start.getTime())) {
@@ -211,7 +151,6 @@ function classifyStatus(text, hasScore, startIso = null, durationHours = null) {
       return 'upcoming';
     }
   }
-  // Fallback: text heuristics.
   const t = String(text || '').toLowerCase();
   if (/\b(live|hd|playing|1st|2nd|innings|day|session)\b/.test(t)) return 'live';
   if (/\b(ended|final|ft|full[- ]?time|finished|result)\b/.test(t)) return 'ended';
@@ -230,7 +169,20 @@ function parseScore(s) {
   return m ? m[1] : null;
 }
 
-// Try to pull match-shaped objects out of arbitrary JSON
+/**
+ * Try to resolve a raw date value to an ISO string.
+ * Handles ISO strings with timezone offsets (e.g. "2026-05-16T23:30:00+09:00").
+ */
+function resolveDate(raw) {
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+/**
+ * Extract matches from arbitrary JSON.
+ * Now also checks `match_time` and `kickoff` as ISO date sources.
+ */
 function extractMatchesFromJson(node, out = []) {
   if (!node) return out;
   if (Array.isArray(node)) {
@@ -249,35 +201,50 @@ function extractMatchesFromJson(node, out = []) {
       const team2 = normalizeTeam(node[team2Key]?.name ?? node[team2Key]);
       if (team1 && team2) {
         const leagueName =
-          node.league?.name ?? node.league_name ?? node.competition ?? node.tournament ?? node.league ?? '';
-        const score1 =
-          parseScore(node.team1_score ?? node.home_score ?? node.score?.home ?? node.score1 ?? node[team1Key]?.score);
-        const score2 =
-          parseScore(node.team2_score ?? node.away_score ?? node.score?.away ?? node.score2 ?? node[team2Key]?.score);
+          node.league?.name ?? node.league_name ?? node.competition ??
+          node.tournament ?? node.league ?? '';
+
+        const score1 = parseScore(
+          node.team1_score ?? node.home_score ?? node.score?.home ??
+          node.score1 ?? node[team1Key]?.score,
+        );
+        const score2 = parseScore(
+          node.team2_score ?? node.away_score ?? node.score?.away ??
+          node.score2 ?? node[team2Key]?.score,
+        );
+
         const statusRaw = node.status ?? node.state ?? node.match_status ?? '';
+
+        // ---- FIX: expanded date field list to include match_time & kickoff ----
         const startRaw =
-          node.start ?? node.match_date ?? node.date ?? node.start_at ?? node.kickoff_at ?? null;
+          node.start ?? node.match_date ?? node.date ?? node.start_at ??
+          node.kickoff_at ?? node.match_time ?? node.kickoff ?? null;
+        // -----------------------------------------------------------------------
+
         const durationHours = Number.isFinite(Number(node.duration)) ? Number(node.duration) : 2;
 
         let matchDate = null;
-        let displayTime = node.display_time ?? node.time ?? node.kickoff ?? node.start_time ?? '';
+        let displayTime = node.display_time ?? node.time ?? node.start_time ?? '';
         let startIso = null;
+
         if (startRaw) {
-          const d = new Date(startRaw);
-          if (!Number.isNaN(d.getTime())) {
-            matchDate = d.toISOString();
-            startIso = matchDate;
-            // HH:MM in UTC
+          const iso = resolveDate(startRaw);
+          if (iso) {
+            matchDate = iso;
+            startIso = iso;
+            const d = new Date(iso);
             const hh = String(d.getUTCHours()).padStart(2, '0');
             const mm = String(d.getUTCMinutes()).padStart(2, '0');
-            displayTime = `${hh}:${mm}`;
+            // Only overwrite displayTime if it's empty or looks non-human-readable
+            if (!displayTime || !/\d{1,2}:\d{2}/.test(String(displayTime))) {
+              displayTime = `${hh}:${mm}`;
+            }
           }
         }
 
-        const team1Logo =
-          node.team1_logo ?? node[team1Key]?.logo ?? node[team1Key]?.image ?? null;
-        const team2Logo =
-          node.team2_logo ?? node[team2Key]?.logo ?? node[team2Key]?.image ?? null;
+        const team1Logo = node.team1_logo ?? node[team1Key]?.logo ?? node[team1Key]?.image ?? null;
+        const team2Logo = node.team2_logo ?? node[team2Key]?.logo ?? node[team2Key]?.image ?? null;
+        const detailsUrl = node.details_url ?? node.url ?? node.match_url ?? null;
 
         out.push({
           league_name: String(leagueName || '').trim(),
@@ -295,7 +262,7 @@ function extractMatchesFromJson(node, out = []) {
           ),
           display_time: String(displayTime || '').trim() || null,
           match_date: matchDate,
-          raw_data: node,
+          raw_data: { ...node, details_url: detailsUrl },
         });
       }
     }
@@ -310,7 +277,8 @@ async function scrape() {
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   const context = await browser.newContext({
     userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chrome/124.0 Safari/537.36',
     viewport: { width: 1366, height: 900 },
   });
   const page = await context.newPage();
@@ -323,7 +291,6 @@ async function scrape() {
       const ct = (resp.headers()['content-type'] || '').toLowerCase();
       const reqType = resp.request().resourceType();
       if (!ct.includes('json') && !['xhr', 'fetch'].includes(reqType)) return;
-      // Skip obvious noise
       if (/google-analytics|doubleclick|gstatic|fonts|adsystem|recaptcha/i.test(url)) return;
       const text = await resp.text();
       if (!text || text.length > 4_000_000) return;
@@ -336,7 +303,6 @@ async function scrape() {
   section('BROWSER');
   log('step', ICON.globe, 'Navigating to target', TARGET_URL);
   await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT_MS });
-  // Let network/JS settle so XHRs fire
   try { await page.waitForLoadState('networkidle', { timeout: NAV_TIMEOUT_MS }); } catch {}
   await page.waitForTimeout(SETTLE_MS);
 
@@ -347,20 +313,48 @@ async function scrape() {
     const found = extractMatchesFromJson(json);
     if (found.length) {
       apiSources++;
-      log('api', ICON.link, `API source #${apiSources}`, `${found.length} matches from ${url.slice(0, 60)}...`);
+      log('api', ICON.link, `API source #${apiSources}`, `${found.length} matches from ${url.slice(0, 80)}`);
       matches.push(...found);
     }
   }
 
-  // 2) Fallback to DOM scraping
+  // 2) Always run DOM scraping (as a supplement or fallback)
+  //    The new card-based DOM scraper is authoritative for display_time &
+  //    match_date when the API payload is missing them.
+  log('step', ICON.search, 'Running DOM scraper for card-based layout');
+  const domMatches = await scrapeDom(page);
+
   if (matches.length === 0) {
-    log('warn', ICON.search, 'No API matches found — falling back to DOM scraping');
-    matches = await scrapeDom(page);
+    log('warn', ICON.warn, 'No API matches — using DOM results exclusively');
+    matches = domMatches;
   } else {
-    log('success', ICON.check, `Found ${matches.length} matches from ${apiSources} API source(s)`);
+    // Merge: DOM results carry data-time dates & display_time that the API
+    // JSON may have as match_time. We trust the API for most fields but
+    // back-fill any missing match_date / display_time from DOM.
+    log('success', ICON.check,
+      `API: ${matches.length} match(es) | DOM: ${domMatches.length} match(es) — merging`);
+
+    // Build a lookup from DOM by team slugs (no date — just for enrichment)
+    const domByTeams = new Map();
+    for (const dm of domMatches) {
+      const key = `${slugify(dm.team1)}|${slugify(dm.team2)}`;
+      domByTeams.set(key, dm);
+    }
+
+    for (const m of matches) {
+      if (m.match_date && m.display_time) continue; // already complete
+      const key = `${slugify(m.team1)}|${slugify(m.team2)}`;
+      const dm = domByTeams.get(key);
+      if (!dm) continue;
+      if (!m.match_date && dm.match_date) m.match_date = dm.match_date;
+      if (!m.display_time && dm.display_time) m.display_time = dm.display_time;
+      if (!m.raw_data?.details_url && dm.raw_data?.details_url) {
+        m.raw_data = { ...(m.raw_data || {}), details_url: dm.raw_data.details_url };
+      }
+    }
   }
 
-  // 3) Enrich each match with stream links from its details page
+  // 3) Enrich with stream links
   try {
     await enrichWithStreamLinks(matches, context);
   } catch (e) {
@@ -369,6 +363,102 @@ async function scrape() {
 
   await browser.close();
   return matches;
+}
+
+// -------------------- DOM scraper (rewritten for new card layout) --------------------
+
+/**
+ * Scrapes the FotMob-style card layout used by yosintv.net as of May 2026.
+ *
+ * Each match is an <a class="match-card"> with:
+ *   data-time  = ISO-8601 kickoff with tz offset  (e.g. 2026-05-16T23:30:00+09:00)
+ *   data-duration = match duration in hours        (e.g. 2.2)
+ *   href       = details page URL
+ *
+ * Inside:
+ *   .match-team.home .match-team-name  → home team name
+ *   .match-team.home img               → home team logo src
+ *   .match-team.away .match-team-name  → away team name
+ *   .match-team.away img               → away team logo src
+ *   .match-center .match-local-time    → local time string (e.g. "8:15 PM")
+ *   .match-status                      → class tells status:
+ *       match-status-live | match-status-countdown | match-status-over
+ *   .match-league-bar p                → league / competition name
+ */
+async function scrapeDom(page) {
+  return await page.evaluate(() => {
+    const cards = document.querySelectorAll('a.match-card');
+    const out = [];
+    const seen = new Set(); // deduplicate within DOM (site sometimes renders dupes)
+
+    for (const card of cards) {
+      // Team names
+      const team1El = card.querySelector('.match-team.home .match-team-name');
+      const team2El = card.querySelector('.match-team.away .match-team-name');
+      if (!team1El || !team2El) continue;
+
+      const team1 = (team1El.textContent || '').replace(/\s+/g, ' ').trim();
+      const team2 = (team2El.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!team1 || !team2 || team1.toLowerCase() === team2.toLowerCase()) continue;
+
+      // Deduplicate within page (Al-Nassr bug)
+      const dataTime = card.dataset?.time || '';
+      const dedupeKey = `${team1}|${team2}|${dataTime}`;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
+
+      // Team logos
+      const team1LogoEl = card.querySelector('.match-team.home img');
+      const team2LogoEl = card.querySelector('.match-team.away img');
+      const team1_logo = team1LogoEl?.src || null;
+      const team2_logo = team2LogoEl?.src || null;
+
+      // League
+      const leagueEl = card.querySelector('.match-league-bar p');
+      const league_name = (leagueEl?.textContent || '').trim();
+
+      // Display time (local clock shown on card)
+      const timeEl = card.querySelector('.match-local-time');
+      const display_time = (timeEl?.textContent || '').trim() || null;
+
+      // Match date from data-time (ISO with tz offset — fully parseable)
+      let match_date = null;
+      if (dataTime) {
+        const d = new Date(dataTime);
+        if (!Number.isNaN(d.getTime())) match_date = d.toISOString();
+      }
+
+      const duration = parseFloat(card.dataset?.duration) || 2;
+
+      // Status from CSS class
+      const statusEl = card.querySelector('.match-status');
+      let status = 'upcoming';
+      if (statusEl) {
+        if (statusEl.classList.contains('match-status-live')) status = 'live';
+        else if (statusEl.classList.contains('match-status-over')) status = 'ended';
+        // match-status-countdown → upcoming (default)
+      }
+
+      // Details URL
+      const details_url = card.href || null;
+
+      out.push({
+        league_name,
+        team1,
+        team2,
+        team1_logo,
+        team2_logo,
+        team1_score: null,
+        team2_score: null,
+        status,
+        display_time,
+        match_date,
+        raw_data: { source: 'dom', details_url, duration },
+      });
+    }
+
+    return out;
+  });
 }
 
 // --------------------------- stream link enrichment -----------------
@@ -393,26 +483,23 @@ async function enrichWithStreamLinks(matches, context) {
       if (idx >= withUrl.length) return;
       const match = withUrl[idx];
       const detailsUrl = match.raw_data.details_url;
-      let page;
+      let pg;
       try {
-        page = await context.newPage();
+        pg = await context.newPage();
         try {
-          await page.goto(detailsUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
-          // The container is `<div id="live-container">` (id, not class) and is
-          // populated asynchronously by client-side JS. Wait for an <a> child
-          // to appear, which means the stream JSON has been fetched & rendered.
-          await page.waitForSelector('#live-container a, .live-container a', { timeout: 10000 });
+          await pg.goto(detailsUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+          await pg.waitForSelector('#live-container a, .live-container a', { timeout: 10000 });
         } catch {
           match.stream_links = null;
           return;
         }
-        const hrefs = await page.$$eval('#live-container a, .live-container a', (els) =>
-          els.map((a) => a.getAttribute('href')).filter(Boolean),
+        const hrefs = await pg.$$eval(
+          '#live-container a, .live-container a',
+          (els) => els.map((a) => a.getAttribute('href')).filter(Boolean),
         );
         const links = [];
         for (const href of hrefs) {
           try {
-            // Parse query param `url=` from either absolute or relative hrefs
             const qIdx = href.indexOf('?');
             const query = qIdx >= 0 ? href.slice(qIdx + 1) : '';
             const params = new URLSearchParams(query);
@@ -421,7 +508,7 @@ async function enrichWithStreamLinks(matches, context) {
           } catch { /* skip malformed */ }
         }
         if (links.length) {
-          match.stream_links = links.map(link => ({ source: 'yosintv', link }));
+          match.stream_links = links.map((link) => ({ source: 'yosintv', link }));
           enrichedCount++;
         } else {
           match.stream_links = null;
@@ -429,9 +516,7 @@ async function enrichWithStreamLinks(matches, context) {
       } catch {
         match.stream_links = null;
       } finally {
-        if (page) {
-          try { await page.close(); } catch { /* ignore */ }
-        }
+        if (pg) { try { await pg.close(); } catch { /* ignore */ } }
       }
     }
   }
@@ -443,110 +528,9 @@ async function enrichWithStreamLinks(matches, context) {
   sectionEnd();
 }
 
-async function scrapeDom(page) {
-  return await page.evaluate(() => {
-    const SEPARATORS = /\s+(?:vs\.?|v\.?|VS|–|—|-)\s+/i;
-    const out = [];
-
-    // Strategy A: any element whose direct text contains "vs"
-    const candidates = new Set();
-    const all = document.querySelectorAll('body *');
-    for (const el of all) {
-      const txt = (el.textContent || '').trim();
-      if (!txt || txt.length > 400) continue;
-      // Has " vs " in immediate-ish text and not too many child rows
-      if (/\bvs\.?\b/i.test(txt) && el.children.length < 12) {
-        candidates.add(el);
-      }
-    }
-
-    // De-duplicate: prefer the smallest element wrapping the match
-    const ordered = Array.from(candidates).sort(
-      (a, b) => (a.textContent || '').length - (b.textContent || '').length,
-    );
-
-    const seen = new Set();
-    for (const el of ordered) {
-      // Skip if an ancestor already accepted (we want innermost)
-      let skip = false;
-      for (const acc of seen) if (acc.contains(el) || el.contains(acc)) { skip = true; break; }
-      if (skip) continue;
-
-      const text = (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim();
-      if (!text) continue;
-
-      // Try to split out two team names from a single line containing "vs"
-      const lineWithVs = text.split('\n').map((l) => l.trim()).find((l) => SEPARATORS.test(l)) || text;
-      const parts = lineWithVs.split(SEPARATORS).map((p) => p.trim()).filter(Boolean);
-      if (parts.length < 2) continue;
-
-      const team1 = parts[0].replace(/^[^A-Za-z0-9]+/, '').slice(0, 80);
-      const team2 = parts[1].replace(/[^A-Za-z0-9 .'-]+$/, '').slice(0, 80);
-      if (!team1 || !team2 || team1.toLowerCase() === team2.toLowerCase()) continue;
-
-      // League: try heading-like ancestor
-      let leagueName = '';
-      let cursor = el;
-      for (let i = 0; i < 6 && cursor; i++) {
-        const prev = cursor.previousElementSibling;
-        if (prev) {
-          const ptxt = (prev.innerText || prev.textContent || '').replace(/\s+/g, ' ').trim();
-          if (ptxt && ptxt.length < 120 && !SEPARATORS.test(ptxt) && !/\bvs\b/i.test(ptxt)) {
-            leagueName = ptxt;
-            break;
-          }
-        }
-        cursor = cursor.parentElement;
-        if (cursor) {
-          const heading = cursor.querySelector('h1,h2,h3,h4,h5,.league,.tournament,.competition,[class*="league"],[class*="title"]');
-          if (heading) {
-            const htxt = (heading.innerText || heading.textContent || '').trim();
-            if (htxt && htxt.length < 120 && !SEPARATORS.test(htxt)) {
-              leagueName = htxt;
-              break;
-            }
-          }
-        }
-      }
-
-      // Score: look for "1 - 2" / "1:2" patterns within the block
-      let team1_score = null, team2_score = null;
-      const scoreMatch = text.match(/\b(\d{1,2})\s*[-:–]\s*(\d{1,2})\b/);
-      if (scoreMatch) { team1_score = scoreMatch[1]; team2_score = scoreMatch[2]; }
-
-      // Status hints
-      const lowered = text.toLowerCase();
-      let status = 'upcoming';
-      if (/\b(live|hd|playing|1st|2nd|innings|day|session)\b/.test(lowered)) status = 'live';
-      else if (/\b(ended|final|ft|full[- ]?time|finished)\b/.test(lowered)) status = 'ended';
-      else if (team1_score != null) status = 'live';
-
-      // Display time: first hh:mm token
-      const timeMatch = text.match(/\b(\d{1,2}:\d{2}(?:\s*(?:am|pm|AM|PM))?)\b/);
-      const display_time = timeMatch ? timeMatch[1] : null;
-
-      seen.add(el);
-      out.push({
-        league_name: leagueName,
-        team1,
-        team2,
-        team1_score,
-        team2_score,
-        status,
-        display_time,
-        match_date: null,
-        raw_data: { source: 'dom', text: text.slice(0, 500) },
-      });
-    }
-
-    return out;
-  });
-}
-
 // --------------------------- persistence -----------------------------
 
 async function loadLeagueMap() {
-  // lowercased name -> { slug, sport }
   const map = new Map();
   try {
     const { data, error } = await supabase.from('leagues').select('name, slug, sport');
@@ -569,14 +553,10 @@ async function loadLeagueMap() {
 }
 
 async function loadExistingTeams() {
-  // slug -> { logo_url }
   const map = new Map();
   try {
     const { data, error } = await supabase.from('teams').select('slug, logo_url');
-    if (error) {
-      log('warn', ICON.warn, 'Could not load teams table', error.message);
-      return map;
-    }
+    if (error) { log('warn', ICON.warn, 'Could not load teams table', error.message); return map; }
     for (const row of data || []) if (row?.slug) map.set(row.slug, { logo_url: row.logo_url });
     log('success', ICON.teams, `Loaded ${map.size} existing teams from database`);
   } catch (e) {
@@ -586,57 +566,33 @@ async function loadExistingTeams() {
 }
 
 async function ensureLeagues(leagueRefs) {
-  // leagueRefs: Map<slug, {name, sport}>
   const rows = [];
   for (const [slug, info] of leagueRefs) {
-    rows.push({
-      name: info.name,
-      slug,
-      sport: info.sport || SPORT,
-    });
+    rows.push({ name: info.name, slug, sport: info.sport || SPORT });
   }
   if (!rows.length) return;
-  const { error } = await supabase
-    .from('leagues')
-    .upsert(rows, { onConflict: 'slug', ignoreDuplicates: true });
-  if (error) {
-    log('error', ICON.error, 'League upsert failed', error.message);
-    throw error;
-  }
+  const { error } = await supabase.from('leagues').upsert(rows, { onConflict: 'slug', ignoreDuplicates: true });
+  if (error) { log('error', ICON.error, 'League upsert failed', error.message); throw error; }
   log('success', ICON.trophy, `Ensured ${rows.length} league(s) exist`);
 }
 
 async function ensureTeams(teamRefs, existingTeams) {
-  // teamRefs: Map<slug, {name, sport, logo_url}>
-  // existingTeams: Map<slug, {logo_url}>
   const now = new Date().toISOString();
-
   const toInsert = [];
-  const toBackfillLogo = []; // existing rows missing a logo that we now have
+  const toBackfillLogo = [];
 
   for (const [slug, ref] of teamRefs) {
     const prev = existingTeams.get(slug);
     if (!prev) {
-      toInsert.push({
-        name: ref.name,
-        slug,
-        sport: ref.sport || SPORT,
-        logo_url: ref.logo_url || null,
-        updated_at: now,
-      });
+      toInsert.push({ name: ref.name, slug, sport: ref.sport || SPORT, logo_url: ref.logo_url || null, updated_at: now });
     } else if (!prev.logo_url && ref.logo_url) {
       toBackfillLogo.push({ slug, logo_url: ref.logo_url });
     }
   }
 
   if (toInsert.length) {
-    const { error } = await supabase
-      .from('teams')
-      .upsert(toInsert, { onConflict: 'slug', ignoreDuplicates: true });
-    if (error) {
-      log('error', ICON.error, 'Teams insert failed', error.message);
-      throw error;
-    }
+    const { error } = await supabase.from('teams').upsert(toInsert, { onConflict: 'slug', ignoreDuplicates: true });
+    if (error) { log('error', ICON.error, 'Teams insert failed', error.message); throw error; }
     log('success', ICON.check, `Inserted ${toInsert.length} new team(s)`);
   } else {
     log('info', ICON.teams, 'No new teams to insert');
@@ -644,8 +600,7 @@ async function ensureTeams(teamRefs, existingTeams) {
 
   if (toBackfillLogo.length) {
     for (const u of toBackfillLogo) {
-      const { error } = await supabase
-        .from('teams')
+      const { error } = await supabase.from('teams')
         .update({ logo_url: u.logo_url, updated_at: now })
         .eq('slug', u.slug)
         .is('logo_url', null);
@@ -667,23 +622,18 @@ async function persist(matches) {
   subsection('Loading reference data...');
   const leagueMap = await loadLeagueMap();
   const now = new Date().toISOString();
-  log('info', ICON.clock, `Reference data loaded at ${now.slice(11, 19)}`);
 
-  // First pass: resolve leagueSlug + teamSlugs for each match,
-  // and collect unique leagues/teams that need to exist.
-  const leagueRefs = new Map();   // slug -> {name, sport}
-  const teamRefs = new Map();     // slug -> {name, sport}
-  const enriched = [];
+  const leagueRefs = new Map();
+  const teamRefs   = new Map();
+  const enriched   = [];
 
   for (const m of matches) {
     const leagueName = (m.league_name || 'Unknown').trim() || 'Unknown';
-    const known = leagueMap.get(leagueName.toLowerCase());
+    const known      = leagueMap.get(leagueName.toLowerCase());
     const leagueSlug = known?.slug || slugify(leagueName);
-    const sport = known?.sport || SPORT;
+    const sport      = known?.sport || SPORT;
 
-    if (!leagueRefs.has(leagueSlug)) {
-      leagueRefs.set(leagueSlug, { name: leagueName, sport });
-    }
+    if (!leagueRefs.has(leagueSlug)) leagueRefs.set(leagueSlug, { name: leagueName, sport });
 
     const t1Name = m.team1;
     const t2Name = m.team2;
@@ -691,36 +641,41 @@ async function persist(matches) {
     const t2Slug = slugify(t2Name);
     if (!t1Slug || !t2Slug) continue;
 
-    // First time we see a team, record name+sport+logo. If we see it again
-    // later with a logo and didn't have one, fill it in.
     const prev1 = teamRefs.get(t1Slug);
-    if (!prev1) {
-      teamRefs.set(t1Slug, { name: t1Name, sport, logo_url: m.team1_logo || null });
-    } else if (!prev1.logo_url && m.team1_logo) {
-      prev1.logo_url = m.team1_logo;
-    }
+    if (!prev1) teamRefs.set(t1Slug, { name: t1Name, sport, logo_url: m.team1_logo || null });
+    else if (!prev1.logo_url && m.team1_logo) prev1.logo_url = m.team1_logo;
 
     const prev2 = teamRefs.get(t2Slug);
-    if (!prev2) {
-      teamRefs.set(t2Slug, { name: t2Name, sport, logo_url: m.team2_logo || null });
-    } else if (!prev2.logo_url && m.team2_logo) {
-      prev2.logo_url = m.team2_logo;
-    }
+    if (!prev2) teamRefs.set(t2Slug, { name: t2Name, sport, logo_url: m.team2_logo || null });
+    else if (!prev2.logo_url && m.team2_logo) prev2.logo_url = m.team2_logo;
 
     enriched.push({ m, leagueSlug, t1Slug, t2Slug });
   }
 
-  // Ensure FK parents exist BEFORE inserting matches.
   subsection('Ensuring league records...');
   await ensureLeagues(leagueRefs);
   subsection('Loading & ensuring team records...');
   const existingTeams = await loadExistingTeams();
   await ensureTeams(teamRefs, existingTeams);
 
-  // Build match rows
+  // Build match rows — deduplicate by stable ID
   const byId = new Map();
   for (const { m, leagueSlug, t1Slug, t2Slug } of enriched) {
     const id = makeMatchId(leagueSlug, t1Slug, t2Slug, m.match_date);
+    if (byId.has(id)) {
+      // Merge stream_links only; prefer first occurrence for other fields
+      const existingRow = byId.get(id);
+      const existingLinks = Array.isArray(existingRow.stream_links) ? existingRow.stream_links : [];
+      const newLinks = Array.isArray(m.stream_links) ? m.stream_links : [];
+      if (newLinks.length) {
+        const existingSet = new Set(existingLinks.map((l) => (typeof l === 'string' ? l : l.link)));
+        existingRow.stream_links = [
+          ...existingLinks,
+          ...newLinks.filter((l) => !existingSet.has(typeof l === 'string' ? l : l.link)),
+        ];
+      }
+      continue;
+    }
     byId.set(id, {
       id,
       league: leagueSlug,
@@ -736,10 +691,11 @@ async function persist(matches) {
       stream_links: m.stream_links ?? null,
     });
   }
-  const rows = Array.from(byId.values());
-  log('step', ICON.database, `Upserting ${rows.length} match record(s)`);
 
-  // ended_at transition handling
+  const rows = Array.from(byId.values());
+  log('step', ICON.database, `Upserting ${rows.length} unique match record(s)`);
+
+  // Fetch existing rows to preserve ended_at, first_seen_at, stream_links
   const ids = rows.map((r) => r.id);
   const { data: existing, error: selErr } = await supabase
     .from('matches')
@@ -750,24 +706,18 @@ async function persist(matches) {
 
   for (const r of rows) {
     const prev = existingMap.get(r.id);
-    r.ended_at = r.status === 'ended' ? (prev?.ended_at || now) : (prev?.ended_at ?? null);
-    // Always set first_seen_at: preserve prior value on update, stamp now on insert.
-    // Required because supabase-js upsert sends a uniform column set across the
-    // batch, so omitting it on any row would clobber existing rows with NULL and
-    // violate the NOT NULL constraint on matches.first_seen_at.
+    r.ended_at    = r.status === 'ended' ? (prev?.ended_at || now) : (prev?.ended_at ?? null);
     r.first_seen_at = prev?.first_seen_at || now;
-    
-    // Merge stream links: preserve existing links and append new scraped links
-    const existingLinks = prev?.stream_links && Array.isArray(prev.stream_links) ? prev.stream_links : [];
-    const scrapedLinks = r.stream_links && Array.isArray(r.stream_links) ? r.stream_links : [];
-    
-    if (existingLinks.length > 0 || scrapedLinks.length > 0) {
-      // Build set of existing link URLs to avoid duplicates
-      const existingLinkSet = new Set(existingLinks.map(l => typeof l === 'string' ? l : l.link));
-      // Filter out scraped links that already exist
-      const newLinks = scrapedLinks.filter(l => !existingLinkSet.has(typeof l === 'string' ? l : l.link));
-      // Merge: existing links first, then new scraped links
-      r.stream_links = [...existingLinks, ...newLinks];
+
+    // Merge stream_links: keep DB links + append any new scraped links
+    const dbLinks     = Array.isArray(prev?.stream_links) ? prev.stream_links : [];
+    const scrapedLinks = Array.isArray(r.stream_links)    ? r.stream_links    : [];
+    if (dbLinks.length || scrapedLinks.length) {
+      const dbSet = new Set(dbLinks.map((l) => (typeof l === 'string' ? l : l.link)));
+      r.stream_links = [
+        ...dbLinks,
+        ...scrapedLinks.filter((l) => !dbSet.has(typeof l === 'string' ? l : l.link)),
+      ];
     } else {
       r.stream_links = null;
     }
@@ -777,10 +727,7 @@ async function persist(matches) {
   for (let i = 0; i < rows.length; i += CHUNK) {
     const chunk = rows.slice(i, i + CHUNK);
     const { error } = await supabase.from('matches').upsert(chunk, { onConflict: 'id' });
-    if (error) {
-      console.error('Upsert error:', error.message);
-      throw error;
-    }
+    if (error) { console.error('Upsert error:', error.message); throw error; }
   }
   log('success', ICON.check, `Upserted ${rows.length} match(es)`);
 
@@ -796,15 +743,15 @@ async function persist(matches) {
 (async () => {
   const start = Date.now();
   header('KDOT STREAMS CRICKET SCRAPER');
-  
+
   try {
     const matches = await scrape();
-    
+
     section('SUMMARY');
     const duration = Date.now() - start;
     statRow('Total matches scraped', matches.length.toString(), C.green);
     statRow('Execution time', `${(duration / 1000).toFixed(2)}s`, C.cyan);
-    
+
     if (matches.length > 0) {
       subsection('First 5 matches:');
       matches.slice(0, 5).forEach((m, i) => matchRow(m, i + 1));
@@ -812,9 +759,9 @@ async function persist(matches) {
         console.log(`    ${C.dim}... and ${matches.length - 5} more${C.reset}`);
       }
     }
-    
+
     await persist(matches);
-    
+
     console.log(`\n${C.green}${C.bold}${ICON.check} Scraper completed successfully${C.reset}\n`);
     process.exit(0);
   } catch (e) {

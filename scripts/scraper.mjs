@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Unified scraper that runs both football and cricket scrapers
+ * Unified scraper that runs football, cricket and ppv.to scrapers
  */
 
 import { spawn } from 'node:child_process';
@@ -64,6 +64,9 @@ async function runScraper(name, script) {
     
     // Run cricket scraper
     await runScraper('Cricket', 'scripts/scraper-cricket.mjs');
+
+    // Run ppv.to football scraper
+    await runScraper('PPV Football', 'scripts/ppv/scraper-football.mjs');
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`\n${C.green}${C.bold}✓ All scrapers completed successfully in ${duration}s${C.reset}\n`);
