@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Check, Crown, Lock, Loader2, Play, Sparkles, Video, BadgeCheck, Heart } from 'lucide-react'
-import { useHilltopPopunder } from '@/hooks/useHilltopPopunder'
+import { useAdstuffPopunder } from '@/hooks/useAdstuffPopunder'
 
 interface PremiumUnlockDialogProps {
   open: boolean
@@ -25,7 +25,7 @@ export function PremiumUnlockDialog({
 }: PremiumUnlockDialogProps) {
   const [adViewCount, setAdViewCount] = useState(0)
   const [prevOpen, setPrevOpen] = useState(open)
-  const { armPopunder, disarmPopunder } = useHilltopPopunder(open && !skipDialog && adViewCount < requiredAdViews)
+  const { armPopunder, disarmPopunder } = useAdstuffPopunder(open && !skipDialog && adViewCount < requiredAdViews)
 
   // Reset counter every time the dialog closes (React-recommended derived-state pattern).
   if (prevOpen !== open) {
@@ -47,12 +47,11 @@ export function PremiumUnlockDialog({
   const remaining = Math.max(0, requiredAdViews - adViewCount)
 
   // Pre-arm the popunder while the dialog is open and we still owe ads.
-  // HilltopAds' script attaches its click listener AFTER it loads (async),
+  // The adstuff script attaches its click listener after it loads (async),
   // so arming on the click itself misses that click. Loading ahead of time
   // ensures the listener is live by the time the user clicks View Ad.
-  // We re-arm on every adViewCount change so a fresh popunder is queued
-  // for each remaining click. Once unlocked, we stop arming so the Watch
-  // button click never fires a popunder.
+  // Once unlocked, we stop arming so the Watch button click never fires
+  // a popunder.
   useEffect(() => {
     if (!open || skipDialog) return
     if (adViewCount >= requiredAdViews) {
@@ -71,12 +70,8 @@ export function PremiumUnlockDialog({
   if (!open || skipDialog) return null
 
   const handleViewAd = () => {
-    // Re-arm the popunder script on each click to ensure it fires
-    armPopunder()
-    // The popunder gate (in useHilltopPopunder) allows window.open through
-    // for any click whose target is inside [data-popunder-allow]. The
-    // View Ad button below carries that attribute, so the vendor's
-    // click handler fires window.open normally on this click.
+    // The adstuff script is already armed by the effect above.
+    // It fires on clicks to .adstuff-popunder elements.
     setAdViewCount((c) => c + 1)
   }
 
@@ -104,8 +99,8 @@ export function PremiumUnlockDialog({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity duration-300"
-      // NOTE: backdrop click does NOT close the dialog. The HilltopAds
-      // popunder script dispatches synthetic clicks whose target lands
+      // NOTE: backdrop click does NOT close the dialog. The adstuff
+      // popunder script may dispatch synthetic clicks whose target lands
       // on this backdrop element, which used to fire onClose
       // unintentionally. Users dismiss the dialog via the explicit
       // "No Thanks, watch in Standard HD" button further down.
@@ -215,16 +210,13 @@ export function PremiumUnlockDialog({
           </div>
 
           {/* View Ad button — disappears once unlocked.
-              Bind to onMouseDown (and onTouchStart for mobile): both fire
-              BEFORE the `click` event that Adsterra's document listener
-              swallows, so the counter advances reliably even when the
-              popunder fires. */}
+              The adstuff script targets elements with the .adstuff-popunder
+              class, so this button carries that class. */}
           {!unlocked && (
             <button
-              data-popunder-allow="1"
               onMouseDown={handleViewAd}
               onTouchStart={handleViewAd}
-              className="mt-6 w-full rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-zinc-800 active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+              className="adstuff-popunder mt-6 w-full rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-zinc-800 active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
             >
               View Ad ({remaining} remaining)
             </button>
