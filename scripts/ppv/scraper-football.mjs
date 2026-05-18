@@ -208,7 +208,7 @@ function parseTimer(timerText, href) {
 
     return {
       status: 'upcoming',
-      display_time: raw,
+      display_time: formatKickoffUTC(matchDate),
       match_date: matchDate.toISOString(),
     };
   }
@@ -221,9 +221,20 @@ function parseTimer(timerText, href) {
   }
   return {
     status: 'upcoming',
-    display_time: raw || null,
+    display_time: matchDate ? formatKickoffUTC(new Date(matchDate)) : (raw || null),
     match_date: matchDate,
   };
+}
+
+/**
+ * Format a Date as "HH:MM" (UTC wall-clock) — matches yosintv display_time
+ * convention so the frontend timer renders correctly.
+ */
+function formatKickoffUTC(date) {
+  if (!date || Number.isNaN(date.getTime())) return null;
+  const hh = String(date.getUTCHours()).padStart(2, '0');
+  const mm = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${hh}:${mm}`;
 }
 
 // --------------------------- scrape ----------------------------------
@@ -243,22 +254,32 @@ async function scrape() {
   await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT_MS });
   try { await page.waitForLoadState('networkidle', { timeout: NAV_TIMEOUT_MS }); } catch {}
 
-  // Scroll to Football section (#34) to trigger Vue lazy-loading
-  log('step', ICON.search, 'Scrolling to Football section (#34)...');
-  const footballSection = await page.locator('#34').first();
-  if (await footballSection.isVisible().catch(() => false)) {
-    await footballSection.scrollIntoViewIfNeeded();
-  } else {
-    // Fallback: scroll to the Football heading
-    const footballHeading = await page.locator('h2:has-text("Football")').first();
-    if (await footballHeading.isVisible().catch(() => false)) {
-      await footballHeading.scrollIntoViewIfNeeded();
-    }
+  // Aggressive scroll to trigger Vue lazy-loading of ALL sections
+  log('step', ICON.search, 'Scrolling to trigger lazy-loaded sections...');
+  let lastHeight = 0;
+  for (let i = 0; i < 10; i++) {
+    const currentHeight = await page.evaluate(() => document.body.scrollHeight);
+    if (currentHeight === lastHeight && i > 2) break;
+    lastHeight = currentHeight;
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(3000);
+  }
+
+  // Now scroll back up to Football section
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(1000);
+  const footballHeading = await page.locator('h2:has-text("Football")').first();
+  if (await footballHeading.isVisible().catch(() => false)) {
+    await footballHeading.scrollIntoViewIfNeeded();
   }
   await page.waitForTimeout(SETTLE_MS);
 
-  // Give Vue a moment to hydrate cards if they were lazy-loaded
-  await page.waitForTimeout(3_000);
+  // Fire a scroll event on the Football section itself to trigger any inner lazy-load
+  await page.evaluate(() => {
+    const el = document.querySelector('[id="34"]');
+    if (el) el.dispatchEvent(new Event('scroll', { bubbles: true }));
+  });
+  await page.waitForTimeout(2_000);
 
   log('step', ICON.search, 'Scraping Football section DOM');
 
@@ -268,7 +289,7 @@ async function scrape() {
       .map((el) => ({ text: (el.textContent || '').trim(), id: el.closest('[id]')?.id || null }));
     const allCards = Array.from(document.querySelectorAll('a.item-card'))
       .map((a) => ({ href: a.getAttribute('href'), text: (a.querySelector('h5')?.textContent || '').trim() }));
-    const footballSection = document.querySelector('#34');
+    const footballSection = document.querySelector('[id="34"]');
     const footballCards = footballSection ? footballSection.querySelectorAll('a.item-card').length : 0;
     return { h2s: h2s.slice(0,15), allCards: allCards.slice(0,15), totalCards: allCards.length, footballCards };
   });
@@ -285,7 +306,7 @@ async function scrapeDom(page) {
   // First wait for the Football section to have actual cards (not just placeholders)
   try {
     await page.waitForFunction(() => {
-      const section = document.querySelector('#34');
+      const section = document.querySelector('[id="34"]');
       if (!section) return false;
       const cards = section.querySelectorAll('a.item-card');
       return cards.length > 0;
@@ -295,7 +316,7 @@ async function scrapeDom(page) {
   }
 
   return await page.evaluate(() => {
-    const section = document.querySelector('#34');
+    const section = document.querySelector('[id="34"]');
     if (!section) return [];
 
     const cards = section.querySelectorAll('a.item-card[href^="/live"]');
@@ -495,7 +516,7 @@ async function persist(matches) {
   const ids = rows.map((r) => r.id);
   const { data: existing, error: selErr } = await supabase
     .from('matches')
-    .select('id, status, ended_at, first_seen_at, stream_links, thumbnail')
+    .select('id, status, ended_at, first_seen_at, stream_links, thumbnail, raw_data')
     .in('id', ids);
   if (selErr) log('warn', ICON.warn, 'Existing fetch failed (continuing)', selErr.message);
   const existingMap = new Map((existing || []).map((r) => [r.id, r]));
@@ -520,6 +541,21 @@ async function persist(matches) {
 
     // Preserve existing thumbnail if new scrape didn't find one
     if (!r.thumbnail && prev?.thumbnail) r.thumbnail = prev.thumbnail;
+
+    // Merge raw_data with existing so yosintv enrichment (football_data, h2h,
+    // lineups, pregame_form, event, start, team logos, details_url, etc.)
+    // is preserved when ppv re-scrapes the same match.
+    const prevRaw = prev?.raw_data && typeof prev.raw_data === 'object' ? prev.raw_data : {};
+    r.raw_data = {
+      ...prevRaw,
+      ...(r.raw_data || {}),
+      // Track all sources that have contributed to this row
+      source: prevRaw.source && prevRaw.source !== 'ppv' ? prevRaw.source : 'ppv',
+      sources: Array.from(new Set([
+        ...(Array.isArray(prevRaw.sources) ? prevRaw.sources : (prevRaw.source ? [prevRaw.source] : [])),
+        'ppv',
+      ])),
+    };
   }
 
   const CHUNK = 200;
@@ -549,7 +585,9 @@ async function persist(matches) {
     // Post-process timers outside the browser
     const matches = rawMatches.map((m) => {
       const timer = parseTimer(m.timerText, m.href);
-      const streamUrl = `https://pooembed.eu/embed${m.href}`;
+      // Strip leading "/live" from href so /live/pl/2026-05-18/ars-bur → /pl/2026-05-18/ars-bur
+      const embedPath = String(m.href || '').replace(/^\/live(?=\/|$)/, '');
+      const streamUrl = `https://pooembed.eu/embed${embedPath}`;
       return {
         league_name: m.league_name,
         team1: normalizeTeam(m.team1),

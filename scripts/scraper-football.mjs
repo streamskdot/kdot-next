@@ -698,7 +698,7 @@ async function persist(matches) {
   const ids = rows.map((r) => r.id);
   const { data: existing, error: selErr } = await supabase
     .from('matches')
-    .select('id, status, ended_at, first_seen_at, stream_links')
+    .select('id, status, ended_at, first_seen_at, stream_links, raw_data, thumbnail')
     .in('id', ids);
   if (selErr) log('warn', ICON.warn, 'Existing fetch failed (continuing)', selErr.message);
   const existingMap = new Map((existing || []).map((r) => [r.id, r]));
@@ -720,6 +720,22 @@ async function persist(matches) {
     } else {
       r.stream_links = null;
     }
+
+    // Preserve thumbnail set by other scrapers (e.g. ppv)
+    if (prev?.thumbnail) r.thumbnail = prev.thumbnail;
+
+    // Merge raw_data with existing so other-source enrichment (e.g. ppv href,
+    // thumbnail) is preserved when yosintv re-scrapes the same match.
+    const prevRaw = prev?.raw_data && typeof prev.raw_data === 'object' ? prev.raw_data : {};
+    r.raw_data = {
+      ...prevRaw,
+      ...(r.raw_data || {}),
+      source: prevRaw.source && prevRaw.source !== 'yosintv' ? prevRaw.source : 'yosintv',
+      sources: Array.from(new Set([
+        ...(Array.isArray(prevRaw.sources) ? prevRaw.sources : (prevRaw.source ? [prevRaw.source] : [])),
+        'yosintv',
+      ])),
+    };
   }
 
   const CHUNK = 200;
